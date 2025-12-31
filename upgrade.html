@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Upgrade your Prompting It subscription - Access premium features">
+    <title>Upgrade — Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --emerald: #34d399;
+            --violet: #a78bfa;
+            --violet-dark: #8b5cf6;
+            --surface-0: #030306;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --text-1: #ffffff;
+            --text-2: rgba(255,255,255,0.7);
+            --text-3: rgba(255,255,255,0.4);
+            --success: #10b981;
+            --error: #ef4444;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+        }
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface-1);
+            border-bottom: 1px solid var(--surface-3);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .back-link {
+            color: var(--text-3);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--glacier); }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .page-title {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-3);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Billing Toggle */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        .toggle-label {
+            font-size: 15px;
+            color: var(--text-3);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .toggle-label.active { color: var(--text-1); font-weight: 500; }
+        .toggle-discount {
+            background: rgba(52,211,153,0.1);
+            color: var(--emerald);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+        .toggle-switch {
+            width: 56px;
+            height: 30px;
+            background: var(--surface-3);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active { background: var(--glacier); }
+        .toggle-slider {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active .toggle-slider { transform: translateX(26px); }
+
+        /* Plans Grid */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+        @media (max-width: 900px) { .plans-grid { grid-template-columns: 1fr; } }
+
+        .plan-card {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: 20px;
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .plan-card:hover { border-color: var(--surface-3); transform: translateY(-4px); }
+        .plan-card.featured {
+            background: linear-gradient(180deg, rgba(103,232,249,0.05) 0%, var(--surface-1) 100%);
+            border-color: rgba(103,232,249,0.3);
+            transform: scale(1.02);
+        }
+        .plan-card.featured:hover { transform: scale(1.02) translateY(-4px); }
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            color: var(--surface-0);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            margin-top: 8px;
+        }
+        .plan-description {
+            font-size: 14px;
+            color: var(--text-3);
+            margin-bottom: 24px;
+        }
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .price-currency { font-size: 28px; color: var(--text-3); }
+        .price-amount {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            line-height: 1;
+        }
+        .price-period { font-size: 16px; color: var(--text-3); }
+        .plan-billed {
+            font-size: 13px;
+            color: var(--text-3);
+            margin-bottom: 32px;
+        }
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        .plan-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: var(--text-2);
+            border-bottom: 1px solid var(--surface-3);
+        }
+        .plan-features li:last-child { border-bottom: none; }
+        .plan-features li i {
+            color: var(--emerald);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .plan-features li.disabled { color: var(--text-3); }
+        .plan-features li.disabled i { color: var(--surface-3); }
+        .plan-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+        }
+        .plan-btn-primary {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            color: var(--surface-0);
+        }
+        .plan-btn-primary:hover {
+            box-shadow: 0 8px 32px rgba(103,232,249,0.3);
+            transform: translateY(-2px);
+        }
+        .plan-btn-secondary {
+            background: var(--surface-2);
+            color: var(--text-1);
+            border: 1px solid var(--surface-3);
+        }
+        .plan-btn-secondary:hover { border-color: var(--glacier); }
+        .plan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .current-plan-badge {
+            background: rgba(52,211,153,0.1);
+            color: var(--emerald);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        /* Feature Comparison */
+        .comparison-section {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 64px;
+        }
+        .comparison-header {
+            padding: 32px;
+            border-bottom: 1px solid var(--surface-3);
+        }
+        .comparison-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .comparison-subtitle {
+            color: var(--text-3);
+            font-size: 14px;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-3);
+        }
+        .comparison-table th {
+            background: var(--surface-2);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .comparison-table td { font-size: 14px; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table .feature-name { color: var(--text-2); }
+        .check { color: var(--emerald); }
+        .cross { color: var(--surface-3); }
+
+        /* FAQ */
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .faq-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .faq-item {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: 20px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .faq-question:hover { background: var(--surface-2); }
+        .faq-question i { color: var(--text-3); transition: transform 0.2s; }
+        .faq-item.open .faq-question i { transform: rotate(180deg); }
+        .faq-answer {
+            padding: 0 24px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .faq-item.open .faq-answer {
+            padding: 0 24px 20px;
+            max-height: 200px;
+        }
+        .faq-answer p {
+            color: var(--text-3);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .upgrade-footer {
+            text-align: center;
+            padding: 48px 24px;
+            border-top: 1px solid var(--surface-3);
+            margin-top: 48px;
+        }
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-3);
+            font-size: 14px;
+        }
+        .trust-badge i { color: var(--emerald); }
+        .footer-text { color: var(--text-3); font-size: 13px; }
+        .footer-text a { color: var(--glacier); text-decoration: none; }
+        .footer-text a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">Prompting It</a>
+        <a href="creator-dashboard.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Choose Your Plan</h1>
+            <p class="page-subtitle">Start with a 14-day free trial. No credit card required. Cancel anytime.</p>
+        </div>
+
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+            <span class="toggle-label" data-period="monthly">Monthly</span>
+            <button class="toggle-switch active" id="billingToggle" aria-label="Toggle billing period">
+                <span class="toggle-slider"></span>
+            </button>
+            <span class="toggle-label active" data-period="annual">
+                Annual
+                <span class="toggle-discount">Save 17%</span>
+            </span>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="plans-grid">
+            <!-- Free Plan -->
+            <div class="plan-card" data-tier="free">
+                <h2 class="plan-name">Free</h2>
+                <p class="plan-description">For individuals getting started</p>
+                <div class="plan-price">
+                    <span class="price-currency">$</span>
+                    <span class="price-amount">0</span>
+                    <span class="price-period">/forever</span>
+                </div>
+                <p class="plan-billed">No credit card required</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 25 prompts per month</li>
+                    <li><i class="fas fa-check"></i> Basic prompt editor</li>
+                    <li><i class="fas fa-check"></i> 1 AI model</li>
+                    <li><i class="fas fa-check"></i> Community support</li>
+                    <li><i class="fas fa-check"></i> Standard templates</li>
+                    <li class="disabled"><i class="fas fa-times"></i> Version control</li>
+                    <li class="disabled"><i class="fas fa-times"></i> API access</li>
+                </ul>
+                <button class="plan-btn plan-btn-secondary" id="freePlanBtn">Current Plan</button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="plan-card featured" data-tier="pro">
+                <span class="plan-badge">Most Popular</span>
+                <h2 class="plan-name">Pro</h2>
+                <p class="plan-description">For professionals and power users</p>
+                <div class="plan-price">
+                    <span class="price-currency">$</span>
+                    <span class="price-amount" data-monthly="29" data-annual="24">24</span>
+                    <span class="price-period">/month</span>
+                </div>
+                <p class="plan-billed billed-text">Billed annually ($288/year)</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Unlimited prompts</li>
+                    <li><i class="fas fa-check"></i> Advanced editor</li>
+                    <li><i class="fas fa-check"></i> All AI models</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
+                    <li><i class="fas fa-check"></i> Premium templates</li>
+                    <li><i class="fas fa-check"></i> Version control</li>
+                    <li><i class="fas fa-check"></i> API access (1K/mo)</li>
+                </ul>
+                <button class="plan-btn plan-btn-primary" data-action="subscribe" data-tier="pro">
+                    Start Free Trial
+                </button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="plan-card" data-tier="enterprise">
+                <h2 class="plan-name">Enterprise</h2>
+                <p class="plan-description">For teams and organizations</p>
+                <div class="plan-price">
+                    <span class="price-currency">$</span>
+                    <span class="price-amount" data-monthly="99" data-annual="84">84</span>
+                    <span class="price-period">/month</span>
+                </div>
+                <p class="plan-billed billed-text">Billed annually ($1,008/year)</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Everything in Pro</li>
+                    <li><i class="fas fa-check"></i> Custom AI training</li>
+                    <li><i class="fas fa-check"></i> SSO & SAML</li>
+                    <li><i class="fas fa-check"></i> Unlimited API</li>
+                    <li><i class="fas fa-check"></i> Team collaboration</li>
+                    <li><i class="fas fa-check"></i> SLA guarantee</li>
+                    <li><i class="fas fa-check"></i> Dedicated support</li>
+                </ul>
+                <button class="plan-btn plan-btn-primary" data-action="subscribe" data-tier="enterprise">
+                    Start Free Trial
+                </button>
+            </div>
+        </div>
+
+        <!-- Feature Comparison -->
+        <div class="comparison-section">
+            <div class="comparison-header">
+                <h2 class="comparison-title">Compare All Features</h2>
+                <p class="comparison-subtitle">See what's included in each plan</p>
+            </div>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free</th>
+                        <th>Pro</th>
+                        <th>Enterprise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">Monthly Prompts</td>
+                        <td>25</td>
+                        <td>Unlimited</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">AI Models</td>
+                        <td>1</td>
+                        <td>All</td>
+                        <td>All + Custom</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Version Control</td>
+                        <td><i class="fas fa-times cross"></i></td>
+                        <td><i class="fas fa-check check"></i></td>
+                        <td><i class="fas fa-check check"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">API Access</td>
+                        <td><i class="fas fa-times cross"></i></td>
+                        <td>1,000/mo</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Analytics Dashboard</td>
+                        <td>Basic</td>
+                        <td>Advanced</td>
+                        <td>Advanced + Custom</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Team Members</td>
+                        <td>1</td>
+                        <td>5</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">SSO/SAML</td>
+                        <td><i class="fas fa-times cross"></i></td>
+                        <td><i class="fas fa-times cross"></i></td>
+                        <td><i class="fas fa-check check"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Support</td>
+                        <td>Community</td>
+                        <td>Priority Email</td>
+                        <td>Dedicated</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I cancel my subscription anytime?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can cancel your subscription at any time. If you cancel, you'll retain access to your paid features until the end of your billing period.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    What happens after the 14-day trial?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>After your trial ends, you'll be automatically charged for your selected plan. You can downgrade to the free plan anytime before the trial ends to avoid charges.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I switch plans later?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Absolutely! You can upgrade or downgrade your plan at any time. When upgrading, you'll be prorated for the remainder of your billing cycle.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Do you offer refunds?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer a 30-day money-back guarantee. If you're not satisfied with your subscription, contact our support team for a full refund.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="upgrade-footer">
+        <div class="trust-badges">
+            <div class="trust-badge">
+                <i class="fas fa-lock"></i>
+                Secure Payment
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-shield-alt"></i>
+                30-Day Money Back
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-headset"></i>
+                24/7 Support
+            </div>
+        </div>
+        <p class="footer-text">
+            Questions? <a href="mailto:support@promptingit.co">Contact our team</a> or check our <a href="docs.html">documentation</a>.
+        </p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="paywall.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            let isAnnual = true;
+            const billingToggle = document.getElementById('billingToggle');
+            const toggleLabels = document.querySelectorAll('.toggle-label');
+            const priceAmounts = document.querySelectorAll('.price-amount[data-monthly]');
+            const billedTexts = document.querySelectorAll('.billed-text');
+
+            // Billing toggle
+            billingToggle.addEventListener('click', () => {
+                isAnnual = !isAnnual;
+                billingToggle.classList.toggle('active', isAnnual);
+
+                toggleLabels.forEach(label => {
+                    const period = label.dataset.period;
+                    label.classList.toggle('active',
+                        (period === 'annual' && isAnnual) || (period === 'monthly' && !isAnnual)
+                    );
+                });
+
+                priceAmounts.forEach(el => {
+                    el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+                });
+
+                billedTexts.forEach(el => {
+                    const card = el.closest('.plan-card');
+                    const tier = card.dataset.tier;
+                    if (tier === 'pro') {
+                        el.textContent = isAnnual ? 'Billed annually ($288/year)' : 'Billed monthly';
+                    } else if (tier === 'enterprise') {
+                        el.textContent = isAnnual ? 'Billed annually ($1,008/year)' : 'Billed monthly';
+                    }
+                });
+            });
+
+            // Check URL params for preselected plan
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedPlan = urlParams.get('plan');
+            const billing = urlParams.get('billing');
+
+            if (billing === 'monthly') {
+                billingToggle.click();
+            }
+
+            // Subscribe buttons
+            document.querySelectorAll('[data-action="subscribe"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const tier = btn.dataset.tier;
+                    const originalText = btn.textContent;
+
+                    btn.textContent = 'Processing...';
+                    btn.disabled = true;
+
+                    // In production, this would integrate with Stripe Checkout
+                    // For demo, simulate processing
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Show success message
+                    alert(`Thank you! Your ${tier} subscription has been activated.\n\nIn production, this would redirect to Stripe Checkout.`);
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+
+                    // Redirect to dashboard
+                    window.location.href = 'creator-dashboard.html?subscription=success';
+                });
+            });
+
+            // FAQ accordion
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.querySelector('.faq-question').addEventListener('click', () => {
+                    const wasOpen = item.classList.contains('open');
+                    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                    if (!wasOpen) item.classList.add('open');
+                });
+            });
+
+            // Update current plan button based on user subscription
+            async function updateCurrentPlan() {
+                await window.Auth?.init();
+                const currentTier = window.Auth?.getSubscriptionTier() || 'free';
+
+                document.querySelectorAll('.plan-card').forEach(card => {
+                    const tier = card.dataset.tier;
+                    const btn = card.querySelector('.plan-btn');
+
+                    if (tier === currentTier) {
+                        btn.textContent = 'Current Plan';
+                        btn.disabled = true;
+                        btn.classList.remove('plan-btn-primary');
+                        btn.classList.add('plan-btn-secondary');
+
+                        // Add current plan badge
+                        const badge = document.createElement('div');
+                        badge.className = 'current-plan-badge';
+                        badge.innerHTML = '<i class="fas fa-check"></i> Your Plan';
+                        card.querySelector('.plan-name').before(badge);
+                    }
+                });
+            }
+
+            updateCurrentPlan();
+        })();
+    </script>
+</body>
+</html>
