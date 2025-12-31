@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Workflow Builder - Chain prompts together for complex AI pipelines">
+    <title>Workflows - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --emerald: #34d399;
+            --solar: #facc15;
+            --violet: #a78bfa;
+            --rose: #fb7185;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.2);
+            --duration-fast: 150ms;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            background: var(--surface-1);
+            border-right: 1px solid var(--surface-3);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .logo { font-family: var(--font-mono); font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 12px; margin-bottom: 32px; text-decoration: none; display: block; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 12px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--duration-fast); }
+        .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(103,232,249,0.15), rgba(34,211,238,0.1)); color: var(--glacier); }
+        .nav-icon { width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--surface-3); }
+        .user-card { display: flex; align-items: center; gap: 12px; padding: 12px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--glacier), var(--emerald)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--surface-1); }
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-tier { font-size: 12px; color: var(--emerald); }
+
+        .main { flex: 1; margin-left: 260px; padding: 32px; }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 20px; }
+        .header-content h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .header-content p { color: var(--text-2); font-size: 15px; }
+
+        .btn { padding: 12px 20px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--duration-fast); border: none; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-secondary { background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); }
+        .btn-primary { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-1); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-glacier); }
+
+        /* Workflow Stats */
+        .workflow-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .workflow-stat { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-lg); padding: 20px; }
+        .workflow-stat-label { font-size: 13px; color: var(--text-3); margin-bottom: 8px; }
+        .workflow-stat-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; }
+        .workflow-stat-value.gradient { background: linear-gradient(135deg, var(--glacier), var(--emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Workflows Grid */
+        .workflows-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+
+        .workflow-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-lg); overflow: hidden; transition: all var(--duration-fast); }
+        .workflow-card:hover { border-color: var(--glacier); transform: translateY(-4px); }
+
+        .workflow-card-header { padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .workflow-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .workflow-info p { font-size: 13px; color: var(--text-3); }
+
+        .workflow-status { padding: 4px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; }
+        .workflow-status.active { background: rgba(52,211,153,0.15); color: var(--emerald); }
+        .workflow-status.draft { background: rgba(250,204,21,0.15); color: var(--solar); }
+        .workflow-status.paused { background: rgba(251,113,133,0.15); color: var(--rose); }
+
+        /* Flow Diagram */
+        .workflow-flow { padding: 20px; background: var(--surface-2); border-top: 1px solid var(--surface-3); border-bottom: 1px solid var(--surface-3); }
+        .flow-nodes { display: flex; align-items: center; gap: 12px; overflow-x: auto; padding: 8px 0; }
+        .flow-node { background: var(--surface-3); border: 1px solid var(--surface-4); border-radius: var(--radius-md); padding: 12px 16px; min-width: 120px; text-align: center; flex-shrink: 0; }
+        .flow-node-icon { font-size: 20px; margin-bottom: 8px; color: var(--glacier); }
+        .flow-node-name { font-size: 12px; font-weight: 500; }
+        .flow-connector { width: 24px; height: 2px; background: var(--glacier); flex-shrink: 0; position: relative; }
+        .flow-connector::after { content: ''; position: absolute; right: -4px; top: -4px; border: 5px solid transparent; border-left-color: var(--glacier); }
+
+        .workflow-card-footer { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .workflow-meta { display: flex; gap: 16px; }
+        .workflow-meta span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
+        .workflow-actions { display: flex; gap: 8px; }
+        .workflow-action { width: 32px; height: 32px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-sm); color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast); }
+        .workflow-action:hover { background: var(--glacier); color: var(--surface-1); border-color: var(--glacier); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 80px 40px; background: var(--surface-1); border: 2px dashed var(--surface-3); border-radius: var(--radius-lg); }
+        .empty-icon { width: 80px; height: 80px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text-3); margin: 0 auto 24px; }
+        .empty-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .empty-desc { color: var(--text-2); font-size: 14px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto; }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .workflow-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .main { padding: 20px; }
+            .workflow-stats { grid-template-columns: 1fr; }
+            .workflows-grid { grid-template-columns: 1fr; }
+        }
+
+        .mobile-menu-btn { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 44px; height: 44px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); cursor: pointer; }
+        @media (max-width: 1024px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="logo">#PromptingIt</a>
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="creator-dashboard.html" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="library.html" class="nav-item"><span class="nav-icon"><i class="fas fa-folder-open"></i></span> Prompt Library</a>
+                <a href="playground.html" class="nav-item"><span class="nav-icon"><i class="fas fa-play-circle"></i></span> Playground</a>
+                <a href="templates.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shapes"></i></span> Templates</a>
+                <a href="workflows.html" class="nav-item active"><span class="nav-icon"><i class="fas fa-project-diagram"></i></span> Workflows</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-label">Team</div>
+                <a href="workspace.html" class="nav-item"><span class="nav-icon"><i class="fas fa-users"></i></span> Workspace</a>
+                <a href="analytics.html" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Analytics</a>
+                <a href="api-console.html" class="nav-item"><span class="nav-icon"><i class="fas fa-code"></i></span> API Console</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-label">Account</div>
+                <a href="settings.html" class="nav-item"><span class="nav-icon"><i class="fas fa-cog"></i></span> Settings</a>
+                <a href="admin.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shield-alt"></i></span> Admin</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">Jane Doe</div>
+                        <div class="user-tier"><i class="fas fa-crown"></i> Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Workflows</h1>
+                    <p>Build complex AI pipelines by chaining prompts together</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary"><i class="fas fa-file-import"></i> Import</button>
+                    <button class="btn btn-primary"><i class="fas fa-plus"></i> New Workflow</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="workflow-stats">
+                <div class="workflow-stat">
+                    <div class="workflow-stat-label">Total Workflows</div>
+                    <div class="workflow-stat-value gradient">18</div>
+                </div>
+                <div class="workflow-stat">
+                    <div class="workflow-stat-label">Active</div>
+                    <div class="workflow-stat-value">12</div>
+                </div>
+                <div class="workflow-stat">
+                    <div class="workflow-stat-label">Executions (7d)</div>
+                    <div class="workflow-stat-value">8,472</div>
+                </div>
+                <div class="workflow-stat">
+                    <div class="workflow-stat-label">Avg. Duration</div>
+                    <div class="workflow-stat-value">2.4s</div>
+                </div>
+            </div>
+
+            <!-- Workflows Grid -->
+            <div class="workflows-grid">
+                <div class="workflow-card">
+                    <div class="workflow-card-header">
+                        <div class="workflow-info">
+                            <h3>Customer Support Pipeline</h3>
+                            <p>Ticket analysis, routing, and response generation</p>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                    </div>
+                    <div class="workflow-flow">
+                        <div class="flow-nodes">
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-inbox"></i></div>
+                                <div class="flow-node-name">Input</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-filter"></i></div>
+                                <div class="flow-node-name">Classify</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-heart"></i></div>
+                                <div class="flow-node-name">Sentiment</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-reply"></i></div>
+                                <div class="flow-node-name">Generate</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workflow-card-footer">
+                        <div class="workflow-meta">
+                            <span><i class="fas fa-bolt"></i> 2,847 runs</span>
+                            <span><i class="fas fa-clock"></i> 1.8s avg</span>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="workflow-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="workflow-action" title="Run"><i class="fas fa-play"></i></button>
+                            <button class="workflow-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-card-header">
+                        <div class="workflow-info">
+                            <h3>Content Creation Pipeline</h3>
+                            <p>Research, outline, write, and optimize content</p>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                    </div>
+                    <div class="workflow-flow">
+                        <div class="flow-nodes">
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-search"></i></div>
+                                <div class="flow-node-name">Research</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-list"></i></div>
+                                <div class="flow-node-name">Outline</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-pen"></i></div>
+                                <div class="flow-node-name">Write</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-magic"></i></div>
+                                <div class="flow-node-name">Optimize</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workflow-card-footer">
+                        <div class="workflow-meta">
+                            <span><i class="fas fa-bolt"></i> 1,234 runs</span>
+                            <span><i class="fas fa-clock"></i> 4.2s avg</span>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="workflow-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="workflow-action" title="Run"><i class="fas fa-play"></i></button>
+                            <button class="workflow-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-card-header">
+                        <div class="workflow-info">
+                            <h3>Code Review Workflow</h3>
+                            <p>Analyze, review, suggest improvements</p>
+                        </div>
+                        <span class="workflow-status draft">Draft</span>
+                    </div>
+                    <div class="workflow-flow">
+                        <div class="flow-nodes">
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-code"></i></div>
+                                <div class="flow-node-name">Parse</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-bug"></i></div>
+                                <div class="flow-node-name">Find Bugs</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="flow-node-name">Security</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="flow-node-name">Report</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workflow-card-footer">
+                        <div class="workflow-meta">
+                            <span><i class="fas fa-bolt"></i> 456 runs</span>
+                            <span><i class="fas fa-clock"></i> 3.1s avg</span>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="workflow-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="workflow-action" title="Run"><i class="fas fa-play"></i></button>
+                            <button class="workflow-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-card-header">
+                        <div class="workflow-info">
+                            <h3>Lead Qualification</h3>
+                            <p>Score, enrich, and route sales leads</p>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                    </div>
+                    <div class="workflow-flow">
+                        <div class="flow-nodes">
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-user"></i></div>
+                                <div class="flow-node-name">Lead In</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-star"></i></div>
+                                <div class="flow-node-name">Score</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-database"></i></div>
+                                <div class="flow-node-name">Enrich</div>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-node">
+                                <div class="flow-node-icon"><i class="fas fa-route"></i></div>
+                                <div class="flow-node-name">Route</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workflow-card-footer">
+                        <div class="workflow-meta">
+                            <span><i class="fas fa-bolt"></i> 3,891 runs</span>
+                            <span><i class="fas fa-clock"></i> 0.9s avg</span>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="workflow-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="workflow-action" title="Run"><i class="fas fa-play"></i></button>
+                            <button class="workflow-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

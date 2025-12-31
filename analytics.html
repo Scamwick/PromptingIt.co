@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analytics Dashboard - Track prompt performance and usage metrics">
+    <title>Analytics - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --emerald: #34d399;
+            --emerald-dark: #10b981;
+            --solar: #facc15;
+            --violet: #a78bfa;
+            --rose: #fb7185;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.2);
+            --duration-fast: 150ms;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            background: var(--surface-1);
+            border-right: 1px solid var(--surface-3);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0 12px;
+            margin-bottom: 32px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-section { margin-bottom: 24px; }
+        .nav-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 12px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--duration-fast); }
+        .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(103,232,249,0.15), rgba(34,211,238,0.1)); color: var(--glacier); }
+        .nav-icon { width: 20px; text-align: center; }
+
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--surface-3); }
+        .user-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--glacier), var(--emerald)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--surface-1); }
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-tier { font-size: 12px; color: var(--emerald); }
+
+        .main { flex: 1; margin-left: 260px; padding: 32px; }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 20px; }
+        .header-content h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .header-content p { color: var(--text-2); font-size: 15px; }
+
+        .btn { padding: 12px 20px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--duration-fast); border: none; display: flex; align-items: center; gap: 8px; }
+        .btn-secondary { background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); }
+        .btn-secondary:hover { background: var(--surface-3); }
+
+        .period-selector { display: flex; background: var(--surface-2); border-radius: var(--radius-md); padding: 4px; }
+        .period-btn { padding: 10px 16px; background: transparent; border: none; color: var(--text-3); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); transition: all var(--duration-fast); }
+        .period-btn:hover { color: var(--text-1); }
+        .period-btn.active { background: var(--surface-3); color: var(--text-1); }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+
+        .stat-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-lg); padding: 24px; transition: all var(--duration-fast); }
+        .stat-card:hover { border-color: var(--surface-4); transform: translateY(-2px); }
+
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-icon.cyan { background: rgba(103,232,249,0.15); color: var(--glacier); }
+        .stat-icon.emerald { background: rgba(52,211,153,0.15); color: var(--emerald); }
+        .stat-icon.violet { background: rgba(167,139,250,0.15); color: var(--violet); }
+        .stat-icon.solar { background: rgba(250,204,21,0.15); color: var(--solar); }
+
+        .stat-trend { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: var(--radius-sm); }
+        .stat-trend.up { background: rgba(52,211,153,0.15); color: var(--emerald); }
+        .stat-trend.down { background: rgba(251,113,133,0.15); color: var(--rose); }
+
+        .stat-value { font-family: var(--font-mono); font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+        .stat-value.gradient { background: linear-gradient(135deg, var(--glacier), var(--emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 13px; color: var(--text-3); }
+
+        /* Charts */
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+
+        .chart-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-lg); }
+
+        .chart-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--surface-3); }
+        .chart-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .chart-title i { color: var(--glacier); }
+
+        .chart-body { padding: 24px; }
+
+        /* Line Chart */
+        .line-chart { height: 280px; position: relative; }
+        .line-chart-grid { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 0 0 30px 50px; }
+        .line-chart-row { border-bottom: 1px dashed var(--surface-3); height: 1px; position: relative; }
+        .line-chart-row::before { content: attr(data-value); position: absolute; left: -50px; top: -8px; font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
+
+        .line-chart-data { position: absolute; inset: 0; padding: 0 0 30px 50px; }
+        .line-chart-svg { width: 100%; height: 100%; }
+        .line-chart-path { fill: none; stroke: var(--glacier); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .line-chart-area { fill: url(#gradient); opacity: 0.3; }
+        .line-chart-dot { fill: var(--glacier); stroke: var(--surface-1); stroke-width: 2; cursor: pointer; transition: r var(--duration-fast); }
+        .line-chart-dot:hover { r: 6; }
+
+        .line-chart-labels { position: absolute; bottom: 0; left: 50px; right: 0; display: flex; justify-content: space-between; }
+        .line-chart-label { font-size: 11px; color: var(--text-3); }
+
+        /* Donut Chart */
+        .donut-chart { display: flex; align-items: center; gap: 32px; }
+        .donut-svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+        .donut-ring { fill: none; stroke-width: 20; }
+        .donut-segment { fill: none; stroke-width: 20; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+        .donut-center { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .donut-container { position: relative; display: flex; align-items: center; justify-content: center; }
+        .donut-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; }
+        .donut-label { font-size: 12px; color: var(--text-3); }
+
+        .donut-legend { flex: 1; }
+        .legend-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--surface-3); }
+        .legend-item:last-child { border-bottom: none; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .legend-info { flex: 1; }
+        .legend-name { font-size: 13px; font-weight: 500; }
+        .legend-value { font-size: 12px; color: var(--text-3); }
+        .legend-percent { font-family: var(--font-mono); font-size: 14px; font-weight: 600; }
+
+        /* Data Table */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--surface-3); }
+        .data-table th { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-2); }
+        .data-table tbody tr:hover { background: var(--surface-2); }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .prompt-cell { display: flex; align-items: center; gap: 12px; }
+        .prompt-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(103,232,249,0.1); display: flex; align-items: center; justify-content: center; color: var(--glacier); font-size: 14px; }
+        .prompt-name { font-weight: 500; }
+        .prompt-id { font-size: 12px; color: var(--text-3); font-family: var(--font-mono); }
+
+        .metric-cell { font-family: var(--font-mono); font-size: 14px; }
+        .metric-cell.success { color: var(--emerald); }
+        .metric-cell.warning { color: var(--solar); }
+
+        .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+        .sparkline-bar { width: 4px; background: var(--glacier); border-radius: 2px; transition: height var(--duration-fast); }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .main { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; }
+        }
+
+        .mobile-menu-btn { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 44px; height: 44px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); cursor: pointer; align-items: center; justify-content: center; }
+        @media (max-width: 1024px) { .mobile-menu-btn { display: flex; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="logo">#PromptingIt</a>
+
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="creator-dashboard.html" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="library.html" class="nav-item"><span class="nav-icon"><i class="fas fa-folder-open"></i></span> Prompt Library</a>
+                <a href="playground.html" class="nav-item"><span class="nav-icon"><i class="fas fa-play-circle"></i></span> Playground</a>
+                <a href="templates.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shapes"></i></span> Templates</a>
+                <a href="workflows.html" class="nav-item"><span class="nav-icon"><i class="fas fa-project-diagram"></i></span> Workflows</a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Team</div>
+                <a href="workspace.html" class="nav-item"><span class="nav-icon"><i class="fas fa-users"></i></span> Workspace</a>
+                <a href="analytics.html" class="nav-item active"><span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Analytics</a>
+                <a href="api-console.html" class="nav-item"><span class="nav-icon"><i class="fas fa-code"></i></span> API Console</a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Account</div>
+                <a href="settings.html" class="nav-item"><span class="nav-icon"><i class="fas fa-cog"></i></span> Settings</a>
+                <a href="admin.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shield-alt"></i></span> Admin</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">Jane Doe</div>
+                        <div class="user-tier"><i class="fas fa-crown"></i> Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Analytics</h1>
+                    <p>Track prompt performance, usage patterns, and cost metrics</p>
+                </div>
+                <div class="header-actions">
+                    <div class="period-selector">
+                        <button class="period-btn">Today</button>
+                        <button class="period-btn active">7 Days</button>
+                        <button class="period-btn">30 Days</button>
+                        <button class="period-btn">90 Days</button>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fas fa-download"></i> Export</button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon cyan"><i class="fas fa-bolt"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 18%</span>
+                    </div>
+                    <div class="stat-value gradient">487,293</div>
+                    <div class="stat-label">Total Executions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon emerald"><i class="fas fa-check-circle"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 2.3%</span>
+                    </div>
+                    <div class="stat-value">99.2%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon violet"><i class="fas fa-clock"></i></div>
+                        <span class="stat-trend down"><i class="fas fa-arrow-down"></i> 12%</span>
+                    </div>
+                    <div class="stat-value">847ms</div>
+                    <div class="stat-label">Avg Response Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon solar"><i class="fas fa-coins"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                    </div>
+                    <div class="stat-value">$2,847</div>
+                    <div class="stat-label">API Cost (7d)</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Usage Over Time</h3>
+                    </div>
+                    <div class="chart-body">
+                        <div class="line-chart">
+                            <div class="line-chart-grid">
+                                <div class="line-chart-row" data-value="100k"></div>
+                                <div class="line-chart-row" data-value="75k"></div>
+                                <div class="line-chart-row" data-value="50k"></div>
+                                <div class="line-chart-row" data-value="25k"></div>
+                                <div class="line-chart-row" data-value="0"></div>
+                            </div>
+                            <div class="line-chart-data">
+                                <svg class="line-chart-svg" viewBox="0 0 700 220" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style="stop-color:var(--glacier);stop-opacity:0.3" />
+                                            <stop offset="100%" style="stop-color:var(--glacier);stop-opacity:0" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path class="line-chart-area" d="M0,180 L100,140 L200,160 L300,100 L400,120 L500,60 L600,80 L700,40 L700,220 L0,220 Z"></path>
+                                    <path class="line-chart-path" d="M0,180 L100,140 L200,160 L300,100 L400,120 L500,60 L600,80 L700,40"></path>
+                                    <circle class="line-chart-dot" cx="0" cy="180" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="100" cy="140" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="200" cy="160" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="300" cy="100" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="400" cy="120" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="500" cy="60" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="600" cy="80" r="4"></circle>
+                                    <circle class="line-chart-dot" cx="700" cy="40" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div class="line-chart-labels">
+                                <span class="line-chart-label">Dec 24</span>
+                                <span class="line-chart-label">Dec 25</span>
+                                <span class="line-chart-label">Dec 26</span>
+                                <span class="line-chart-label">Dec 27</span>
+                                <span class="line-chart-label">Dec 28</span>
+                                <span class="line-chart-label">Dec 29</span>
+                                <span class="line-chart-label">Dec 30</span>
+                                <span class="line-chart-label">Dec 31</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-robot"></i> Model Usage</h3>
+                    </div>
+                    <div class="chart-body">
+                        <div class="donut-chart">
+                            <div class="donut-container">
+                                <svg class="donut-svg" viewBox="0 0 100 100">
+                                    <circle class="donut-ring" cx="50" cy="50" r="40" stroke="var(--surface-3)"></circle>
+                                    <circle class="donut-segment" cx="50" cy="50" r="40" stroke="var(--glacier)" stroke-dasharray="100.53 251.33" stroke-dashoffset="0"></circle>
+                                    <circle class="donut-segment" cx="50" cy="50" r="40" stroke="var(--emerald)" stroke-dasharray="62.83 251.33" stroke-dashoffset="-100.53"></circle>
+                                    <circle class="donut-segment" cx="50" cy="50" r="40" stroke="var(--violet)" stroke-dasharray="50.27 251.33" stroke-dashoffset="-163.36"></circle>
+                                    <circle class="donut-segment" cx="50" cy="50" r="40" stroke="var(--solar)" stroke-dasharray="37.70 251.33" stroke-dashoffset="-213.63"></circle>
+                                </svg>
+                                <div class="donut-center">
+                                    <div class="donut-value">487k</div>
+                                    <div class="donut-label">Total</div>
+                                </div>
+                            </div>
+                            <div class="donut-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: var(--glacier);"></div>
+                                    <div class="legend-info">
+                                        <div class="legend-name">GPT-4</div>
+                                        <div class="legend-value">195,172 calls</div>
+                                    </div>
+                                    <div class="legend-percent">40%</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: var(--emerald);"></div>
+                                    <div class="legend-info">
+                                        <div class="legend-name">Claude 3.5</div>
+                                        <div class="legend-value">121,823 calls</div>
+                                    </div>
+                                    <div class="legend-percent">25%</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: var(--violet);"></div>
+                                    <div class="legend-info">
+                                        <div class="legend-name">Gemini Pro</div>
+                                        <div class="legend-value">97,459 calls</div>
+                                    </div>
+                                    <div class="legend-percent">20%</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: var(--solar);"></div>
+                                    <div class="legend-info">
+                                        <div class="legend-name">Other</div>
+                                        <div class="legend-value">72,839 calls</div>
+                                    </div>
+                                    <div class="legend-percent">15%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Prompts Table -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-trophy"></i> Top Performing Prompts</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Prompt</th>
+                            <th>Executions</th>
+                            <th>Success Rate</th>
+                            <th>Avg. Latency</th>
+                            <th>Cost</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="prompt-cell">
+                                    <div class="prompt-icon"><i class="fas fa-headset"></i></div>
+                                    <div>
+                                        <div class="prompt-name">Customer Ticket Analyzer</div>
+                                        <div class="prompt-id">prompt_abc123</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="metric-cell">124,847</td>
+                            <td class="metric-cell success">99.8%</td>
+                            <td class="metric-cell">642ms</td>
+                            <td class="metric-cell">$847.23</td>
+                            <td>
+                                <div class="sparkline">
+                                    <div class="sparkline-bar" style="height: 40%;"></div>
+                                    <div class="sparkline-bar" style="height: 60%;"></div>
+                                    <div class="sparkline-bar" style="height: 45%;"></div>
+                                    <div class="sparkline-bar" style="height: 80%;"></div>
+                                    <div class="sparkline-bar" style="height: 70%;"></div>
+                                    <div class="sparkline-bar" style="height: 90%;"></div>
+                                    <div class="sparkline-bar" style="height: 100%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="prompt-cell">
+                                    <div class="prompt-icon"><i class="fas fa-envelope"></i></div>
+                                    <div>
+                                        <div class="prompt-name">Email Composer</div>
+                                        <div class="prompt-id">prompt_def456</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="metric-cell">98,234</td>
+                            <td class="metric-cell success">99.5%</td>
+                            <td class="metric-cell">523ms</td>
+                            <td class="metric-cell">$623.18</td>
+                            <td>
+                                <div class="sparkline">
+                                    <div class="sparkline-bar" style="height: 50%;"></div>
+                                    <div class="sparkline-bar" style="height: 55%;"></div>
+                                    <div class="sparkline-bar" style="height: 65%;"></div>
+                                    <div class="sparkline-bar" style="height: 60%;"></div>
+                                    <div class="sparkline-bar" style="height: 75%;"></div>
+                                    <div class="sparkline-bar" style="height: 85%;"></div>
+                                    <div class="sparkline-bar" style="height: 90%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="prompt-cell">
+                                    <div class="prompt-icon"><i class="fas fa-blog"></i></div>
+                                    <div>
+                                        <div class="prompt-name">Blog Post Generator</div>
+                                        <div class="prompt-id">prompt_ghi789</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="metric-cell">76,543</td>
+                            <td class="metric-cell success">98.9%</td>
+                            <td class="metric-cell">1,247ms</td>
+                            <td class="metric-cell">$534.87</td>
+                            <td>
+                                <div class="sparkline">
+                                    <div class="sparkline-bar" style="height: 70%;"></div>
+                                    <div class="sparkline-bar" style="height: 65%;"></div>
+                                    <div class="sparkline-bar" style="height: 80%;"></div>
+                                    <div class="sparkline-bar" style="height: 75%;"></div>
+                                    <div class="sparkline-bar" style="height: 70%;"></div>
+                                    <div class="sparkline-bar" style="height: 85%;"></div>
+                                    <div class="sparkline-bar" style="height: 80%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="prompt-cell">
+                                    <div class="prompt-icon"><i class="fas fa-code"></i></div>
+                                    <div>
+                                        <div class="prompt-name">Code Review Assistant</div>
+                                        <div class="prompt-id">prompt_jkl012</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="metric-cell">54,321</td>
+                            <td class="metric-cell warning">97.2%</td>
+                            <td class="metric-cell">987ms</td>
+                            <td class="metric-cell">$412.56</td>
+                            <td>
+                                <div class="sparkline">
+                                    <div class="sparkline-bar" style="height: 30%;"></div>
+                                    <div class="sparkline-bar" style="height: 45%;"></div>
+                                    <div class="sparkline-bar" style="height: 55%;"></div>
+                                    <div class="sparkline-bar" style="height: 50%;"></div>
+                                    <div class="sparkline-bar" style="height: 65%;"></div>
+                                    <div class="sparkline-bar" style="height: 70%;"></div>
+                                    <div class="sparkline-bar" style="height: 75%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="prompt-cell">
+                                    <div class="prompt-icon"><i class="fas fa-chart-pie"></i></div>
+                                    <div>
+                                        <div class="prompt-name">Data Insights Generator</div>
+                                        <div class="prompt-id">prompt_mno345</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="metric-cell">43,218</td>
+                            <td class="metric-cell success">99.1%</td>
+                            <td class="metric-cell">1,456ms</td>
+                            <td class="metric-cell">$356.92</td>
+                            <td>
+                                <div class="sparkline">
+                                    <div class="sparkline-bar" style="height: 60%;"></div>
+                                    <div class="sparkline-bar" style="height: 55%;"></div>
+                                    <div class="sparkline-bar" style="height: 70%;"></div>
+                                    <div class="sparkline-bar" style="height: 65%;"></div>
+                                    <div class="sparkline-bar" style="height: 75%;"></div>
+                                    <div class="sparkline-bar" style="height: 80%;"></div>
+                                    <div class="sparkline-bar" style="height: 85%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

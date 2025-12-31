@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Team Workspace - Collaborate on prompts with your team">
+    <title>Team Workspace - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --emerald: #34d399;
+            --emerald-dark: #10b981;
+            --solar: #facc15;
+            --violet: #a78bfa;
+            --violet-dark: #8b5cf6;
+            --rose: #fb7185;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --text-4: rgba(255, 255, 255, 0.2);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.2);
+            --glow-violet: 0 0 40px rgba(167,139,250,0.2);
+            --duration-fast: 150ms;
+            --duration-normal: 300ms;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--surface-1);
+            border-right: 1px solid var(--surface-3);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0 12px;
+            margin-bottom: 32px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-section { margin-bottom: 24px; }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            color: var(--text-2);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all var(--duration-fast);
+        }
+
+        .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(103,232,249,0.15), rgba(34,211,238,0.1));
+            color: var(--glacier);
+        }
+
+        .nav-icon { width: 20px; text-align: center; }
+        .nav-badge {
+            margin-left: auto;
+            background: var(--glacier);
+            color: var(--surface-1);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--surface-3);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .user-card:hover { background: var(--surface-2); }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--glacier), var(--emerald));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--surface-1);
+        }
+
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-tier { font-size: 12px; color: var(--emerald); }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .header-content p { color: var(--text-2); font-size: 15px; }
+        .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text-1);
+            border: 1px solid var(--surface-3);
+        }
+
+        .btn-secondary:hover { background: var(--surface-3); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            color: var(--surface-1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-glacier);
+        }
+
+        /* Team Stats */
+        .team-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .team-stat {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--duration-fast);
+        }
+
+        .team-stat:hover {
+            border-color: var(--surface-4);
+            transform: translateY(-2px);
+        }
+
+        .team-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .team-stat-icon.cyan { background: rgba(103,232,249,0.15); color: var(--glacier); }
+        .team-stat-icon.emerald { background: rgba(52,211,153,0.15); color: var(--emerald); }
+        .team-stat-icon.violet { background: rgba(167,139,250,0.15); color: var(--violet); }
+        .team-stat-icon.solar { background: rgba(250,204,21,0.15); color: var(--solar); }
+
+        .team-stat-label { font-size: 13px; color: var(--text-3); margin-bottom: 8px; }
+
+        .team-stat-value {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .team-stat-value.gradient {
+            background: linear-gradient(135deg, var(--glacier), var(--emerald));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Content Sections */
+        .content-sections {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .section-card {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--surface-3);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i { color: var(--glacier); }
+
+        .section-action {
+            font-size: 13px;
+            color: var(--glacier);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-action:hover { text-decoration: underline; }
+
+        /* Team Members */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .member-card {
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--duration-fast);
+            cursor: pointer;
+        }
+
+        .member-card:hover {
+            border-color: var(--glacier);
+            transform: translateY(-2px);
+        }
+
+        .member-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--surface-1);
+        }
+
+        .member-avatar.gradient-1 { background: linear-gradient(135deg, var(--glacier), var(--emerald)); }
+        .member-avatar.gradient-2 { background: linear-gradient(135deg, var(--violet), var(--rose)); }
+        .member-avatar.gradient-3 { background: linear-gradient(135deg, var(--solar), var(--emerald)); }
+        .member-avatar.gradient-4 { background: linear-gradient(135deg, var(--glacier), var(--violet)); }
+        .member-avatar.gradient-5 { background: linear-gradient(135deg, var(--rose), var(--solar)); }
+
+        .member-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .member-role { font-size: 12px; color: var(--text-3); margin-bottom: 12px; }
+
+        .member-stats { display: flex; justify-content: center; gap: 16px; }
+
+        .member-stat {
+            text-align: center;
+        }
+
+        .member-stat-value { font-size: 14px; font-weight: 600; }
+        .member-stat-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; }
+
+        .member-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            border: 2px solid var(--surface-2);
+        }
+
+        .member-status.online { background: var(--emerald); }
+        .member-status.away { background: var(--solar); }
+        .member-status.offline { background: var(--surface-4); }
+
+        .member-avatar-wrap {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto 12px;
+        }
+
+        /* Activity Feed */
+        .activity-list { padding: 0; }
+
+        .activity-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--surface-3);
+            transition: background var(--duration-fast);
+        }
+
+        .activity-item:hover { background: var(--surface-2); }
+
+        .activity-item:last-child { border-bottom: none; }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--surface-1);
+        }
+
+        .activity-content { flex: 1; }
+
+        .activity-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .activity-text strong { color: var(--text-1); }
+
+        .activity-time { font-size: 12px; color: var(--text-3); }
+
+        .activity-action {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .activity-action.created { background: rgba(52,211,153,0.15); color: var(--emerald); }
+        .activity-action.updated { background: rgba(103,232,249,0.15); color: var(--glacier); }
+        .activity-action.reviewed { background: rgba(167,139,250,0.15); color: var(--violet); }
+        .activity-action.deployed { background: rgba(250,204,21,0.15); color: var(--solar); }
+
+        /* Pending Reviews */
+        .reviews-list { padding: 0; }
+
+        .review-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--surface-3);
+            transition: background var(--duration-fast);
+            cursor: pointer;
+        }
+
+        .review-item:hover { background: var(--surface-2); }
+
+        .review-item:last-child { border-bottom: none; }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .review-title { font-size: 14px; font-weight: 600; }
+
+        .review-priority {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .review-priority.high { background: rgba(251,113,133,0.15); color: var(--rose); }
+        .review-priority.medium { background: rgba(250,204,21,0.15); color: var(--solar); }
+        .review-priority.low { background: rgba(103,232,249,0.15); color: var(--glacier); }
+
+        .review-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .review-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* Shared Prompts */
+        .shared-list { padding: 0; }
+
+        .shared-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--surface-3);
+            transition: background var(--duration-fast);
+            cursor: pointer;
+        }
+
+        .shared-item:hover { background: var(--surface-2); }
+
+        .shared-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: var(--surface-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--glacier);
+        }
+
+        .shared-info { flex: 1; }
+        .shared-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .shared-meta { font-size: 12px; color: var(--text-3); }
+
+        .shared-users {
+            display: flex;
+        }
+
+        .shared-user {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--surface-1);
+            margin-left: -8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--surface-1);
+        }
+
+        .shared-user:first-child { margin-left: 0; }
+
+        .shared-user.more {
+            background: var(--surface-3);
+            color: var(--text-2);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-sections { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .team-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .main { padding: 20px; }
+            .header { flex-direction: column; }
+            .team-stats { grid-template-columns: 1fr; }
+            .members-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 20px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn { display: flex; }
+        }
+
+        /* Invite Modal */
+        .invite-btn {
+            background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+        }
+
+        .invite-btn:hover {
+            box-shadow: var(--glow-violet);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="logo">#PromptingIt</a>
+
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="creator-dashboard.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    Dashboard
+                </a>
+                <a href="library.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-folder-open"></i></span>
+                    Prompt Library
+                </a>
+                <a href="playground.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-play-circle"></i></span>
+                    Playground
+                </a>
+                <a href="templates.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-shapes"></i></span>
+                    Templates
+                </a>
+                <a href="workflows.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-project-diagram"></i></span>
+                    Workflows
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Team</div>
+                <a href="workspace.html" class="nav-item active">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    Workspace
+                    <span class="nav-badge">8</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                    Analytics
+                </a>
+                <a href="api-console.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-code"></i></span>
+                    API Console
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Account</div>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-cog"></i></span>
+                    Settings
+                </a>
+                <a href="admin.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                    Admin
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">Jane Doe</div>
+                        <div class="user-tier"><i class="fas fa-crown"></i> Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Team Workspace</h1>
+                    <p>Collaborate on prompts with your team members</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </button>
+                    <button class="btn btn-primary invite-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Invite Member
+                    </button>
+                </div>
+            </div>
+
+            <!-- Team Stats -->
+            <div class="team-stats">
+                <div class="team-stat">
+                    <div class="team-stat-icon cyan"><i class="fas fa-users"></i></div>
+                    <div class="team-stat-label">Team Members</div>
+                    <div class="team-stat-value gradient">12</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-icon emerald"><i class="fas fa-file-alt"></i></div>
+                    <div class="team-stat-label">Shared Prompts</div>
+                    <div class="team-stat-value">89</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-icon violet"><i class="fas fa-code-branch"></i></div>
+                    <div class="team-stat-label">Pending Reviews</div>
+                    <div class="team-stat-value">7</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-icon solar"><i class="fas fa-check-circle"></i></div>
+                    <div class="team-stat-label">Approved This Week</div>
+                    <div class="team-stat-value">23</div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="content-sections">
+                <div class="left-column">
+                    <!-- Team Members -->
+                    <div class="section-card" style="margin-bottom: 24px;">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-users"></i> Team Members</h3>
+                            <a href="#" class="section-action">View All <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="members-grid">
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-1">JD</div>
+                                    <span class="member-status online"></span>
+                                </div>
+                                <div class="member-name">Jane Doe</div>
+                                <div class="member-role">Team Lead</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">47</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">156</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-2">MT</div>
+                                    <span class="member-status online"></span>
+                                </div>
+                                <div class="member-name">Mike Thompson</div>
+                                <div class="member-role">Senior Engineer</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">38</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">92</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-3">SC</div>
+                                    <span class="member-status away"></span>
+                                </div>
+                                <div class="member-name">Sarah Chen</div>
+                                <div class="member-role">AI Specialist</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">62</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">201</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-4">AR</div>
+                                    <span class="member-status online"></span>
+                                </div>
+                                <div class="member-name">Alex Rivera</div>
+                                <div class="member-role">Product Manager</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">29</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">78</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-5">LK</div>
+                                    <span class="member-status offline"></span>
+                                </div>
+                                <div class="member-name">Lisa Kim</div>
+                                <div class="member-role">Content Writer</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">51</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">134</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <div class="member-avatar-wrap">
+                                    <div class="member-avatar gradient-1">DW</div>
+                                    <span class="member-status online"></span>
+                                </div>
+                                <div class="member-name">David Wang</div>
+                                <div class="member-role">Data Scientist</div>
+                                <div class="member-stats">
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">44</div>
+                                        <div class="member-stat-label">Prompts</div>
+                                    </div>
+                                    <div class="member-stat">
+                                        <div class="member-stat-value">89</div>
+                                        <div class="member-stat-label">Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-stream"></i> Recent Activity</h3>
+                            <a href="#" class="section-action">View All <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-avatar gradient-1">JD</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>Jane Doe</strong> deployed <strong>Customer Support v2.4</strong> to production
+                                    </div>
+                                    <div class="activity-time">2 minutes ago</div>
+                                </div>
+                                <span class="activity-action deployed">Deployed</span>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-avatar gradient-2">MT</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>Mike Thompson</strong> approved changes to <strong>Code Review Assistant</strong>
+                                    </div>
+                                    <div class="activity-time">15 minutes ago</div>
+                                </div>
+                                <span class="activity-action reviewed">Reviewed</span>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-avatar gradient-3">SC</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>Sarah Chen</strong> created a new prompt <strong>Data Analysis Helper</strong>
+                                    </div>
+                                    <div class="activity-time">1 hour ago</div>
+                                </div>
+                                <span class="activity-action created">Created</span>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-avatar gradient-4">AR</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>Alex Rivera</strong> updated <strong>Marketing Copy Generator</strong>
+                                    </div>
+                                    <div class="activity-time">3 hours ago</div>
+                                </div>
+                                <span class="activity-action updated">Updated</span>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-avatar gradient-5">LK</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>Lisa Kim</strong> requested review for <strong>Blog Post Writer v3</strong>
+                                    </div>
+                                    <div class="activity-time">5 hours ago</div>
+                                </div>
+                                <span class="activity-action reviewed">Review</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <!-- Pending Reviews -->
+                    <div class="section-card" style="margin-bottom: 24px;">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-clock"></i> Pending Reviews</h3>
+                            <span class="nav-badge">7</span>
+                        </div>
+                        <div class="reviews-list">
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-title">Customer Ticket Analyzer v3</div>
+                                    <span class="review-priority high">High</span>
+                                </div>
+                                <div class="review-meta">
+                                    <span><i class="fas fa-user"></i> Sarah Chen</span>
+                                    <span><i class="fas fa-clock"></i> 2h ago</span>
+                                </div>
+                            </div>
+
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-title">Email Response Template</div>
+                                    <span class="review-priority medium">Medium</span>
+                                </div>
+                                <div class="review-meta">
+                                    <span><i class="fas fa-user"></i> Mike Thompson</span>
+                                    <span><i class="fas fa-clock"></i> 5h ago</span>
+                                </div>
+                            </div>
+
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-title">Code Documentation</div>
+                                    <span class="review-priority low">Low</span>
+                                </div>
+                                <div class="review-meta">
+                                    <span><i class="fas fa-user"></i> David Wang</span>
+                                    <span><i class="fas fa-clock"></i> 1d ago</span>
+                                </div>
+                            </div>
+
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-title">Sales Pitch Generator</div>
+                                    <span class="review-priority medium">Medium</span>
+                                </div>
+                                <div class="review-meta">
+                                    <span><i class="fas fa-user"></i> Alex Rivera</span>
+                                    <span><i class="fas fa-clock"></i> 1d ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shared Prompts -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-share-alt"></i> Shared With You</h3>
+                        </div>
+                        <div class="shared-list">
+                            <div class="shared-item">
+                                <div class="shared-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="shared-info">
+                                    <div class="shared-name">Marketing Campaign</div>
+                                    <div class="shared-meta">Shared by Sarah Chen</div>
+                                </div>
+                                <div class="shared-users">
+                                    <div class="shared-user gradient-1">JD</div>
+                                    <div class="shared-user gradient-2">MT</div>
+                                    <div class="shared-user more">+3</div>
+                                </div>
+                            </div>
+
+                            <div class="shared-item">
+                                <div class="shared-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="shared-info">
+                                    <div class="shared-name">API Documentation</div>
+                                    <div class="shared-meta">Shared by Mike Thompson</div>
+                                </div>
+                                <div class="shared-users">
+                                    <div class="shared-user gradient-3">SC</div>
+                                    <div class="shared-user gradient-4">AR</div>
+                                </div>
+                            </div>
+
+                            <div class="shared-item">
+                                <div class="shared-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="shared-info">
+                                    <div class="shared-name">Customer Onboarding</div>
+                                    <div class="shared-meta">Shared by Alex Rivera</div>
+                                </div>
+                                <div class="shared-users">
+                                    <div class="shared-user gradient-5">LK</div>
+                                    <div class="shared-user gradient-1">DW</div>
+                                    <div class="shared-user more">+5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
