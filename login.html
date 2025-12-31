@@ -97,5 +97,16 @@
                   </div>
                 <a href="index.html" class="back-link">← Back to home</a>
         </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            btn.textContent = 'Signing in...';
+            btn.disabled = true;
+            setTimeout(() => {
+                window.location.href = 'creator-dashboard.html';
+            }, 1500);
+        });
+    </script>
   </body>
 </html>
