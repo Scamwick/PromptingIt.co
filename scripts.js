@@ -869,6 +869,32 @@
   // GLOBAL UTILITY FUNCTIONS
   // ============================================
   window.PromptingIt = {
+    // HTML sanitization to prevent XSS attacks
+    sanitizeHTML: function(str) {
+      if (typeof str !== 'string') return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    },
+
+    // Sanitize an object's string properties
+    sanitizeObject: function(obj) {
+      if (!obj || typeof obj !== 'object') return obj;
+      const sanitized = {};
+      for (const key in obj) {
+        if (typeof obj[key] === 'string') {
+          sanitized[key] = this.sanitizeHTML(obj[key]);
+        } else if (Array.isArray(obj[key])) {
+          sanitized[key] = obj[key].map(item =>
+            typeof item === 'string' ? this.sanitizeHTML(item) : item
+          );
+        } else {
+          sanitized[key] = obj[key];
+        }
+      }
+      return sanitized;
+    },
+
     // Show toast notification
     toast: function(message, type = 'info', duration = 3000) {
       const toast = document.createElement('div');

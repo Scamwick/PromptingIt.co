@@ -98,15 +98,66 @@
                 <a href="index.html" class="back-link">← Back to home</a>
         </div>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = this.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Client-side validation (supplement to server-side, not replacement)
+            if (!email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
             btn.textContent = 'Signing in...';
             btn.disabled = true;
-            setTimeout(() => {
-                window.location.href = 'creator-dashboard.html';
-            }, 1500);
+
+            try {
+                // ============================================
+                // SERVER-SIDE VALIDATION REQUIRED
+                // In production, replace this with actual API call:
+                //
+                // const response = await fetch('/api/auth/login', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ email, password })
+                // });
+                //
+                // Server MUST validate:
+                // - Email format and existence
+                // - Password against hashed value (bcrypt/argon2)
+                // - Rate limiting (prevent brute force)
+                // - CSRF token verification
+                // - Account lockout after failed attempts
+                //
+                // const data = await response.json();
+                // if (!response.ok) throw new Error(data.message);
+                // localStorage.setItem('authToken', data.token);
+                // localStorage.setItem('userRole', data.role);
+                // ============================================
+
+                // Demo redirect (remove in production)
+                setTimeout(() => {
+                    window.location.href = 'creator-dashboard.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message || 'Login failed. Please try again.');
+                btn.textContent = 'Sign In';
+                btn.disabled = false;
+            }
         });
+
+        function showError(message) {
+            let errorDiv = document.querySelector('.form-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'form-error';
+                errorDiv.style.cssText = 'color: #fb7185; font-size: 14px; margin-bottom: 16px; padding: 12px; background: rgba(251,113,133,0.1); border-radius: 8px;';
+                document.getElementById('loginForm').prepend(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
     </script>
   </body>
 </html>

@@ -97,15 +97,77 @@
           <a href="index.html" class="back-link">← Back to home</a>
       </div>
     <script>
-          document.getElementById('signupForm').addEventListener('submit', function(e) {
+          document.getElementById('signupForm').addEventListener('submit', async function(e) {
                   e.preventDefault();
                   const btn = this.querySelector('button[type="submit"]');
+                  const name = document.getElementById('name').value.trim();
+                  const email = document.getElementById('email').value.trim();
+                  const password = document.getElementById('password').value;
+
+                  // Client-side validation (supplement to server-side, not replacement)
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!name || !email || !password) {
+                      showError('Please fill in all fields');
+                      return;
+                  }
+                  if (!emailRegex.test(email)) {
+                      showError('Please enter a valid email address');
+                      return;
+                  }
+                  if (password.length < 8) {
+                      showError('Password must be at least 8 characters');
+                      return;
+                  }
+
                   btn.textContent = 'Creating account...';
                   btn.disabled = true;
-                  setTimeout(() => {
-                            window.location.href = 'creator-dashboard.html';
-                  }, 1500);
+
+                  try {
+                      // ============================================
+                      // SERVER-SIDE VALIDATION REQUIRED
+                      // In production, replace this with actual API call:
+                      //
+                      // const response = await fetch('/api/auth/register', {
+                      //     method: 'POST',
+                      //     headers: { 'Content-Type': 'application/json' },
+                      //     body: JSON.stringify({ name, email, password })
+                      // });
+                      //
+                      // Server MUST validate:
+                      // - Name: sanitize, length limits (2-100 chars)
+                      // - Email: format, uniqueness, domain validation
+                      // - Password: minimum 8 chars, complexity rules
+                      // - Hash password with bcrypt/argon2 (never store plain text)
+                      // - CSRF token verification
+                      // - Rate limiting (prevent spam registrations)
+                      // - Email verification before activation
+                      // - Captcha/reCAPTCHA for bot prevention
+                      //
+                      // const data = await response.json();
+                      // if (!response.ok) throw new Error(data.message);
+                      // ============================================
+
+                      // Demo redirect (remove in production)
+                      setTimeout(() => {
+                          window.location.href = 'creator-dashboard.html';
+                      }, 1500);
+                  } catch (error) {
+                      showError(error.message || 'Registration failed. Please try again.');
+                      btn.textContent = 'Create Account';
+                      btn.disabled = false;
+                  }
           });
+
+          function showError(message) {
+              let errorDiv = document.querySelector('.form-error');
+              if (!errorDiv) {
+                  errorDiv = document.createElement('div');
+                  errorDiv.className = 'form-error';
+                  errorDiv.style.cssText = 'color: #fb7185; font-size: 14px; margin-bottom: 16px; padding: 12px; background: rgba(251,113,133,0.1); border-radius: 8px;';
+                  document.getElementById('signupForm').prepend(errorDiv);
+              }
+              errorDiv.textContent = message;
+          }
     </script>
   </body>
 </html>

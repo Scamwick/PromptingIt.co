@@ -1188,37 +1188,46 @@
             }
         };
 
-        // Render Prompt Card
+        // Sanitize HTML to prevent XSS attacks
+        function sanitizeHTML(str) {
+            if (typeof str !== 'string') return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Render Prompt Card (with XSS protection)
         function renderPromptCard(prompt) {
+            const s = sanitizeHTML; // shorthand
             return `
-                <div class="prompt-card" data-id="${prompt.id}">
+                <div class="prompt-card" data-id="${parseInt(prompt.id)}">
                     <div class="prompt-card-header">
-                        <div class="prompt-card-icon ${prompt.iconClass}">${prompt.icon}</div>
+                        <div class="prompt-card-icon ${s(prompt.iconClass)}">${s(prompt.icon)}</div>
                         <div class="prompt-card-info">
-                            <div class="prompt-card-title">${prompt.title}</div>
-                            <div class="prompt-card-category">${prompt.category}</div>
+                            <div class="prompt-card-title">${s(prompt.title)}</div>
+                            <div class="prompt-card-category">${s(prompt.category)}</div>
                         </div>
                     </div>
                     <div class="prompt-card-body">
-                        <p class="prompt-card-desc">${prompt.description}</p>
+                        <p class="prompt-card-desc">${s(prompt.description)}</p>
                         <div class="prompt-card-tags">
-                            ${prompt.tags.map(tag => `<span class="prompt-tag">${tag}</span>`).join('')}
+                            ${prompt.tags.map(tag => `<span class="prompt-tag">${s(tag)}</span>`).join('')}
                         </div>
                     </div>
                     <div class="prompt-card-footer">
                         <div class="prompt-card-meta">
                             <div class="prompt-rating">
                                 <span class="prompt-rating-star">&#9733;</span>
-                                <span class="prompt-rating-value">${prompt.rating}</span>
-                                <span class="prompt-rating-count">(${prompt.reviews})</span>
+                                <span class="prompt-rating-value">${parseFloat(prompt.rating) || 0}</span>
+                                <span class="prompt-rating-count">(${parseInt(prompt.reviews) || 0})</span>
                             </div>
-                            <span class="prompt-sales">${prompt.sales.toLocaleString()} sales</span>
+                            <span class="prompt-sales">${parseInt(prompt.sales || 0).toLocaleString()} sales</span>
                         </div>
-                        <span class="prompt-price">$${prompt.price.toFixed(2)}</span>
+                        <span class="prompt-price">$${parseFloat(prompt.price || 0).toFixed(2)}</span>
                     </div>
                     <div class="prompt-card-creator">
-                        <div class="creator-avatar">${prompt.creator.initials}</div>
-                        <span class="creator-name">${prompt.creator.name}</span>
+                        <div class="creator-avatar">${s(prompt.creator.initials)}</div>
+                        <span class="creator-name">${s(prompt.creator.name)}</span>
                         ${prompt.creator.verified ? '<span class="creator-badge">&#10003; Verified</span>' : ''}
                     </div>
                 </div>
