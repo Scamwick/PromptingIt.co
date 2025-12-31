@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Playground - Test and iterate on prompts in real-time">
+    <title>Playground - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --emerald: #34d399;
+            --solar: #facc15;
+            --violet: #a78bfa;
+            --rose: #fb7185;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.2);
+            --glow-emerald: 0 0 40px rgba(52,211,153,0.2);
+            --duration-fast: 150ms;
+        }
+
+        body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar { width: 260px; background: var(--surface-1); border-right: 1px solid var(--surface-3); padding: 24px 16px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+        .logo { font-family: var(--font-mono); font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding: 0 12px; margin-bottom: 32px; text-decoration: none; display: block; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 12px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--duration-fast); }
+        .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(103,232,249,0.15), rgba(34,211,238,0.1)); color: var(--glacier); }
+        .nav-icon { width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--surface-3); }
+        .user-card { display: flex; align-items: center; gap: 12px; padding: 12px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--glacier), var(--emerald)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--surface-1); }
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-tier { font-size: 12px; color: var(--emerald); }
+
+        .main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; height: 100vh; }
+
+        /* Toolbar */
+        .playground-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); }
+        .toolbar-left { display: flex; align-items: center; gap: 16px; }
+        .toolbar-title { font-size: 18px; font-weight: 600; }
+        .toolbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .model-selector { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); cursor: pointer; }
+        .model-selector:hover { border-color: var(--glacier); }
+        .model-icon { font-size: 16px; }
+        .model-name { font-size: 14px; font-weight: 500; }
+        .model-dropdown { font-size: 12px; color: var(--text-3); }
+
+        .btn { padding: 10px 18px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--duration-fast); border: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-secondary { background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); }
+        .btn-secondary:hover { background: var(--surface-3); }
+        .btn-primary { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-1); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--glow-glacier); }
+        .btn-run { background: linear-gradient(135deg, var(--emerald), var(--emerald)); }
+        .btn-run:hover { box-shadow: var(--glow-emerald); }
+
+        /* Main Content */
+        .playground-content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+
+        /* Prompt Panel */
+        .prompt-panel { display: flex; flex-direction: column; border-right: 1px solid var(--surface-3); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); }
+        .panel-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .panel-title i { color: var(--glacier); }
+        .panel-actions { display: flex; gap: 8px; }
+        .panel-action { width: 32px; height: 32px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-sm); color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast); }
+        .panel-action:hover { background: var(--glacier); color: var(--surface-1); border-color: var(--glacier); }
+
+        .prompt-editor { flex: 1; padding: 20px; overflow-y: auto; }
+        .prompt-textarea { width: 100%; height: 100%; min-height: 300px; padding: 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; resize: none; }
+        .prompt-textarea:focus { outline: none; border-color: var(--glacier); }
+        .prompt-textarea::placeholder { color: var(--text-3); }
+
+        /* Variables Section */
+        .variables-section { padding: 20px; border-top: 1px solid var(--surface-3); background: var(--surface-1); }
+        .variables-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .variables-title { font-size: 13px; font-weight: 600; color: var(--text-2); }
+        .add-variable { font-size: 12px; color: var(--glacier); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .add-variable:hover { text-decoration: underline; }
+
+        .variable-row { display: flex; gap: 12px; margin-bottom: 8px; }
+        .variable-input { flex: 1; padding: 10px 14px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-sm); color: var(--text-1); font-size: 13px; }
+        .variable-input:focus { outline: none; border-color: var(--glacier); }
+        .variable-input.key { flex: 0.4; font-family: var(--font-mono); }
+        .variable-delete { width: 36px; height: 36px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-sm); color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .variable-delete:hover { background: var(--rose); color: var(--text-1); border-color: var(--rose); }
+
+        /* Output Panel */
+        .output-panel { display: flex; flex-direction: column; background: var(--surface-0); }
+
+        .output-content { flex: 1; padding: 20px; overflow-y: auto; }
+        .output-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-3); }
+        .output-placeholder i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+        .output-placeholder p { font-size: 14px; }
+
+        .output-result { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-md); padding: 20px; min-height: 200px; font-family: var(--font-mono); font-size: 14px; line-height: 1.7; color: var(--text-2); white-space: pre-wrap; }
+
+        /* Metrics */
+        .metrics-bar { display: flex; gap: 24px; padding: 16px 20px; background: var(--surface-1); border-top: 1px solid var(--surface-3); }
+        .metric { display: flex; align-items: center; gap: 8px; }
+        .metric-label { font-size: 12px; color: var(--text-3); }
+        .metric-value { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+        .metric-value.success { color: var(--emerald); }
+        .metric-value.warning { color: var(--solar); }
+
+        /* Model Tabs */
+        .model-tabs { display: flex; padding: 0 20px; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); overflow-x: auto; }
+        .model-tab { padding: 14px 20px; background: transparent; border: none; color: var(--text-3); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--duration-fast); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .model-tab:hover { color: var(--text-1); }
+        .model-tab.active { color: var(--glacier); border-bottom-color: var(--glacier); }
+        .model-tab .status { width: 6px; height: 6px; border-radius: 50%; }
+        .model-tab .status.running { background: var(--solar); animation: pulse 1s infinite; }
+        .model-tab .status.complete { background: var(--emerald); }
+        .model-tab .status.error { background: var(--rose); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* History */
+        .history-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 300px; background: var(--surface-1); border-left: 1px solid var(--surface-3); transform: translateX(100%); transition: transform 0.3s ease; z-index: 50; }
+        .history-panel.open { transform: translateX(0); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--surface-3); }
+        .history-title { font-size: 14px; font-weight: 600; }
+        .history-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; }
+        .history-list { padding: 12px; max-height: calc(100vh - 60px); overflow-y: auto; }
+        .history-item { padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); margin-bottom: 8px; cursor: pointer; transition: all var(--duration-fast); }
+        .history-item:hover { border-color: var(--glacier); }
+        .history-item-text { font-size: 13px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; }
+        .history-item-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .playground-content { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+            .prompt-panel { border-right: none; border-bottom: 1px solid var(--surface-3); }
+        }
+        @media (max-width: 768px) {
+            .toolbar-left .toolbar-title { display: none; }
+        }
+
+        .mobile-menu-btn { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 44px; height: 44px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); cursor: pointer; }
+        @media (max-width: 1024px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } }
+
+        /* Loading State */
+        .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 40px; }
+        .loading.active { display: flex; }
+        .spinner { width: 24px; height: 24px; border: 3px solid var(--surface-3); border-top-color: var(--glacier); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="logo">#PromptingIt</a>
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="creator-dashboard.html" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="library.html" class="nav-item"><span class="nav-icon"><i class="fas fa-folder-open"></i></span> Prompt Library</a>
+                <a href="playground.html" class="nav-item active"><span class="nav-icon"><i class="fas fa-play-circle"></i></span> Playground</a>
+                <a href="templates.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shapes"></i></span> Templates</a>
+                <a href="workflows.html" class="nav-item"><span class="nav-icon"><i class="fas fa-project-diagram"></i></span> Workflows</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-label">Team</div>
+                <a href="workspace.html" class="nav-item"><span class="nav-icon"><i class="fas fa-users"></i></span> Workspace</a>
+                <a href="analytics.html" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Analytics</a>
+                <a href="api-console.html" class="nav-item"><span class="nav-icon"><i class="fas fa-code"></i></span> API Console</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-label">Account</div>
+                <a href="settings.html" class="nav-item"><span class="nav-icon"><i class="fas fa-cog"></i></span> Settings</a>
+                <a href="admin.html" class="nav-item"><span class="nav-icon"><i class="fas fa-shield-alt"></i></span> Admin</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">Jane Doe</div>
+                        <div class="user-tier"><i class="fas fa-crown"></i> Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <!-- Toolbar -->
+            <div class="playground-toolbar">
+                <div class="toolbar-left">
+                    <h1 class="toolbar-title">Playground</h1>
+                    <div class="model-selector" onclick="toggleModelDropdown()">
+                        <span class="model-icon"><i class="fas fa-robot"></i></span>
+                        <span class="model-name" id="selectedModel">GPT-4</span>
+                        <span class="model-dropdown"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn btn-secondary" onclick="clearPlayground()"><i class="fas fa-eraser"></i> Clear</button>
+                    <button class="btn btn-secondary"><i class="fas fa-history"></i> History</button>
+                    <button class="btn btn-secondary"><i class="fas fa-save"></i> Save</button>
+                    <button class="btn btn-primary btn-run" onclick="runPrompt()"><i class="fas fa-play"></i> Run</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="playground-content">
+                <!-- Prompt Panel -->
+                <div class="prompt-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-keyboard"></i> System Prompt</h3>
+                        <div class="panel-actions">
+                            <button class="panel-action" title="Templates"><i class="fas fa-shapes"></i></button>
+                            <button class="panel-action" title="Format"><i class="fas fa-magic"></i></button>
+                        </div>
+                    </div>
+                    <div class="prompt-editor">
+                        <textarea class="prompt-textarea" id="promptInput" placeholder="Enter your system prompt here...
+
+Example:
+You are a helpful customer support agent for a SaaS company. You should:
+- Be friendly and professional
+- Provide accurate information about our products
+- Escalate complex issues to human agents
+
+Context about customer: {{customer_name}} - {{subscription_tier}}
+Current issue: {{issue_description}}"></textarea>
+                    </div>
+                    <div class="variables-section">
+                        <div class="variables-header">
+                            <span class="variables-title">Variables</span>
+                            <span class="add-variable" onclick="addVariable()"><i class="fas fa-plus"></i> Add Variable</span>
+                        </div>
+                        <div id="variablesList">
+                            <div class="variable-row">
+                                <input type="text" class="variable-input key" placeholder="key" value="customer_name">
+                                <input type="text" class="variable-input" placeholder="value" value="John Smith">
+                                <button class="variable-delete"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="variable-row">
+                                <input type="text" class="variable-input key" placeholder="key" value="subscription_tier">
+                                <input type="text" class="variable-input" placeholder="value" value="Pro">
+                                <button class="variable-delete"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="variable-row">
+                                <input type="text" class="variable-input key" placeholder="key" value="issue_description">
+                                <input type="text" class="variable-input" placeholder="value" value="Billing question about invoice">
+                                <button class="variable-delete"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="output-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-terminal"></i> Output</h3>
+                        <div class="panel-actions">
+                            <button class="panel-action" title="Copy"><i class="fas fa-copy"></i></button>
+                            <button class="panel-action" title="Compare"><i class="fas fa-columns"></i></button>
+                        </div>
+                    </div>
+                    <div class="model-tabs">
+                        <button class="model-tab active">
+                            <span class="status complete"></span>
+                            GPT-4
+                        </button>
+                        <button class="model-tab">
+                            <span class="status"></span>
+                            Claude 3.5
+                        </button>
+                        <button class="model-tab">
+                            <span class="status"></span>
+                            Gemini Pro
+                        </button>
+                    </div>
+                    <div class="output-content">
+                        <div class="output-placeholder" id="outputPlaceholder">
+                            <i class="fas fa-terminal"></i>
+                            <p>Click "Run" to execute your prompt</p>
+                        </div>
+                        <div class="loading" id="loadingState">
+                            <div class="spinner"></div>
+                            <span>Generating response...</span>
+                        </div>
+                        <div class="output-result" id="outputResult" style="display: none;"></div>
+                    </div>
+                    <div class="metrics-bar" id="metricsBar" style="display: none;">
+                        <div class="metric">
+                            <span class="metric-label">Latency</span>
+                            <span class="metric-value" id="metricLatency">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Tokens</span>
+                            <span class="metric-value" id="metricTokens">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Cost</span>
+                            <span class="metric-value" id="metricCost">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Status</span>
+                            <span class="metric-value success" id="metricStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function addVariable() {
+            const list = document.getElementById('variablesList');
+            const row = document.createElement('div');
+            row.className = 'variable-row';
+            row.innerHTML = `
+                <input type="text" class="variable-input key" placeholder="key">
+                <input type="text" class="variable-input" placeholder="value">
+                <button class="variable-delete" onclick="this.parentElement.remove()"><i class="fas fa-times"></i>
+            `;
+            list.appendChild(row);
+        }
+
+        function runPrompt() {
+            const prompt = document.getElementById('promptInput').value;
+            if (!prompt.trim()) {
+                alert('Please enter a prompt');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('outputPlaceholder').style.display = 'none';
+            document.getElementById('outputResult').style.display = 'none';
+            document.getElementById('loadingState').classList.add('active');
+            document.getElementById('metricsBar').style.display = 'none';
+
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('loadingState').classList.remove('active');
+                document.getElementById('outputResult').style.display = 'block';
+                document.getElementById('metricsBar').style.display = 'flex';
+
+                // Replace variables
+                let output = prompt;
+                document.querySelectorAll('.variable-row').forEach(row => {
+                    const key = row.querySelector('.key').value;
+                    const val = row.querySelector('.variable-input:not(.key)').value;
+                    if (key && val) {
+                        output = output.replace(new RegExp(`{{${key}}}`, 'g'), val);
+                    }
+                });
+
+                // Generate mock response
+                const response = `Hello! Thank you for reaching out to our support team.
+
+I can see you're a Pro subscriber, John Smith. I'd be happy to help you with your billing question about the invoice.
+
+Here's what I can help you with:
+
+1. **View your current invoice** - I can pull up the details of your most recent invoice
+2. **Explain charges** - Break down what each line item means
+3. **Payment history** - Show your payment history and receipts
+4. **Update billing info** - Help you update your payment method
+
+Could you please let me know which specific aspect of your invoice you'd like me to help you with?
+
+If this is about a discrepancy or unexpected charge, please share the invoice number and I'll investigate right away.
+
+Best regards,
+Support Agent`;
+
+                document.getElementById('outputResult').textContent = response;
+
+                // Update metrics
+                document.getElementById('metricLatency').textContent = '847ms';
+                document.getElementById('metricTokens').textContent = '245 / 312';
+                document.getElementById('metricCost').textContent = '$0.0087';
+                document.getElementById('metricStatus').textContent = 'Success';
+            }, 1500);
+        }
+
+        function clearPlayground() {
+            document.getElementById('promptInput').value = '';
+            document.getElementById('outputResult').style.display = 'none';
+            document.getElementById('outputPlaceholder').style.display = 'flex';
+            document.getElementById('metricsBar').style.display = 'none';
+        }
+
+        // Model tabs
+        document.querySelectorAll('.model-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Variable delete buttons
+        document.querySelectorAll('.variable-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                runPrompt();
+            }
+        });
+    </script>
+</body>
+</html>
