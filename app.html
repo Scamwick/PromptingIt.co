@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Prompt Optimizer - PromptingIt</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <style>
+                :root {
+                              --bg-primary: #0a0a0f;
+                              --bg-secondary: #12121a;
+                              --bg-tertiary: #1a1a24;
+                              --text-primary: #ffffff;
+                              --text-secondary: #a0a0b0;
+                              --accent-primary: #6366f1;
+                              --accent-secondary: #8b5cf6;
+                              --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+                              --border-color: #2a2a3a;
+                              --success: #10b981;
+                              --warning: #f59e0b;
+                              --error: #ef4444;
+                              --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+                }
+
+                .light-theme {
+                              --bg-primary: #f8fafc;
+                              --bg-secondary: #ffffff;
+                              --bg-tertiary: #f1f5f9;
+                              --text-primary: #1e293b;
+                              --text-secondary: #64748b;
+                              --border-color: #e2e8f0;
+                              --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+                }
+
+                * {
+                              margin: 0;
+                              padding: 0;
+                              box-sizing: border-box;
+                }
+
+                body {
+                              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                              background: var(--bg-primary);
+                              color: var(--text-primary);
+                              min-height: 100vh;
+                              transition: all 0.3s ease;
+                }
+
+                .app-container {
+                              max-width: 1400px;
+                              margin: 0 auto;
+                              padding: 2rem;
+                }
+
+                header {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              margin-bottom: 2rem;
+                              padding-bottom: 1rem;
+                              border-bottom: 1px solid var(--border-color);
+                }
+
+                .logo {
+                              display: flex;
+                              align-items: center;
+                              gap: 0.75rem;
+                              font-size: 1.5rem;
+                              font-weight: 700;
+                              background: var(--accent-gradient);
+                              -webkit-background-clip: text;
+                              -webkit-text-fill-color: transparent;
+                              background-clip: text;
+                }
+
+                .logo i {
+                              font-size: 1.75rem;
+                              background: var(--accent-gradient);
+                              -webkit-background-clip: text;
+                              -webkit-text-fill-color: transparent;
+                }
+
+                .header-actions {
+                              display: flex;
+                              gap: 1rem;
+                              align-items: center;
+                }
+
+                .theme-toggle {
+                              background: var(--bg-tertiary);
+                              border: 1px solid var(--border-color);
+                              color: var(--text-primary);
+                              padding: 0.5rem 1rem;
+                              border-radius: 8px;
+                              cursor: pointer;
+                              display: flex;
+                              align-items: center;
+                              gap: 0.5rem;
+                              transition: all 0.3s ease;
+                }
+
+                .theme-toggle:hover {
+                              background: var(--accent-primary);
+                              color: white;
+                }
+
+                .main-content {
+                              display: grid;
+                              grid-template-columns: 1fr 1fr;
+                              gap: 2rem;
+                }
+
+                @media (max-width: 1024px) {
+                              .main-content {
+                                                grid-template-columns: 1fr;
+                              }
+                }
+
+                .panel {
+                              background: var(--bg-secondary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 16px;
+                              padding: 1.5rem;
+                              box-shadow: var(--card-shadow);
+                }
+
+                .panel-header {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              margin-bottom: 1rem;
+                }
+
+                .panel-title {
+                              font-size: 1.125rem;
+                              font-weight: 600;
+                              display: flex;
+                              align-items: center;
+                              gap: 0.5rem;
+                }
+
+                .panel-title i {
+                              color: var(--accent-primary);
+                }
+
+                .prompt-textarea {
+                              width: 100%;
+                              min-height: 300px;
+                              background: var(--bg-tertiary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 12px;
+                              padding: 1rem;
+                              color: var(--text-primary);
+                              font-size: 0.95rem;
+                              line-height: 1.6;
+                              resize: vertical;
+                              transition: all 0.3s ease;
+                }
+
+                .prompt-textarea:focus {
+                              outline: none;
+                              border-color: var(--accent-primary);
+                              box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+                }
+
+                .prompt-textarea::placeholder {
+                              color: var(--text-secondary);
+                }
+
+                .action-buttons {
+                              display: flex;
+                              gap: 1rem;
+                              margin-top: 1rem;
+                              flex-wrap: wrap;
+                }
+
+                .btn {
+                              padding: 0.75rem 1.5rem;
+                              border-radius: 10px;
+                              font-weight: 600;
+                              cursor: pointer;
+                              display: flex;
+                              align-items: center;
+                              gap: 0.5rem;
+                              transition: all 0.3s ease;
+                              border: none;
+                              font-size: 0.95rem;
+                }
+
+                .btn-primary {
+                              background: var(--accent-gradient);
+                              color: white;
+                }
+
+                .btn-primary:hover {
+                              transform: translateY(-2px);
+                              box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+                }
+
+                .btn-secondary {
+                              background: var(--bg-tertiary);
+                              color: var(--text-primary);
+                              border: 1px solid var(--border-color);
+                }
+
+                .btn-secondary:hover {
+                              background: var(--accent-primary);
+                              color: white;
+                              border-color: var(--accent-primary);
+                }
+
+                .analysis-section {
+                              margin-top: 1.5rem;
+                              padding-top: 1.5rem;
+                              border-top: 1px solid var(--border-color);
+                }
+
+                .score-display {
+                              display: flex;
+                              align-items: center;
+                              gap: 1.5rem;
+                              margin-bottom: 1.5rem;
+                }
+
+                .score-circle {
+                              width: 80px;
+                              height: 80px;
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 1.5rem;
+                              font-weight: 700;
+                              position: relative;
+                }
+
+                .score-circle::before {
+                              content: '';
+                              position: absolute;
+                              inset: -3px;
+                              border-radius: 50%;
+                              padding: 3px;
+                              background: var(--accent-gradient);
+                              -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                              mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                              -webkit-mask-composite: xor;
+                              mask-composite: exclude;
+                }
+
+                .score-label {
+                              font-size: 0.875rem;
+                              color: var(--text-secondary);
+                }
+
+                .score-details h4 {
+                              font-size: 1rem;
+                              margin-bottom: 0.25rem;
+                }
+
+                .metrics-grid {
+                              display: grid;
+                              grid-template-columns: repeat(2, 1fr);
+                              gap: 1rem;
+                }
+
+                .metric-card {
+                              background: var(--bg-tertiary);
+                              border-radius: 10px;
+                              padding: 1rem;
+                              border: 1px solid var(--border-color);
+                }
+
+                .metric-label {
+                              font-size: 0.75rem;
+                              color: var(--text-secondary);
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;
+                              margin-bottom: 0.5rem;
+                }
+
+                .metric-value {
+                              font-size: 1.25rem;
+                              font-weight: 600;
+                }
+
+                .metric-bar {
+                              height: 4px;
+                              background: var(--bg-primary);
+                              border-radius: 2px;
+                              margin-top: 0.5rem;
+                              overflow: hidden;
+                }
+
+                .metric-bar-fill {
+                              height: 100%;
+                              background: var(--accent-gradient);
+                              border-radius: 2px;
+                              transition: width 0.5s ease;
+                }
+
+                .suggestions-list {
+                              list-style: none;
+                              margin-top: 1rem;
+                }
+
+                .suggestion-item {
+                              display: flex;
+                              gap: 0.75rem;
+                              padding: 0.75rem;
+                              background: var(--bg-tertiary);
+                              border-radius: 8px;
+                              margin-bottom: 0.5rem;
+                              border: 1px solid var(--border-color);
+                }
+
+                .suggestion-icon {
+                              width: 24px;
+                              height: 24px;
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 0.75rem;
+                              flex-shrink: 0;
+                }
+
+                .suggestion-icon.tip {
+                              background: rgba(16, 185, 129, 0.2);
+                              color: var(--success);
+                }
+
+                .suggestion-icon.warning {
+                              background: rgba(245, 158, 11, 0.2);
+                              color: var(--warning);
+                }
+
+                .suggestion-icon.error {
+                              background: rgba(239, 68, 68, 0.2);
+                              color: var(--error);
+                }
+
+                .optimized-output {
+                              background: var(--bg-tertiary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 12px;
+                              padding: 1rem;
+                              min-height: 300px;
+                              white-space: pre-wrap;
+                              line-height: 1.6;
+                              font-size: 0.95rem;
+                }
+
+                .copy-btn {
+                              position: absolute;
+                              top: 0.5rem;
+                              right: 0.5rem;
+                              background: var(--bg-secondary);
+                              border: 1px solid var(--border-color);
+                              color: var(--text-secondary);
+                              padding: 0.5rem;
+                              border-radius: 6px;
+                              cursor: pointer;
+                              transition: all 0.3s ease;
+                }
+
+                .copy-btn:hover {
+                              color: var(--accent-primary);
+                              border-color: var(--accent-primary);
+                }
+
+                .output-wrapper {
+                              position: relative;
+                }
+
+                .loading-overlay {
+                              position: absolute;
+                              inset: 0;
+                              background: rgba(10, 10, 15, 0.8);
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              border-radius: 12px;
+                              z-index: 10;
+                }
+
+                .spinner {
+                              width: 40px;
+                              height: 40px;
+                              border: 3px solid var(--border-color);
+                              border-top-color: var(--accent-primary);
+                              border-radius: 50%;
+                              animation: spin 1s linear infinite;
+                }
+
+                @keyframes spin {
+                              to { transform: rotate(360deg); }
+                }
+
+                .hidden {
+                              display: none !important;
+                }
+
+                .tabs {
+                              display: flex;
+                              gap: 0.5rem;
+                              margin-bottom: 1rem;
+                }
+
+                .tab {
+                              padding: 0.5rem 1rem;
+                              background: transparent;
+                              border: none;
+                              color: var(--text-secondary);
+                              cursor: pointer;
+                              border-radius: 8px;
+                              transition: all 0.3s ease;
+                              font-weight: 500;
+                }
+
+                .tab:hover {
+                              color: var(--text-primary);
+                              background: var(--bg-tertiary);
+                }
+
+                .tab.active {
+                              background: var(--accent-gradient);
+                              color: white;
+                }
+
+                .template-grid {
+                              display: grid;
+                              grid-template-columns: repeat(2, 1fr);
+                              gap: 1rem;
+                              margin-top: 1rem;
+                }
+
+                .template-card {
+                              background: var(--bg-tertiary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 10px;
+                              padding: 1rem;
+                              cursor: pointer;
+                              transition: all 0.3s ease;
+                }
+
+                .template-card:hover {
+                              border-color: var(--accent-primary);
+                              transform: translateY(-2px);
+                }
+
+                .template-card h4 {
+                              font-size: 0.95rem;
+                              margin-bottom: 0.5rem;
+                }
+
+                .template-card p {
+                              font-size: 0.8rem;
+                              color: var(--text-secondary);
+                }
+
+                .history-item {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              padding: 0.75rem;
+                              background: var(--bg-tertiary);
+                              border-radius: 8px;
+                              margin-bottom: 0.5rem;
+                              cursor: pointer;
+                              transition: all 0.3s ease;
+                }
+
+                .history-item:hover {
+                              background: var(--bg-primary);
+                }
+
+                .history-text {
+                              flex: 1;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                              font-size: 0.9rem;
+                }
+
+                .history-time {
+                              font-size: 0.75rem;
+                              color: var(--text-secondary);
+                              margin-left: 1rem;
+                }
+
+                footer {
+                              text-align: center;
+                              margin-top: 3rem;
+                              padding-top: 2rem;
+                              border-top: 1px solid var(--border-color);
+                              color: var(--text-secondary);
+                              font-size: 0.875rem;
+                }
+
+                footer a {
+                              color: var(--accent-primary);
+                              text-decoration: none;
+                }
+
+                footer a:hover {
+                              text-decoration: underline;
+                }
+            </style>
+  </head>
+  <body>
+        <div class="app-container">
+                  <header>
+                                <div class="logo">
+                                                  <i class="fas fa-wand-magic-sparkles"></i>i>
+                                                  <span>PromptingIt Optimizer</span>
+                                </div>div>
+                              <div class="header-actions">
+                                              <button class="theme-toggle" onclick="toggleTheme()">
+                                                                  <i class="fas fa-moon"></i>i>
+                                                                  <span>Dark</span>
+                                              </button>button>
+                                              <a href="index.html" class="btn btn-secondary">
+                                                                  <i class="fas fa-home"></i>i>
+                                                                  Back to Home
+                                              </a>a>
+                              </div>div>
+                  </header>
+        
+                <main class="main-content">
+                            <div class="panel">
+                                            <div class="panel-header">
+                                                                <h2 class="panel-title">
+                                                                                        <i class="fas fa-keyboard"></i>i>
+                                                                                        Input Prompt
+                                                                </h2>h2>
+                                            </div>div>
+                            
+                                            <div class="tabs">
+                                                                <button class="tab active" data-tab="write">Write</button>button>
+                                                                <button class="tab" data-tab="templates">Templates</button>button>
+                                                                <button class="tab" data-tab="history">History</button>button>
+                                            </div>div>
+                            
+                                            <div id="write-tab">
+                                                                <textarea class="prompt-textarea" id="inputPrompt" placeholder="Enter your prompt here...
+                                                                  
+                                                                  Example: Write a blog post about artificial intelligence and its impact on healthcare."></textarea>
+                                            
+                                                                <div class="action-buttons">
+                                                                                        <button class="btn btn-primary" onclick="analyzePrompt()">
+                                                                                                                    <i class="fas fa-magnifying-glass-chart"></i>i>
+                                                                                                                    Analyze
+                                                                                          </button>button>
+                                                                                        <button class="btn btn-primary" onclick="optimizePrompt()">
+                                                                                                                    <i class="fas fa-wand-magic-sparkles"></i>i>
+                                                                                                                    Optimize
+                                                                                          </button>button>
+                                                                                        <button class="btn btn-secondary" onclick="clearAll()">
+                                                                                                                    <i class="fas fa-trash"></i>i>
+                                                                                                                    Clear
+                                                                                          </button>button>
+                                                                </div>div>
+                                            </div>div>
+                            
+                                            <div id="templates-tab" class="hidden">
+                                                                <div class="template-grid">
+                                                                                        <div class="template-card" onclick="useTemplate('blog')">
+                                                                                                                    <h4><i class="fas fa-blog"></i>i> Blog Post</h4>
+                                                                                                                    <p>Create engaging blog content with SEO optimization</p>
+                                                                                          </div>div>
+                                                                                        <div class="template-card" onclick="useTemplate('code')">
+                                                                                                                    <h4><i class="fas fa-code"></i>i> Code Review</h4>
+                                                                                                                    <p>Get detailed code analysis and improvements</p>
+                                                                                          </div>div>
+                                                                                        <div class="template-card" onclick="useTemplate('email')">
+                                                                                                                    <h4><i class="fas fa-envelope"></i>i> Email Draft</h4>
+                                                                                                                    <p>Professional email templates for any occasion</p>
+                                                                                          </div>div>
+                                                                                        <div class="template-card" onclick="useTemplate('creative')">
+                                                                                                                    <h4><i class="fas fa-palette"></i>i> Creative Writing</h4>
+                                                                                                                    <p>Generate creative stories and narratives</p>
+                                                                                          </div>div>
+                                                                </div>div>
+                                            </div>div>
+                            
+                                            <div id="history-tab" class="hidden">
+                                                                <div id="historyList">
+                                                                                        <p class="text-secondary" style="color: var(--text-secondary); text-align: center; padding: 2rem;">No history yet. Start optimizing prompts!</p>
+                                                                </div>div>
+                                            </div>div>
+                            
+                                            <div class="analysis-section" id="analysisSection">
+                                                                <div class="score-display">
+                                                                                        <div class="score-circle" id="scoreCircle">--</div>div>
+                                                                                        <div class="score-details">
+                                                                                                                    <h4>Prompt Quality Score</h4>
+                                                                                                                    <p class="score-label">Based on clarity, specificity, and structure</p>
+                                                                                          </div>div>
+                                                                </div>div>
+                                            
+                                                                <div class="metrics-grid">
+                                                                                        <div class="metric-card">
+                                                                                                                    <div class="metric-label">Clarity</div>div>
+                                                                                                                    <div class="metric-value" id="clarityScore">--</div>div>
+                                                                                                                    <div class="metric-bar">
+                                                                                                                                                    <div class="metric-bar-fill" id="clarityBar" style="width: 0%"></div>div>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                                        <div class="metric-card">
+                                                                                                                    <div class="metric-label">Specificity</div>div>
+                                                                                                                    <div class="metric-value" id="specificityScore">--</div>div>
+                                                                                                                    <div class="metric-bar">
+                                                                                                                                                    <div class="metric-bar-fill" id="specificityBar" style="width: 0%"></div>div>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                                        <div class="metric-card">
+                                                                                                                    <div class="metric-label">Structure</div>div>
+                                                                                                                    <div class="metric-value" id="structureScore">--</div>div>
+                                                                                                                    <div class="metric-bar">
+                                                                                                                                                    <div class="metric-bar-fill" id="structureBar" style="width: 0%"></div>div>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                                        <div class="metric-card">
+                                                                                                                    <div class="metric-label">Context</div>div>
+                                                                                                                    <div class="metric-value" id="contextScore">--</div>div>
+                                                                                                                    <div class="metric-bar">
+                                                                                                                                                    <div class="metric-bar-fill" id="contextBar" style="width: 0%"></div>div>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                </div>div>
+                                            
+                                                                <ul class="suggestions-list" id="suggestionsList"></ul>ul>
+                                            </div>div>
+                            </div>div>
+                
+                            <div class="panel">
+                                            <div class="panel-header">
+                                                                <h2 class="panel-title">
+                                                                                        <i class="fas fa-sparkles"></i>i>
+                                                                                        Optimized Output
+                                                                </h2>
+                                            </div>div>
+                            
+                                            <div class="output-wrapper">
+                                                                <div class="optimized-output" id="optimizedOutput">Your optimized prompt will appear here after analysis...</div>div>
+                                                                <button class="copy-btn" onclick="copyOutput()" title="Copy to clipboard">
+                                                                                        <i class="fas fa-copy"></i>i>
+                                                                </button>button>
+                                                                <div class="loading-overlay hidden" id="loadingOverlay">
+                                                                                        <div class="spinner"></div>div>
+                                                                </div>div>
+                                            </div>div>
+                            
+                                            <div class="action-buttons" style="margin-top: 1rem;">
+                                                                <button class="btn btn-secondary" onclick="saveToHistory()">
+                                                                                        <i class="fas fa-bookmark"></i>i>
+                                                                                        Save
+                                                                </button>button>
+                                                                <button class="btn btn-secondary" onclick="exportPrompt()">
+                                                                                        <i class="fas fa-download"></i>i>
+                                                                                        Export
+                                                                </button>button>
+                                            </div>div>
+                            </div>div>
+                </main>main>
+        
+                <footer>
+                              <p>&copy; 2025 PromptingIt. All rights reserved. | <a href="privacy.html">Privacy Policy</a>a> | <a href="terms.html">Terms of Service</a>a></p>p>
+                </footer>
+        </div>div>
+
+        <script>
+                  // Theme toggle
+                  function toggleTheme() {
+                                document.body.classList.toggle('light-theme');
+                                const btn = document.querySelector('.theme-toggle');
+                                const isLight = document.body.classList.contains('light-theme');
+                                btn.innerHTML = isLight 
+                                    ? '<i class="fas fa-sun"></i><span>Light</span>'
+                                                  : '<i class="fas fa-moon"></i><span>Dark</span>';
+                                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                  }
+
+                  // Load saved theme
+                  if (localStorage.getItem('theme') === 'light') {
+                                document.body.classList.add('light-theme');
+                                document.querySelector('.theme-toggle').innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+                  }
+
+                  // Tab switching
+                  document.querySelectorAll('.tab').forEach(tab => {
+                                tab.addEventListener('click', () => {
+                                                  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                                                  tab.classList.add('active');
+
+                                                  const tabName = tab.dataset.tab;
+                                                  document.getElementById('write-tab').classList.add('hidden');
+                                                  document.getElementById('templates-tab').classList.add('hidden');
+                                                  document.getElementById('history-tab').classList.add('hidden');
+                                                  document.getElementById(tabName + '-tab').classList.remove('hidden');
+                                });
+                  });
+
+                  // Analyze prompt
+                  function analyzePrompt() {
+                                const prompt = document.getElementById('inputPrompt').value;
+                                if (!prompt.trim()) {
+                                                  alert('Please enter a prompt to analyze.');
+                                                  return;
+                                }
+
+                                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                                setTimeout(() => {
+                                                  const analysis = performAnalysis(prompt);
+                                                  updateAnalysisUI(analysis);
+                                                  document.getElementById('loadingOverlay').classList.add('hidden');
+                                }, 1500);
+                  }
+
+                  function performAnalysis(prompt) {
+                                const wordCount = prompt.split(/\s+/).filter(w => w).length;
+                                const sentenceCount = prompt.split(/[.!?]+/).filter(s => s.trim()).length;
+                                const hasContext = /context|background|situation/i.test(prompt);
+                                const hasSpecifics = /specific|exactly|precisely|must|should/i.test(prompt);
+                                const hasStructure = prompt.includes('\n') || /first|second|then|finally|step/i.test(prompt);
+                                const hasExamples = /example|such as|like|for instance/i.test(prompt);
+
+                                const clarity = Math.min(100, Math.max(20, 
+                                                                                       40 + (wordCount > 10 ? 20 : 0) + (sentenceCount > 1 ? 20 : 0) + (wordCount < 200 ? 20 : 0)
+                                                                                   ));
+
+                                const specificity = Math.min(100, Math.max(20,
+                                                                                           30 + (hasSpecifics ? 30 : 0) + (hasExamples ? 25 : 0) + (wordCount > 20 ? 15 : 0)
+                                                                                       ));
+
+                                const structure = Math.min(100, Math.max(20,
+                                                                                         30 + (hasStructure ? 35 : 0) + (sentenceCount > 2 ? 20 : 0) + (prompt.length > 100 ? 15 : 0)
+                                                                                     ));
+
+                                const context = Math.min(100, Math.max(20,
+                                                                                       30 + (hasContext ? 35 : 0) + (wordCount > 30 ? 20 : 0) + (hasExamples ? 15 : 0)
+                                                                                   ));
+
+                                const overall = Math.round((clarity + specificity + structure + context) / 4);
+
+                                const suggestions = [];
+                                if (!hasContext) suggestions.push({ type: 'tip', text: 'Add context or background information for better results' });
+                                if (!hasSpecifics) suggestions.push({ type: 'tip', text: 'Include specific requirements or constraints' });
+                                if (!hasStructure) suggestions.push({ type: 'tip', text: 'Consider breaking down your request into steps' });
+                                if (!hasExamples) suggestions.push({ type: 'tip', text: 'Provide examples of desired output format' });
+                                if (wordCount < 10) suggestions.push({ type: 'warning', text: 'Your prompt is quite short. Consider adding more detail' });
+                                if (wordCount > 500) suggestions.push({ type: 'warning', text: 'Your prompt is very long. Consider being more concise' });
+
+                                return { clarity, specificity, structure, context, overall, suggestions };
+                  }
+
+                  function updateAnalysisUI(analysis) {
+                                document.getElementById('scoreCircle').textContent = analysis.overall;
+                                document.getElementById('clarityScore').textContent = analysis.clarity + '%';
+                                document.getElementById('specificityScore').textContent = analysis.specificity + '%';
+                                document.getElementById('structureScore').textContent = analysis.structure + '%';
+                                document.getElementById('contextScore').textContent = analysis.context + '%';
+
+                                document.getElementById('clarityBar').style.width = analysis.clarity + '%';
+                                document.getElementById('specificityBar').style.width = analysis.specificity + '%';
+                                document.getElementById('structureBar').style.width = analysis.structure + '%';
+                                document.getElementById('contextBar').style.width = analysis.context + '%';
+
+                                const suggestionsList = document.getElementById('suggestionsList');
+                                suggestionsList.innerHTML = analysis.suggestions.map(s => `
+                                                <li class="suggestion-item">
+                                                                    <span class="suggestion-icon ${s.type}">
+                                                                                            <i class="fas fa-${s.type === 'tip' ? 'lightbulb' : 'exclamation'}"></i>
+                                                                                                                </span>
+                                                                                                                                    <span>${s.text}</span>
+                                                                                                                                                    </li>
+                                                                                                                                                                `).join('');
+                  }
+
+                  // Optimize prompt
+                  function optimizePrompt() {
+                                const prompt = document.getElementById('inputPrompt').value;
+                                if (!prompt.trim()) {
+                                                  alert('Please enter a prompt to optimize.');
+                                                  return;
+                                }
+
+                                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                                setTimeout(() => {
+                                                  const optimized = generateOptimizedPrompt(prompt);
+                                                  document.getElementById('optimizedOutput').textContent = optimized;
+                                                  analyzePrompt();
+                                                  document.getElementById('loadingOverlay').classList.add('hidden');
+                                }, 2000);
+                  }
+
+                  function generateOptimizedPrompt(prompt) {
+                                const hasContext = /context|background|situation/i.test(prompt);
+                                const hasFormat = /format|structure|organize/i.test(prompt);
+                                const hasExamples = /example|such as|like/i.test(prompt);
+
+                                let optimized = '';
+
+                                // Add role if not present
+                                if (!/^(you are|act as|as a)/i.test(prompt)) {
+                                                  optimized += '## Role\nYou are an expert assistant specialized in providing detailed, accurate, and helpful responses.\n\n';
+                                }
+
+                                // Add context section
+                                optimized += '## Task\n' + prompt.trim() + '\n\n';
+
+                                // Add requirements if not explicit
+                                if (!hasFormat) {
+                                                  optimized += '## Requirements\n';
+                                                  optimized += '- Provide a clear and structured response\n';
+                                                  optimized += '- Use specific examples where appropriate\n';
+                                                  optimized += '- Ensure accuracy and completeness\n\n';
+                                }
+
+                                // Add format guidance
+                                if (!hasFormat) {
+                                                  optimized += '## Output Format\n';
+                                                  optimized += 'Please structure your response with clear headings and organized sections for easy readability.\n\n';
+                                }
+
+                                // Add example request if not present
+                                if (!hasExamples) {
+                                                  optimized += '## Additional Notes\n';
+                                                  optimized += 'Include relevant examples to illustrate key points when applicable.';
+                                }
+
+                                return optimized;
+                  }
+
+                  // Copy output
+                  function copyOutput() {
+                                const output = document.getElementById('optimizedOutput').textContent;
+                                navigator.clipboard.writeText(output).then(() => {
+                                                  const btn = document.querySelector('.copy-btn');
+                                                  btn.innerHTML = '<i class="fas fa-check"></i>';
+                                                  setTimeout(() => {
+                                                                        btn.innerHTML = '<i class="fas fa-copy"></i>';
+                                                  }, 2000);
+                                });
+                  }
+
+                  // Clear all
+                  function clearAll() {
+                                document.getElementById('inputPrompt').value = '';
+                                document.getElementById('optimizedOutput').textContent = 'Your optimized prompt will appear here after analysis...';
+                                document.getElementById('scoreCircle').textContent = '--';
+                                document.getElementById('clarityScore').textContent = '--';
+                                document.getElementById('specificityScore').textContent = '--';
+                                document.getElementById('structureScore').textContent = '--';
+                                document.getElementById('contextScore').textContent = '--';
+                                document.getElementById('clarityBar').style.width = '0%';
+                                document.getElementById('specificityBar').style.width = '0%';
+                                document.getElementById('structureBar').style.width = '0%';
+                                document.getElementById('contextBar').style.width = '0%';
+                                document.getElementById('suggestionsList').innerHTML = '';
+                  }
+
+                  // Templates
+                  const templates = {
+                                blog: 'Write a comprehensive blog post about [TOPIC].\n\nRequirements:\n- Target audience: [AUDIENCE]\n- Tone: Professional yet engaging\n- Length: Approximately 1500 words\n- Include: Introduction, main points, conclusion\n- SEO keywords to incorporate: [KEYWORDS]',
+                                code: 'Review the following code and provide:\n\n1. Bug identification and fixes\n2. Performance optimization suggestions\n3. Code style improvements\n4. Security considerations\n5. Best practices recommendations\n\nCode to review:\n[PASTE CODE HERE]',
+                                email: 'Draft a professional email with the following details:\n\nPurpose: [PURPOSE]\nRecipient: [RECIPIENT ROLE]\nTone: [FORMAL/SEMI-FORMAL/CASUAL]\nKey points to convey:\n- [POINT 1]\n- [POINT 2]\n- [POINT 3]\n\nDesired action from recipient: [ACTION]',
+                                creative: 'Write a creative [STORY TYPE] with the following elements:\n\nSetting: [SETTING]\nMain character: [CHARACTER DESCRIPTION]\nConflict: [MAIN CONFLICT]\nTheme: [UNDERLYING THEME]\nTone: [TONE]\nLength: [WORD COUNT] words\n\nInclude vivid descriptions and engaging dialogue.'
+                  };
+
+                  function useTemplate(type) {
+                                document.getElementById('inputPrompt').value = templates[type];
+                                document.querySelectorAll('.tab')[0].click();
+                  }
+
+                  // History
+                  let history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+
+                  function saveToHistory() {
+                                const input = document.getElementById('inputPrompt').value;
+                                const output = document.getElementById('optimizedOutput').textContent;
+
+                                if (!input.trim() || output === 'Your optimized prompt will appear here after analysis...') {
+                                                  alert('Please optimize a prompt before saving.');
+                                                  return;
+                                }
+
+                                const entry = {
+                                                  id: Date.now(),
+                                                  input: input.substring(0, 100),
+                                                  output: output,
+                                                  timestamp: new Date().toLocaleString()
+                                };
+
+                                history.unshift(entry);
+                                if (history.length > 10) history.pop();
+                                localStorage.setItem('promptHistory', JSON.stringify(history));
+                                updateHistoryUI();
+                                alert('Saved to history!');
+                  }
+
+                  function updateHistoryUI() {
+                                const historyList = document.getElementById('historyList');
+                                if (history.length === 0) {
+                                                  historyList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No history yet. Start optimizing prompts!</p>';
+                                                  return;
+                                }
+
+                                historyList.innerHTML = history.map(item => `
+                                                <div class="history-item" onclick="loadHistory(${item.id})">
+                                                                    <span class="history-text">${item.input}...</span>
+                                                                                        <span class="history-time">${item.timestamp}</span>
+                                                                                                        </div>
+                                                                                                                    `).join('');
+                  }
+
+                  function loadHistory(id) {
+                                const item = history.find(h => h.id === id);
+                                if (item) {
+                                                  document.getElementById('optimizedOutput').textContent = item.output;
+                                                  document.querySelectorAll('.tab')[0].click();
+                                }
+                  }
+
+                  // Export
+                  function exportPrompt() {
+                                const output = document.getElementById('optimizedOutput').textContent;
+                                if (output === 'Your optimized prompt will appear here after analysis...') {
+                                                  alert('Please optimize a prompt before exporting.');
+                                                  return;
+                                }
+
+                                const blob = new Blob([output], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'optimized-prompt.txt';
+                                a.click();
+                                URL.revokeObjectURL(url);
+                  }
+
+                  // Initialize history UI
+                  updateHistoryUI();
+        </script>
+  </body>
+</html>html>
+        </script>
+                </footer></p></p></h4></span></span>
+                  </header>
+  </body>
+      </style></title>
+  </head>
