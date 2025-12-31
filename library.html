@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prompt Library - Organize, version, and manage all your AI prompts in one place">
+    <title>Prompt Library - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --glacier-dark: #0891b2;
+            --emerald: #34d399;
+            --emerald-dark: #10b981;
+            --solar: #facc15;
+            --solar-dark: #eab308;
+            --violet: #a78bfa;
+            --violet-dark: #8b5cf6;
+            --rose: #fb7185;
+            --rose-dark: #f43f5e;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --text-4: rgba(255, 255, 255, 0.2);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.2);
+            --glow-emerald: 0 0 40px rgba(52,211,153,0.2);
+            --duration-fast: 150ms;
+            --duration-normal: 300ms;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--surface-1);
+            border-right: 1px solid var(--surface-3);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0 12px;
+            margin-bottom: 32px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-section { margin-bottom: 24px; }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            color: var(--text-2);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all var(--duration-fast);
+        }
+
+        .nav-item:hover {
+            background: var(--surface-2);
+            color: var(--text-1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(103,232,249,0.15), rgba(34,211,238,0.1));
+            color: var(--glacier);
+        }
+
+        .nav-icon { width: 20px; text-align: center; }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--glacier);
+            color: var(--surface-1);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--surface-3);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .user-card:hover { background: var(--surface-2); }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--glacier), var(--emerald));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--surface-1);
+        }
+
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-tier { font-size: 12px; color: var(--emerald); }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .header-content p { color: var(--text-2); font-size: 15px; }
+
+        .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text-1);
+            border: 1px solid var(--surface-3);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-3);
+            border-color: var(--surface-4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            color: var(--surface-1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-glacier);
+        }
+
+        /* Search and Filters */
+        .toolbar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-3);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 14px;
+            transition: all var(--duration-fast);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--glacier);
+            box-shadow: 0 0 0 3px rgba(103,232,249,0.1);
+        }
+
+        .search-input::placeholder { color: var(--text-3); }
+
+        .filter-group { display: flex; gap: 8px; }
+
+        .filter-btn {
+            padding: 12px 16px;
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            color: var(--text-2);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--duration-fast);
+        }
+
+        .filter-btn:hover {
+            background: var(--surface-2);
+            color: var(--text-1);
+        }
+
+        .filter-btn.active {
+            background: var(--surface-2);
+            border-color: var(--glacier);
+            color: var(--glacier);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--surface-2);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+
+        .view-btn {
+            padding: 10px 14px;
+            background: transparent;
+            border: none;
+            color: var(--text-3);
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all var(--duration-fast);
+        }
+
+        .view-btn:hover { color: var(--text-1); }
+        .view-btn.active { background: var(--surface-3); color: var(--text-1); }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .quick-stat {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all var(--duration-fast);
+        }
+
+        .quick-stat:hover {
+            border-color: var(--surface-4);
+            transform: translateY(-2px);
+        }
+
+        .quick-stat-label { font-size: 13px; color: var(--text-3); margin-bottom: 8px; }
+
+        .quick-stat-value {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .quick-stat-value.gradient {
+            background: linear-gradient(135deg, var(--glacier), var(--emerald));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Folder Tree */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        .folder-panel {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 32px;
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--surface-3);
+        }
+
+        .folder-title { font-size: 14px; font-weight: 600; }
+
+        .folder-add {
+            width: 28px;
+            height: 28px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-sm);
+            color: var(--text-2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all var(--duration-fast);
+        }
+
+        .folder-add:hover {
+            background: var(--glacier);
+            color: var(--surface-1);
+            border-color: var(--glacier);
+        }
+
+        .folder-tree { list-style: none; }
+
+        .folder-item {
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-2);
+            font-size: 14px;
+            transition: all var(--duration-fast);
+            margin-bottom: 4px;
+        }
+
+        .folder-item:hover { background: var(--surface-2); color: var(--text-1); }
+
+        .folder-item.active {
+            background: rgba(103,232,249,0.1);
+            color: var(--glacier);
+        }
+
+        .folder-item i { font-size: 14px; width: 18px; }
+
+        .folder-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-3);
+            font-family: var(--font-mono);
+        }
+
+        .folder-nested { margin-left: 24px; }
+
+        /* Prompts Grid */
+        .prompts-panel { flex: 1; }
+
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .prompt-card {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all var(--duration-fast);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .prompt-card:hover {
+            border-color: var(--glacier);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .prompt-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .prompt-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prompt-title i { color: var(--glacier); font-size: 14px; }
+
+        .prompt-version {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            background: var(--surface-2);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--text-3);
+        }
+
+        .prompt-description {
+            font-size: 13px;
+            color: var(--text-2);
+            line-height: 1.5;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .prompt-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-3);
+            margin-bottom: 12px;
+        }
+
+        .prompt-meta span { display: flex; align-items: center; gap: 6px; }
+
+        .prompt-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+
+        .prompt-tag {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--text-2);
+        }
+
+        .prompt-tag.model { background: rgba(103,232,249,0.1); color: var(--glacier); }
+        .prompt-tag.category { background: rgba(167,139,250,0.1); color: var(--violet); }
+        .prompt-tag.status { background: rgba(52,211,153,0.1); color: var(--emerald); }
+
+        .prompt-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--surface-3);
+        }
+
+        .prompt-stats { display: flex; gap: 12px; }
+
+        .prompt-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .prompt-actions { display: flex; gap: 8px; }
+
+        .prompt-action {
+            width: 32px;
+            height: 32px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-sm);
+            color: var(--text-3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all var(--duration-fast);
+        }
+
+        .prompt-action:hover {
+            background: var(--glacier);
+            color: var(--surface-1);
+            border-color: var(--glacier);
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.active { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+        .status-dot.draft { background: var(--solar); }
+        .status-dot.archived { background: var(--text-4); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            background: var(--surface-1);
+            border: 1px dashed var(--surface-3);
+            border-radius: var(--radius-lg);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--surface-2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--text-3);
+            margin: 0 auto 20px;
+        }
+
+        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .empty-desc { color: var(--text-2); font-size: 14px; margin-bottom: 24px; }
+
+        /* Create Prompt Modal Trigger */
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            border: none;
+            border-radius: 50%;
+            color: var(--surface-1);
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--glow-glacier), var(--shadow-lg);
+            transition: all var(--duration-fast);
+            z-index: 50;
+        }
+
+        .fab:hover { transform: scale(1.1) rotate(90deg); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .quick-stats { grid-template-columns: repeat(2, 1fr); }
+            .content-grid { grid-template-columns: 1fr; }
+            .folder-panel { position: static; }
+        }
+
+        @media (max-width: 768px) {
+            .main { padding: 20px; }
+            .header { flex-direction: column; }
+            .quick-stats { grid-template-columns: 1fr; }
+            .prompts-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 20px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <a href="index.html" class="logo">#PromptingIt</a>
+
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="creator-dashboard.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    Dashboard
+                </a>
+                <a href="library.html" class="nav-item active">
+                    <span class="nav-icon"><i class="fas fa-folder-open"></i></span>
+                    Prompt Library
+                    <span class="nav-badge">24</span>
+                </a>
+                <a href="playground.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-play-circle"></i></span>
+                    Playground
+                </a>
+                <a href="templates.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-shapes"></i></span>
+                    Templates
+                </a>
+                <a href="workflows.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-project-diagram"></i></span>
+                    Workflows
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Team</div>
+                <a href="workspace.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    Workspace
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                    Analytics
+                </a>
+                <a href="api-console.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-code"></i></span>
+                    API Console
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Account</div>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-cog"></i></span>
+                    Settings
+                </a>
+                <a href="admin.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                    Admin
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">Jane Doe</div>
+                        <div class="user-tier"><i class="fas fa-crown"></i> Pro Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Prompt Library</h1>
+                    <p>Organize, version, and manage all your AI prompts in one place</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-upload"></i>
+                        Import
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Prompt
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <div class="quick-stat-label">Total Prompts</div>
+                    <div class="quick-stat-value gradient">247</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-label">Active in Production</div>
+                    <div class="quick-stat-value">89</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-label">Pending Review</div>
+                    <div class="quick-stat-value">12</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-label">Total Versions</div>
+                    <div class="quick-stat-value">1,847</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" placeholder="Search prompts by name, content, or tags...">
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active">
+                        <i class="fas fa-layer-group"></i>
+                        All
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-check-circle"></i>
+                        Active
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-pencil-alt"></i>
+                        Drafts
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-archive"></i>
+                        Archived
+                    </button>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active"><i class="fas fa-th-large"></i></button>
+                    <button class="view-btn"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Folder Panel -->
+                <div class="folder-panel">
+                    <div class="folder-header">
+                        <span class="folder-title">Folders</span>
+                        <button class="folder-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <ul class="folder-tree">
+                        <li class="folder-item active">
+                            <i class="fas fa-folder"></i>
+                            All Prompts
+                            <span class="folder-count">247</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-star"></i>
+                            Favorites
+                            <span class="folder-count">18</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Customer Support
+                            <span class="folder-count">32</span>
+                        </li>
+                        <ul class="folder-tree folder-nested">
+                            <li class="folder-item">
+                                <i class="fas fa-folder"></i>
+                                Tickets
+                                <span class="folder-count">15</span>
+                            </li>
+                            <li class="folder-item">
+                                <i class="fas fa-folder"></i>
+                                FAQ
+                                <span class="folder-count">17</span>
+                            </li>
+                        </ul>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Content Generation
+                            <span class="folder-count">45</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Code Assistant
+                            <span class="folder-count">28</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Data Analysis
+                            <span class="folder-count">19</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Marketing
+                            <span class="folder-count">36</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            Sales
+                            <span class="folder-count">22</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-folder"></i>
+                            HR & Recruiting
+                            <span class="folder-count">14</span>
+                        </li>
+                        <li class="folder-item">
+                            <i class="fas fa-archive"></i>
+                            Archived
+                            <span class="folder-count">33</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Prompts Grid -->
+                <div class="prompts-panel">
+                    <div class="prompts-grid">
+                        <!-- Prompt Card 1 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot active"></span>
+                                        Customer Ticket Analyzer
+                                    </div>
+                                    <span class="prompt-version">v2.4.1</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Analyzes customer support tickets to categorize issues, extract sentiment, and suggest appropriate responses based on historical data.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 2h ago</span>
+                                <span><i class="fas fa-user"></i> John D.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">GPT-4</span>
+                                <span class="prompt-tag model">Claude</span>
+                                <span class="prompt-tag category">Support</span>
+                                <span class="prompt-tag status">Production</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 12.4k runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 24 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Card 2 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot active"></span>
+                                        Blog Post Generator
+                                    </div>
+                                    <span class="prompt-version">v3.1.0</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Creates SEO-optimized blog posts with proper structure, engaging headlines, and relevant keywords for content marketing.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 1d ago</span>
+                                <span><i class="fas fa-user"></i> Sarah M.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">Claude</span>
+                                <span class="prompt-tag category">Content</span>
+                                <span class="prompt-tag status">Production</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 8.7k runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 31 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Card 3 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot draft"></span>
+                                        Code Review Assistant
+                                    </div>
+                                    <span class="prompt-version">v1.2.0-beta</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Reviews code changes for best practices, security vulnerabilities, and suggests improvements with explanations.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 4h ago</span>
+                                <span><i class="fas fa-user"></i> Mike T.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">GPT-4</span>
+                                <span class="prompt-tag category">Development</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 2.1k runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 12 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Card 4 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot active"></span>
+                                        Email Composer
+                                    </div>
+                                    <span class="prompt-version">v2.0.3</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Generates professional email responses and drafts based on context, tone preferences, and communication style guidelines.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 6h ago</span>
+                                <span><i class="fas fa-user"></i> Lisa K.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">GPT-4</span>
+                                <span class="prompt-tag model">Claude</span>
+                                <span class="prompt-tag category">Communication</span>
+                                <span class="prompt-tag status">Production</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 15.2k runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 20 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Card 5 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot active"></span>
+                                        Data Insights Generator
+                                    </div>
+                                    <span class="prompt-version">v1.8.2</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Analyzes datasets and generates actionable insights, visualizations recommendations, and executive summaries.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 3d ago</span>
+                                <span><i class="fas fa-user"></i> Alex R.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">GPT-4</span>
+                                <span class="prompt-tag category">Analytics</span>
+                                <span class="prompt-tag status">Production</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 5.4k runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 18 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Card 6 -->
+                        <div class="prompt-card">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot draft"></span>
+                                        Meeting Summarizer
+                                    </div>
+                                    <span class="prompt-version">v0.9.1-alpha</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                Transcribes and summarizes meeting recordings, extracts action items, and generates follow-up task lists.
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated 1w ago</span>
+                                <span><i class="fas fa-user"></i> Emily C.</span>
+                            </div>
+                            <div class="prompt-tags">
+                                <span class="prompt-tag model">Claude</span>
+                                <span class="prompt-tag category">Productivity</span>
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-play"></i> 890 runs</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 9 versions</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button class="fab" title="Create New Prompt">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // View toggle
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Folder items
+        document.querySelectorAll('.folder-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('.prompt-card').forEach(card => {
+                const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+                const desc = card.querySelector('.prompt-description').textContent.toLowerCase();
+                if (title.includes(query) || desc.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
