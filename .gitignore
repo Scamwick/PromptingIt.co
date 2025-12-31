@@ -1,0 +1,71 @@
+# Environment and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+*.pem
+*.key
+secrets/
+credentials/
+
+# API keys and tokens
+api-keys.json
+tokens.json
+*.secret
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Build outputs
+dist/
+build/
+out/
+*.min.js
+*.min.css
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Backup files
+*.backup
+*.bkp
