@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Prompting It — The Enterprise Prompt Operating System. Version control, approval workflows, multi-model testing, and monetization for production AI prompts.">
+  <title>Prompting It — The Enterprise Prompt Operating System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glacier: #67e8f9;
+      --glacier-deep: #22d3ee;
+      --glacier-dark: #0891b2;
+      --emerald: #34d399;
+      --emerald-dark: #10b981;
+      --solar: #facc15;
+      --violet: #a78bfa;
+      --surface-0: #030306;
+      --surface-1: #09090b;
+      --surface-2: #18181b;
+      --surface-3: #27272a;
+      --surface-4: #3f3f46;
+      --text-1: #ffffff;
+      --text-2: rgba(255,255,255,0.75);
+      --text-3: rgba(255,255,255,0.45);
+      --text-4: rgba(255,255,255,0.2);
+      --error: #ef4444;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--glacier); color: var(--surface-0); }
+    :focus-visible { outline: 2px solid var(--glacier); outline-offset: 2px; }
+    
+    .skip-link { position: absolute; top: -100px; left: 16px; background: var(--glacier); color: var(--surface-0); padding: 12px 24px; border-radius: 8px; font-weight: 600; z-index: 10000; transition: top 200ms; text-decoration: none; }
+    .skip-link:focus { top: 16px; }
+
+    #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 48px; height: 72px; display: flex; justify-content: space-between; align-items: center; background: rgba(3,3,6,0.6); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid transparent; transition: all 400ms var(--ease-out-expo); }
+    header.scrolled { border-bottom-color: var(--surface-3); background: rgba(3,3,6,0.95); height: 64px; }
+    .logo { font-family: var(--font-mono); font-weight: 800; font-size: 20px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; -webkit-text-fill-color: var(--surface-0); font-weight: 800; }
+    nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link { padding: 10px 16px; color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 8px; transition: all 150ms; position: relative; }
+    .nav-link::after { content: ''; position: absolute; bottom: 6px; left: 16px; right: 16px; height: 2px; background: var(--glacier); transform: scaleX(0); transition: transform 200ms var(--ease-out-expo); }
+    .nav-link:hover { color: var(--text-1); }
+    .nav-link:hover::after { transform: scaleX(1); }
+    .nav-cta { margin-left: 16px; padding: 10px 20px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); font-weight: 600; font-size: 14px; border-radius: 8px; text-decoration: none; transition: all 200ms var(--ease-out-expo); box-shadow: 0 4px 16px rgba(103,232,249,0.2); }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(103,232,249,0.4); }
+    .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-1); font-size: 24px; cursor: pointer; padding: 8px; }
+    .mobile-nav { display: none; position: fixed; top: 72px; left: 0; right: 0; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); padding: 16px; flex-direction: column; gap: 8px; z-index: 999; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { padding: 16px; color: var(--text-1); text-decoration: none; font-weight: 500; border-radius: 12px; }
+
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 140px 24px 100px; position: relative; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; pointer-events: none; }
+    .hero-bg::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 200%; height: 100%; background: radial-gradient(ellipse 80% 50% at 50% 20%, rgba(103,232,249,0.15) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 30% 60%, rgba(52,211,153,0.1) 0%, transparent 40%), radial-gradient(ellipse 50% 30% at 70% 70%, rgba(167,139,250,0.08) 0%, transparent 40%); }
+    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(103,232,249,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%); }
+    
+    .floating-elements { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+    .floating-card { position: absolute; background: rgba(24,24,27,0.8); backdrop-filter: blur(12px); border: 1px solid var(--surface-3); border-radius: 12px; padding: 14px 18px; font-size: 13px; color: var(--text-2); box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: float 6s ease-in-out infinite; display: flex; align-items: center; gap: 10px; }
+    .floating-card .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .floating-card.card-1 { top: 18%; left: 6%; animation-delay: 0s; }
+    .floating-card.card-2 { top: 32%; right: 5%; animation-delay: -2s; }
+    .floating-card.card-3 { bottom: 28%; left: 4%; animation-delay: -4s; }
+    .floating-card.card-4 { bottom: 25%; right: 6%; animation-delay: -1s; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-12px) rotate(1deg); } 75% { transform: translateY(8px) rotate(-1deg); } }
+
+    .hero-content { position: relative; z-index: 2; max-width: 900px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; background: rgba(103,232,249,0.08); border: 1px solid rgba(103,232,249,0.2); border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--glacier); margin-bottom: 32px; cursor: pointer; transition: all 200ms; text-decoration: none; }
+    .hero-badge:hover { background: rgba(103,232,249,0.12); border-color: rgba(103,232,249,0.4); transform: translateY(-2px); }
+    .hero-badge-dot { width: 8px; height: 8px; background: var(--emerald); border-radius: 50%; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); } 50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(52,211,153,0); } }
+    .hero-title { font-size: clamp(44px, 9vw, 76px); font-weight: 900; line-height: 1.0; letter-spacing: -0.04em; margin-bottom: 28px; }
+    .hero-title .line { display: block; }
+    .hero-title .gradient { background: linear-gradient(135deg, var(--glacier) 0%, var(--glacier-deep) 50%, var(--emerald) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: gradient-shift 8s ease-in-out infinite; }
+    @keyframes gradient-shift { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+    .hero-subtitle { font-size: clamp(17px, 2.2vw, 21px); color: var(--text-2); max-width: 580px; margin: 0 auto 44px; line-height: 1.7; }
+    .hero-subtitle strong { color: var(--text-1); font-weight: 600; }
+    .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 250ms var(--ease-out-expo); cursor: pointer; border: none; font-family: var(--font-sans); position: relative; overflow: hidden; }
+    .btn-primary { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); box-shadow: 0 4px 20px rgba(103,232,249,0.3); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(103,232,249,0.5); }
+    .btn-secondary { background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); }
+    .btn-secondary:hover { border-color: var(--glacier); background: var(--surface-3); transform: translateY(-2px); }
+    .btn-icon { transition: transform 200ms var(--ease-spring); }
+    .btn:hover .btn-icon { transform: translateX(3px); }
+    
+    .hero-note { font-size: 13px; color: var(--text-3); display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .hero-note span { display: flex; align-items: center; gap: 6px; }
+    .checkmark { color: var(--emerald); }
+    
+    .trust-badges { display: flex; justify-content: center; gap: 20px; margin-top: 56px; flex-wrap: wrap; }
+    .trust-badge { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 8px; font-size: 12px; color: var(--text-3); transition: all 200ms; }
+    .trust-badge:hover { border-color: var(--surface-4); color: var(--text-2); }
+
+    .metrics-bar { padding: 48px 24px; background: var(--surface-1); border-top: 1px solid var(--surface-3); border-bottom: 1px solid var(--surface-3); position: relative; }
+    .metrics-bar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--glacier), transparent); opacity: 0.5; }
+    .metrics-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .metric { text-align: center; flex: 1; min-width: 140px; }
+    .metric-value { font-family: var(--font-mono); font-size: clamp(26px, 4vw, 38px); font-weight: 800; background: linear-gradient(135deg, var(--glacier), var(--emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+    .metric-label { font-size: 12px; color: var(--text-3); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .metric-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--emerald); margin-top: 4px; }
+
+    .logos-section { padding: 56px 24px; background: var(--surface-0); }
+    .logos-label { text-align: center; font-size: 12px; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 28px; }
+    .logos-track { display: flex; justify-content: center; align-items: center; gap: 48px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+    .logo-item { font-size: 18px; font-weight: 700; color: var(--text-4); letter-spacing: -0.02em; transition: all 300ms; cursor: default; }
+    .logo-item:hover { color: var(--text-2); transform: scale(1.05); }
+
+    section { padding: 120px 24px; position: relative; }
+    .section-container { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-label { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--glacier); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 18px; padding: 8px 16px; background: rgba(103,232,249,0.08); border: 1px solid rgba(103,232,249,0.15); border-radius: 6px; }
+    .section-title { font-size: clamp(32px, 5vw, 52px); font-weight: 900; letter-spacing: -0.03em; margin-bottom: 18px; line-height: 1.1; }
+    .section-subtitle { font-size: 17px; color: var(--text-2); max-width: 580px; margin: 0 auto; line-height: 1.7; }
+
+    .problem-section { background: var(--surface-1); }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .problem-column { padding: 40px; background: var(--surface-2); border-radius: 20px; border: 1px solid var(--surface-3); }
+    .problem-column.solution { border-color: rgba(103,232,249,0.2); background: linear-gradient(180deg, rgba(103,232,249,0.05) 0%, var(--surface-2) 100%); }
+    .problem-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--surface-3); }
+    .problem-icon-large { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .problem-icon-large.bad { background: rgba(239,68,68,0.15); }
+    .problem-icon-large.good { background: rgba(52,211,153,0.15); }
+    .problem-header h3 { font-size: 22px; font-weight: 700; }
+    .problem-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .problem-item { display: flex; gap: 14px; padding: 18px; background: var(--surface-1); border-radius: 12px; transition: all 200ms var(--ease-out-expo); }
+    .problem-item:hover { transform: translateX(4px); }
+    .problem-item-icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 2px; }
+    .problem-item-icon.bad { background: rgba(239,68,68,0.2); color: var(--error); }
+    .problem-item-icon.good { background: rgba(52,211,153,0.2); color: var(--emerald); }
+    .problem-item-content strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .problem-item-content span { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+
+    .features-section { background: var(--surface-0); }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .feature-card { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 20px; padding: 32px; transition: all 350ms var(--ease-out-expo); position: relative; overflow: hidden; }
+    .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--glacier), var(--emerald)); transform: scaleX(0); transform-origin: left; transition: transform 350ms var(--ease-out-expo); }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover { border-color: var(--glacier); transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 60px rgba(103,232,249,0.08); }
+    .feature-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 24px; }
+    .feature-icon.glacier { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(34,211,238,0.1)); box-shadow: 0 0 40px rgba(103,232,249,0.2); }
+    .feature-icon.emerald { background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(16,185,129,0.1)); box-shadow: 0 0 40px rgba(52,211,153,0.2); }
+    .feature-icon.solar { background: linear-gradient(135deg, rgba(250,204,21,0.2), rgba(234,179,8,0.1)); box-shadow: 0 0 40px rgba(250,204,21,0.2); }
+    .feature-icon.violet { background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1)); box-shadow: 0 0 40px rgba(167,139,250,0.2); }
+    .feature-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+    .feature-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 20px; }
+    .feature-link { font-size: 13px; font-weight: 600; color: var(--glacier); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: gap 200ms var(--ease-spring); }
+    .feature-link:hover { gap: 10px; }
+
+    .demo-section { background: var(--surface-1); overflow: hidden; }
+    .demo-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+    .demo-content h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; }
+    .demo-content p { font-size: 16px; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+    .demo-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+    .demo-feature { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-2); }
+    .demo-feature-check { width: 22px; height: 22px; border-radius: 6px; background: rgba(52,211,153,0.15); color: var(--emerald); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+    .demo-window { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 16px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.4); }
+    .demo-window-header { display: flex; align-items: center; gap: 8px; padding: 14px 18px; background: var(--surface-3); border-bottom: 1px solid var(--surface-4); }
+    .demo-window-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .demo-window-dot.red { background: #ff5f57; }
+    .demo-window-dot.yellow { background: #febc2e; }
+    .demo-window-dot.green { background: #28c840; }
+    .demo-window-title { flex: 1; text-align: center; font-size: 12px; color: var(--text-3); font-family: var(--font-mono); }
+    .demo-window-content { padding: 20px; min-height: 360px; }
+    .demo-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .demo-tab { padding: 8px 16px; background: transparent; border: none; color: var(--text-3); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; transition: all 150ms; font-family: var(--font-sans); }
+    .demo-tab.active { background: var(--surface-3); color: var(--glacier); }
+    .demo-code { background: var(--surface-1); border-radius: 10px; padding: 20px; font-family: var(--font-mono); font-size: 12px; line-height: 1.8; overflow-x: auto; }
+    .demo-code .comment { color: var(--text-4); }
+    .demo-code .keyword { color: var(--violet); }
+    .demo-code .string { color: var(--emerald); }
+    .demo-code .function { color: var(--glacier); }
+    .demo-code .property { color: var(--solar); }
+
+    .how-section { background: var(--surface-0); }
+    .steps-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; }
+    .steps-connector { position: absolute; top: 50px; left: 12.5%; right: 12.5%; height: 2px; background: linear-gradient(90deg, var(--glacier), var(--emerald)); opacity: 0.3; }
+    .step { text-align: center; position: relative; }
+    .step-number { width: 100px; height: 100px; margin: 0 auto 24px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--surface-3); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; position: relative; z-index: 1; transition: all 400ms var(--ease-out-expo); }
+    .step-number-value { font-family: var(--font-mono); font-size: 28px; font-weight: 800; color: var(--glacier); }
+    .step-number-icon { font-size: 18px; }
+    .step:hover .step-number { border-color: var(--glacier); box-shadow: 0 0 40px rgba(103,232,249,0.3); transform: scale(1.08); }
+    .step-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-size: 13px; color: var(--text-3); max-width: 180px; margin: 0 auto; line-height: 1.6; }
+
+    .comparison-section { background: var(--surface-1); }
+    .comparison-table-container { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 16px; overflow: hidden; overflow-x: auto; }
+    .comparison-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .comparison-table th, .comparison-table td { padding: 18px 20px; text-align: left; border-bottom: 1px solid var(--surface-3); }
+    .comparison-table th { background: var(--surface-3); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+    .comparison-table th:first-child { width: 260px; }
+    .comparison-table th:not(:first-child) { text-align: center; }
+    .comparison-table td:not(:first-child) { text-align: center; }
+    .comparison-table tbody tr:last-child td { border-bottom: none; }
+    .comparison-table tbody tr:hover { background: rgba(103,232,249,0.03); }
+    .comparison-feature { font-weight: 500; font-size: 14px; }
+    .comparison-feature-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .check-yes { color: var(--emerald); font-size: 18px; }
+    .check-no { color: var(--surface-4); font-size: 18px; }
+    .check-partial { color: var(--solar); font-size: 12px; }
+    .th-highlight { background: linear-gradient(180deg, rgba(103,232,249,0.15) 0%, var(--surface-3) 100%) !important; color: var(--glacier) !important; }
+
+    .testimonials-section { background: var(--surface-0); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testimonial-card { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 20px; padding: 32px; display: flex; flex-direction: column; transition: all 300ms var(--ease-out-expo); }
+    .testimonial-card:hover { border-color: var(--surface-4); transform: translateY(-4px); }
+    .testimonial-stars { display: flex; gap: 3px; margin-bottom: 18px; color: var(--solar); font-size: 14px; }
+    .testimonial-quote { font-size: 15px; line-height: 1.8; color: var(--text-2); margin-bottom: 24px; flex: 1; }
+    .testimonial-author { display: flex; align-items: center; gap: 14px; padding-top: 20px; border-top: 1px solid var(--surface-3); }
+    .testimonial-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: var(--surface-0); }
+    .testimonial-avatar.glacier { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); }
+    .testimonial-avatar.emerald { background: linear-gradient(135deg, var(--emerald), var(--emerald-dark)); }
+    .testimonial-avatar.violet { background: linear-gradient(135deg, var(--violet), #8b5cf6); }
+    .testimonial-name { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+    .testimonial-role { font-size: 12px; color: var(--text-3); }
+    .testimonial-logo { font-size: 11px; color: var(--text-4); font-weight: 600; }
+
+    .pricing-section { background: var(--surface-1); }
+    .pricing-toggle { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 56px; }
+    .pricing-toggle-label { font-size: 14px; color: var(--text-3); cursor: pointer; transition: color 150ms; }
+    .pricing-toggle-label.active { color: var(--text-1); }
+    .pricing-toggle-switch { width: 52px; height: 28px; background: var(--surface-3); border-radius: 14px; position: relative; cursor: pointer; transition: background 200ms; }
+    .pricing-toggle-switch.active { background: var(--glacier); }
+    .pricing-toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border-radius: 50%; transition: transform 200ms var(--ease-spring); }
+    .pricing-toggle-switch.active::after { transform: translateX(24px); }
+    .pricing-save { background: rgba(52,211,153,0.15); color: var(--emerald); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start; }
+    .pricing-card { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 20px; padding: 36px 32px; transition: all 400ms var(--ease-out-expo); position: relative; }
+    .pricing-card.featured { border-color: var(--glacier); background: linear-gradient(180deg, rgba(103,232,249,0.08) 0%, var(--surface-2) 100%); transform: scale(1.02); box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 60px rgba(103,232,249,0.1); z-index: 1; }
+    .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); padding: 6px 14px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; white-space: nowrap; }
+    .pricing-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .pricing-desc { font-size: 13px; color: var(--text-3); margin-bottom: 24px; line-height: 1.5; }
+    .pricing-price { margin-bottom: 28px; }
+    .pricing-amount { font-family: var(--font-mono); font-size: 48px; font-weight: 800; line-height: 1; }
+    .pricing-period { font-size: 13px; color: var(--text-3); margin-top: 6px; display: block; }
+    .pricing-features { list-style: none; margin-bottom: 32px; }
+    .pricing-features li { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; font-size: 13px; color: var(--text-2); border-bottom: 1px solid var(--surface-3); }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li::before { content: '✓'; color: var(--emerald); font-weight: 700; font-size: 13px; margin-top: 1px; }
+    .pricing-cta { width: 100%; padding: 16px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 250ms var(--ease-out-expo); border: none; font-family: var(--font-sans); }
+    .pricing-card.featured .pricing-cta { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); box-shadow: 0 4px 20px rgba(103,232,249,0.3); }
+    .pricing-card:not(.featured) .pricing-cta { background: var(--surface-3); color: var(--text-1); }
+    .pricing-cta:hover { transform: translateY(-2px); }
+    .pricing-card.featured .pricing-cta:hover { box-shadow: 0 12px 40px rgba(103,232,249,0.5); }
+
+    .faq-section { background: var(--surface-0); }
+    .faq-grid { max-width: 760px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--surface-3); }
+    .faq-question { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 24px 0; background: transparent; border: none; color: var(--text-1); font-size: 16px; font-weight: 600; text-align: left; cursor: pointer; font-family: var(--font-sans); transition: color 150ms; gap: 16px; }
+    .faq-question:hover { color: var(--glacier); }
+    .faq-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-3); transition: all 200ms var(--ease-out-expo); flex-shrink: 0; }
+    .faq-item.open .faq-icon { background: var(--glacier); color: var(--surface-0); transform: rotate(45deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 300ms var(--ease-out-expo), padding 300ms; }
+    .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 24px; }
+    .faq-answer p { font-size: 14px; color: var(--text-2); line-height: 1.8; }
+
+    .cta-section { text-align: center; background: var(--surface-1); position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200%; height: 100%; background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(103,232,249,0.15) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 30% 80%, rgba(52,211,153,0.08) 0%, transparent 40%); pointer-events: none; }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-title { font-size: clamp(32px, 5vw, 52px); font-weight: 900; margin-bottom: 18px; letter-spacing: -0.03em; }
+    .cta-subtitle { font-size: 17px; color: var(--text-2); margin-bottom: 44px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+    .cta-buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+    .cta-note { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--text-3); }
+
+    .newsletter-section { padding: 72px 24px; background: var(--surface-0); border-top: 1px solid var(--surface-3); }
+    .newsletter-container { max-width: 560px; margin: 0 auto; text-align: center; }
+    .newsletter-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .newsletter-desc { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
+    .newsletter-form { display: flex; gap: 12px; }
+    .newsletter-input { flex: 1; padding: 14px 18px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 10px; color: var(--text-1); font-size: 14px; font-family: var(--font-sans); transition: all 200ms; }
+    .newsletter-input:focus { outline: none; border-color: var(--glacier); box-shadow: 0 0 0 4px rgba(103,232,249,0.15); }
+    .newsletter-input::placeholder { color: var(--text-4); }
+    .newsletter-btn { padding: 14px 24px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 200ms var(--ease-out-expo); font-family: var(--font-sans); white-space: nowrap; }
+    .newsletter-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(103,232,249,0.4); }
+
+    footer { padding: 72px 24px 36px; background: var(--surface-1); border-top: 1px solid var(--surface-3); }
+    .footer-container { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 56px; }
+    .footer-brand .logo { font-size: 22px; margin-bottom: 18px; display: inline-flex; }
+    .footer-brand p { font-size: 13px; color: var(--text-3); max-width: 260px; line-height: 1.7; margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 10px; }
+    .footer-social a { width: 36px; height: 36px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--surface-3); display: flex; align-items: center; justify-content: center; color: var(--text-3); text-decoration: none; font-size: 16px; transition: all 200ms; }
+    .footer-social a:hover { border-color: var(--glacier); color: var(--glacier); transform: translateY(-2px); }
+    .footer-col h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-1); margin-bottom: 20px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 12px; }
+    .footer-col a { color: var(--text-3); text-decoration: none; font-size: 13px; transition: all 150ms; display: inline-flex; align-items: center; gap: 6px; }
+    .footer-col a:hover { color: var(--glacier); transform: translateX(3px); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--surface-3); font-size: 12px; color: var(--text-3); flex-wrap: wrap; gap: 16px; }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { color: var(--text-3); text-decoration: none; transition: color 150ms; }
+    .footer-legal a:hover { color: var(--text-1); }
+
+    .cookie-banner { position: fixed; bottom: 24px; left: 24px; right: 24px; max-width: 440px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 14px; padding: 22px; z-index: 10000; box-shadow: 0 20px 60px rgba(0,0,0,0.4); transform: translateY(200px); opacity: 0; transition: all 400ms var(--ease-out-expo); }
+    .cookie-banner.visible { transform: translateY(0); opacity: 1; }
+    .cookie-banner h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .cookie-banner p { font-size: 12px; color: var(--text-3); margin-bottom: 18px; line-height: 1.6; }
+    .cookie-banner p a { color: var(--glacier); text-decoration: none; }
+    .cookie-buttons { display: flex; gap: 10px; }
+    .cookie-btn { padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font-sans); transition: all 150ms; }
+    .cookie-btn.accept { background: var(--glacier); color: var(--surface-0); }
+    .cookie-btn.decline { background: var(--surface-3); color: var(--text-1); }
+    .cookie-btn:hover { transform: translateY(-1px); }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 600ms var(--ease-out-expo); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 100ms; }
+    .reveal-delay-2 { transition-delay: 200ms; }
+    .reveal-delay-3 { transition-delay: 300ms; }
+
+    @media (max-width: 1200px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+    @media (max-width: 1024px) {
+      .features-grid, .testimonials-grid, .pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .demo-container { grid-template-columns: 1fr; gap: 40px; }
+      .steps-container { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+      .steps-connector { display: none; }
+      .pricing-card.featured { transform: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .floating-elements { display: none; }
+    }
+    @media (max-width: 768px) {
+      header { padding: 0 16px; }
+      nav { display: none; }
+      .mobile-menu-btn { display: block; }
+      section { padding: 90px 16px; }
+      .hero { padding: 110px 16px 70px; }
+      .metrics-container { justify-content: center; }
+      .metric { flex: 0 0 calc(50% - 12px); }
+      .steps-container { grid-template-columns: 1fr; }
+      .trust-badges { gap: 10px; }
+      .newsletter-form { flex-direction: column; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .cookie-banner { left: 16px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <canvas id="particles"></canvas>
+
+  <header id="header">
+    <a href="#" class="logo" aria-label="Prompting It Home"><span class="logo-icon">#P</span><span>Prompting It</span></a>
+    <nav aria-label="Main navigation">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#how" class="nav-link">How It Works</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#" class="nav-link">Docs</a>
+      <a href="#" class="nav-link">Sign In</a>
+      <a href="#" class="nav-cta">Start Free →</a>
+    </nav>
+    <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#">Documentation</a>
+    <a href="#">Sign In</a>
+    <a href="#" style="background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0);">Start Free Trial</a>
+  </div>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-bg"><div class="hero-grid"></div></div>
+      <div class="floating-elements">
+        <div class="floating-card card-1"><span class="icon" style="background: rgba(52,211,153,0.15);">✓</span><span>v2.4.1 deployed</span></div>
+        <div class="floating-card card-2"><span class="icon" style="background: rgba(103,232,249,0.15);">⎇</span><span>3 awaiting review</span></div>
+        <div class="floating-card card-3"><span class="icon" style="background: rgba(250,204,21,0.15);">$</span><span>+$847 royalties</span></div>
+        <div class="floating-card card-4"><span class="icon" style="background: rgba(167,139,250,0.15);">◉</span><span>Testing 4 models...</span></div>
+      </div>
+      <div class="hero-content">
+        <a href="#" class="hero-badge"><span class="hero-badge-dot"></span><span>Now in Public Beta — See what's new</span><span>→</span></a>
+        <h1 class="hero-title"><span class="line">Your prompts are</span><span class="line gradient">production code</span></h1>
+        <p class="hero-subtitle">The <strong>enterprise prompt operating system</strong>. Version control, multi-model testing, approval workflows, and monetization — for teams that treat AI seriously.</p>
+        <div class="hero-ctas">
+          <a href="#" class="btn btn-primary"><span>Start Free Trial</span><span class="btn-icon">→</span></a>
+          <a href="#" class="btn btn-secondary"><span>Watch Demo</span><span class="btn-icon">▶</span></a>
+        </div>
+        <div class="hero-note">
+          <span><span class="checkmark">✓</span> No credit card</span>
+          <span><span class="checkmark">✓</span> Free up to 25 prompts</span>
+          <span><span class="checkmark">✓</span> 14-day Pro trial</span>
+        </div>
+        <div class="trust-badges">
+          <div class="trust-badge"><span>🔒</span><span>SOC 2 Type II</span></div>
+          <div class="trust-badge"><span>🏥</span><span>HIPAA</span></div>
+          <div class="trust-badge"><span>🇪🇺</span><span>GDPR</span></div>
+          <div class="trust-badge"><span>⚡</span><span>99.9% SLA</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="metrics-bar">
+      <div class="metrics-container">
+        <div class="metric"><div class="metric-value" data-count="12847">0</div><div class="metric-label">Production Prompts</div><div class="metric-trend">↑ 23% this month</div></div>
+        <div class="metric"><div class="metric-value" data-count="3214">0</div><div class="metric-label">Certified Creators</div><div class="metric-trend">↑ 156 this week</div></div>
+        <div class="metric"><div class="metric-value" data-count="2.4" data-prefix="$" data-suffix="M">$0</div><div class="metric-label">Creator Revenue</div><div class="metric-trend">↑ $240K this month</div></div>
+        <div class="metric"><div class="metric-value" data-count="847">0</div><div class="metric-label">Enterprise Teams</div><div class="metric-trend">↑ 34 this week</div></div>
+      </div>
+    </div>
+
+    <div class="logos-section">
+      <div class="logos-label">Trusted by AI teams at</div>
+      <div class="logos-track">
+        <span class="logo-item">Stripe</span><span class="logo-item">Notion</span><span class="logo-item">Vercel</span><span class="logo-item">Linear</span><span class="logo-item">Figma</span><span class="logo-item">Shopify</span><span class="logo-item">Datadog</span>
+      </div>
+    </div>
+
+    <section class="problem-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">⚡ The Problem</span>
+          <h2 class="section-title">Prompt chaos is killing productivity</h2>
+          <p class="section-subtitle">Most teams manage prompts like it's 2005. Scattered files, zero visibility, compliance nightmares.</p>
+        </div>
+        <div class="problem-grid">
+          <div class="problem-column reveal">
+            <div class="problem-header"><div class="problem-icon-large bad">✗</div><h3>The Old Way</h3></div>
+            <ul class="problem-list">
+              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Prompts scattered everywhere</strong><span>Notion docs, Slack threads, random .txt files.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>No version control</strong><span>Final_v2_REAL_final.txt — what changed?</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Zero visibility</strong><span>Is your prompt working? How much does it cost?</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Compliance nightmare</strong><span>Who approved this? When? Good luck with audits.</span></div></li>
+            </ul>
+          </div>
+          <div class="problem-column solution reveal reveal-delay-2">
+            <div class="problem-header"><div class="problem-icon-large good">✓</div><h3>The Prompting It Way</h3></div>
+            <ul class="problem-list">
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Single source of truth</strong><span>Every prompt versioned, searchable, organized.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Git-like version control</strong><span>Branch, diff, merge, rollback. Full history.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Multi-model testing & analytics</strong><span>Test across Claude, GPT-4, Gemini in real-time.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Complete audit trail</strong><span>SOC2, HIPAA, GDPR ready out of the box.</span></div></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">🛠️ Features</span>
+          <h2 class="section-title">Everything to operationalize AI</h2>
+          <p class="section-subtitle">From development to deployment to monetization — one platform.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card reveal"><div class="feature-icon glacier">⎇</div><h3 class="feature-title">Version Control</h3><p class="feature-desc">Git-like branching, diffing, rollback. Full history with blame, annotations, and instant restore.</p><a href="#" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon emerald">◉</div><h3 class="feature-title">Multi-Model Testing</h3><p class="feature-desc">Test across Claude, GPT-4, Gemini, Llama simultaneously. Compare cost, latency, accuracy.</p><a href="#" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-2"><div class="feature-icon solar">⚙</div><h3 class="feature-title">Approval Workflows</h3><p class="feature-desc">Enterprise-grade gates: Draft → Review → Test → Staging → Canary → Production.</p><a href="#" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal"><div class="feature-icon violet">📊</div><h3 class="feature-title">Cost & Performance</h3><p class="feature-desc">Real-time visibility into token usage, model costs, latency, and accuracy.</p><a href="#" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon glacier">🔒</div><h3 class="feature-title">Audit & Compliance</h3><p class="feature-desc">Complete trail of who changed what, when, and why. SOC2, HIPAA, GDPR ready.</p><a href="#" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-2"><div class="feature-icon emerald">💰</div><h3 class="feature-title">Marketplace</h3><p class="feature-desc">Monetize your prompts. Earn 80% of every sale plus passive royalties when others fork.</p><a href="#" class="feature-link">Learn more →</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <div class="section-container">
+        <div class="demo-container">
+          <div class="demo-content reveal">
+            <span class="section-label">🎯 See It In Action</span>
+            <h2>Deploy prompts like production code</h2>
+            <p>Prompting It integrates seamlessly with your existing workflow. Version, test, and deploy with confidence.</p>
+            <div class="demo-features">
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>One-line SDK integration</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>Automatic version tracking</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>Real-time cost monitoring</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>A/B testing built-in</span></div>
+            </div>
+            <a href="#" class="btn btn-primary"><span>Try It Free</span><span class="btn-icon">→</span></a>
+          </div>
+          <div class="demo-window reveal reveal-delay-2">
+            <div class="demo-window-header"><span class="demo-window-dot red"></span><span class="demo-window-dot yellow"></span><span class="demo-window-dot green"></span><span class="demo-window-title">app.ts</span></div>
+            <div class="demo-window-content">
+              <div class="demo-tabs"><button class="demo-tab active">TypeScript</button><button class="demo-tab">Python</button><button class="demo-tab">cURL</button></div>
+              <div class="demo-code"><span class="comment">// Initialize Prompting It</span><br><span class="keyword">import</span> { <span class="function">PromptingIt</span> } <span class="keyword">from</span> <span class="string">'@promptingit/sdk'</span>;<br><br><span class="keyword">const</span> pit = <span class="keyword">new</span> <span class="function">PromptingIt</span>({<br>&nbsp;&nbsp;<span class="property">apiKey</span>: process.env.<span class="property">PROMPTINGIT_KEY</span><br>});<br><br><span class="comment">// Execute versioned prompt</span><br><span class="keyword">const</span> result = <span class="keyword">await</span> pit.<span class="function">execute</span>({<br>&nbsp;&nbsp;<span class="property">prompt</span>: <span class="string">'code-review-v2.4.1'</span>,<br>&nbsp;&nbsp;<span class="property">model</span>: <span class="string">'claude-3-opus'</span>,<br>&nbsp;&nbsp;<span class="property">variables</span>: { <span class="property">code</span>: userCode }<br>});<br><br><span class="comment">// Auto cost tracking</span><br>console.<span class="function">log</span>(result.<span class="property">metrics</span>);</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="how-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">🚀 How It Works</span>
+          <h2 class="section-title">From idea to production in minutes</h2>
+          <p class="section-subtitle">The workflow you wish you'd had from day one.</p>
+        </div>
+        <div class="steps-container">
+          <div class="steps-connector"></div>
+          <div class="step reveal"><div class="step-number"><span class="step-number-value">1</span><span class="step-number-icon">✏️</span></div><h4 class="step-title">Create</h4><p class="step-desc">Write with AI assistance and auto classification</p></div>
+          <div class="step reveal reveal-delay-1"><div class="step-number"><span class="step-number-value">2</span><span class="step-number-icon">🧪</span></div><h4 class="step-title">Test</h4><p class="step-desc">Run across multiple models with automatic scoring</p></div>
+          <div class="step reveal reveal-delay-2"><div class="step-number"><span class="step-number-value">3</span><span class="step-number-icon">✓</span></div><h4 class="step-title">Approve</h4><p class="step-desc">Route through team workflows and compliance gates</p></div>
+          <div class="step reveal reveal-delay-3"><div class="step-number"><span class="step-number-value">4</span><span class="step-number-icon">🚀</span></div><h4 class="step-title">Deploy</h4><p class="step-desc">Ship to production with canary rollouts and instant rollback</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comparison-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">📊 Compare</span>
+          <h2 class="section-title">Why teams switch to Prompting It</h2>
+          <p class="section-subtitle">See how we stack up against the alternatives.</p>
+        </div>
+        <div class="comparison-table-container reveal">
+          <table class="comparison-table">
+            <thead><tr><th>Feature</th><th>Text Files</th><th>PromptLayer</th><th>LangSmith</th><th class="th-highlight">Prompting It</th></tr></thead>
+            <tbody>
+              <tr><td><div class="comparison-feature">Version Control</div><div class="comparison-feature-sub">Branch, diff, merge, rollback</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Multi-Model Testing</div><div class="comparison-feature-sub">Claude, GPT-4, Gemini, Llama</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Approval Workflows</div><div class="comparison-feature-sub">Enterprise gates & sign-offs</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Cost Analytics</div><div class="comparison-feature-sub">Per-prompt token tracking</div></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Audit Logging</div><div class="comparison-feature-sub">SOC2 / HIPAA compliant</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Marketplace</div><div class="comparison-feature-sub">Monetize your prompts</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Non-Technical UX</div><div class="comparison-feature-sub">PMs & domain experts</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Partial</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">💬 Testimonials</span>
+          <h2 class="section-title">Loved by AI teams worldwide</h2>
+          <p class="section-subtitle">See what engineers, PMs, and creators are saying.</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card reveal"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"We cut prompt-related incidents by 80% after switching. The approval workflows alone saved us from two major production issues."</p><div class="testimonial-author"><div class="testimonial-avatar glacier">SK</div><div class="testimonial-info"><div class="testimonial-name">Sarah Kim</div><div class="testimonial-role">Head of AI, FinTech Startup</div><div class="testimonial-logo">Series C • 200 employees</div></div></div></div>
+          <div class="testimonial-card reveal reveal-delay-1"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"The marketplace changed everything. I earned $12K last month from prompts I wrote once. The royalty system when people fork is genius."</p><div class="testimonial-author"><div class="testimonial-avatar emerald">MR</div><div class="testimonial-info"><div class="testimonial-name">Marcus Rodriguez</div><div class="testimonial-role">Prompt Engineer</div><div class="testimonial-logo">Top 100 Creator</div></div></div></div>
+          <div class="testimonial-card reveal reveal-delay-2"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"Finally, a tool that treats prompts like the production code they are. Version control, testing, rollback — this is what enterprise AI teams need."</p><div class="testimonial-author"><div class="testimonial-avatar violet">JL</div><div class="testimonial-info"><div class="testimonial-name">Jennifer Liu</div><div class="testimonial-role">VP Engineering</div><div class="testimonial-logo">Enterprise SaaS</div></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="pricing-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">💎 Pricing</span>
+          <h2 class="section-title">Start free, scale as you grow</h2>
+          <p class="section-subtitle">No credit card required. Upgrade when you're ready.</p>
+        </div>
+        <div class="pricing-toggle">
+          <span class="pricing-toggle-label active" data-billing="monthly">Monthly</span>
+          <div class="pricing-toggle-switch" id="pricingToggle"></div>
+          <span class="pricing-toggle-label" data-billing="annual">Annual</span>
+          <span class="pricing-save">Save 20%</span>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-card reveal"><div class="pricing-name">Starter</div><p class="pricing-desc">For individuals getting started with prompt management.</p><div class="pricing-price"><span class="pricing-amount">$0</span><span class="pricing-period">forever free</span></div><ul class="pricing-features"><li>Up to 25 prompts</li><li>Basic version control</li><li>Single model testing</li><li>Community support</li><li>Marketplace selling (80/20)</li></ul><button class="pricing-cta">Get Started Free</button></div>
+          <div class="pricing-card featured reveal reveal-delay-1"><span class="pricing-badge">Most Popular</span><div class="pricing-name">Pro</div><p class="pricing-desc">For teams shipping prompts to production.</p><div class="pricing-price"><span class="pricing-amount" data-monthly="49" data-annual="39">$49</span><span class="pricing-period">per seat / month</span></div><ul class="pricing-features"><li>Unlimited prompts</li><li>Multi-model testing</li><li>Approval workflows</li><li>Full audit logging</li><li>Team collaboration (up to 10)</li><li>Priority support</li><li>Advanced analytics</li></ul><button class="pricing-cta">Start 14-Day Free Trial</button></div>
+          <div class="pricing-card reveal reveal-delay-2"><div class="pricing-name">Enterprise</div><p class="pricing-desc">For organizations with advanced security needs.</p><div class="pricing-price"><span class="pricing-amount">Custom</span><span class="pricing-period">contact for pricing</span></div><ul class="pricing-features"><li>Everything in Pro</li><li>Unlimited team members</li><li>SSO / SAML authentication</li><li>SOC2 & HIPAA compliance</li><li>Custom deployment options</li><li>99.9% uptime SLA</li><li>Dedicated success manager</li></ul><button class="pricing-cta">Contact Sales</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">❓ FAQ</span>
+          <h2 class="section-title">Frequently asked questions</h2>
+          <p class="section-subtitle">Everything you need to know about Prompting It.</p>
+        </div>
+        <div class="faq-grid">
+          <div class="faq-item reveal"><button class="faq-question"><span>How is this different from Notion or Google Docs?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Documents are designed for humans to read. Prompting It treats prompts as executable production code with version control, automated testing across models, approval workflows, cost tracking, and deployment pipelines.</p></div></div>
+          <div class="faq-item reveal reveal-delay-1"><button class="faq-question"><span>Which AI models do you support?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>We support all major LLM providers including OpenAI (GPT-4), Anthropic (Claude 3), Google (Gemini), Meta (Llama), and open-source models via API. Test the same prompt across multiple models simultaneously.</p></div></div>
+          <div class="faq-item reveal reveal-delay-2"><button class="faq-question"><span>How does the marketplace revenue split work?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Creators keep 80% of every sale. When someone forks your prompt and sells their improved version, you continue earning 10-15% royalties from their sales forever.</p></div></div>
+          <div class="faq-item reveal reveal-delay-3"><button class="faq-question"><span>Is Prompting It secure for enterprise use?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Yes. We're SOC 2 Type II certified and HIPAA compliant. Enterprise plans include SSO/SAML authentication, role-based access control, complete audit logging, and data encryption.</p></div></div>
+          <div class="faq-item reveal"><button class="faq-question"><span>Can I try it before committing?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Absolutely. Our Starter plan is free forever for up to 25 prompts. Pro plans include a 14-day free trial with no credit card required.</p></div></div>
+          <div class="faq-item reveal reveal-delay-1"><button class="faq-question"><span>How quickly can we get started?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Most teams are up and running in under 30 minutes. Our SDK requires just one line of code to integrate.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="section-container">
+        <div class="cta-content">
+          <h2 class="cta-title reveal">Ready to operationalize your prompts?</h2>
+          <p class="cta-subtitle reveal reveal-delay-1">Join thousands of teams treating prompts as the production infrastructure they are.</p>
+          <div class="cta-buttons reveal reveal-delay-2">
+            <a href="#" class="btn btn-primary"><span>Start Free Trial</span><span class="btn-icon">→</span></a>
+            <a href="#" class="btn btn-secondary"><span>Schedule Demo</span><span class="btn-icon">📅</span></a>
+          </div>
+          <div class="cta-note reveal reveal-delay-3">
+            <span><span class="checkmark">✓</span> No credit card required</span>
+            <span><span class="checkmark">✓</span> Free for up to 25 prompts</span>
+            <span><span class="checkmark">✓</span> Setup in under 5 minutes</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsletter-section">
+      <div class="newsletter-container reveal">
+        <h3 class="newsletter-title">Stay in the loop</h3>
+        <p class="newsletter-desc">Get updates on new features, best practices, and prompt engineering tips.</p>
+        <form class="newsletter-form" id="newsletterForm">
+          <input type="email" class="newsletter-input" placeholder="Enter your email" required aria-label="Email address">
+          <button type="submit" class="newsletter-btn">Subscribe</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="#" class="logo"><span class="logo-icon">#P</span><span>Prompting It</span></a><p>The enterprise prompt operating system. Version control, testing, and monetization for production AI.</p><div class="footer-social"><a href="#" aria-label="Twitter">𝕏</a><a href="#" aria-label="GitHub">⌘</a><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Discord">◆</a></div></div>
+        <div class="footer-col"><h4>Product</h4><ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Marketplace</a></li><li><a href="#">Enterprise</a></li><li><a href="#">Changelog</a></li></ul></div>
+        <div class="footer-col"><h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">API Reference</a></li><li><a href="#">Guides</a></li><li><a href="#">Blog</a></li><li><a href="#">Community</a></li></ul></div>
+        <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li><li><a href="#">Press Kit</a></li></ul></div>
+        <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Cookie Policy</a></li><li><a href="#">Security</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2025 Prompting It, Inc. All rights reserved.</span><div class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div></div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner" id="cookieBanner"><h4>🍪 Cookie Preferences</h4><p>We use cookies to enhance your experience. <a href="#">Learn more</a></p><div class="cookie-buttons"><button class="cookie-btn accept" onclick="acceptCookies()">Accept All</button><button class="cookie-btn decline" onclick="declineCookies()">Decline</button></div></div>
+
+  <script>
+    const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');let particles=[];function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}function createParticle(){return{x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,size:Math.random()*2+0.5,opacity:Math.random()*0.5+0.1}}function initParticles(){particles=[];const count=Math.min(80,Math.floor(window.innerWidth/20));for(let i=0;i<count;i++)particles.push(createParticle())}function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(103,232,249,${p.opacity})`;ctx.fill()});particles.forEach((p1,i)=>{particles.slice(i+1).forEach(p2=>{const dx=p1.x-p2.x,dy=p1.y-p2.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.strokeStyle=`rgba(103,232,249,${0.1*(1-dist/150)})`;ctx.stroke()}})});requestAnimationFrame(animateParticles)}resizeCanvas();initParticles();animateParticles();window.addEventListener('resize',()=>{resizeCanvas();initParticles()});
+    const header=document.getElementById('header');window.addEventListener('scroll',()=>{header.classList.toggle('scrolled',window.scrollY>50)});
+    const mobileMenuBtn=document.querySelector('.mobile-menu-btn'),mobileNav=document.getElementById('mobileNav');mobileMenuBtn.addEventListener('click',()=>{const isOpen=mobileNav.classList.toggle('open');mobileMenuBtn.setAttribute('aria-expanded',isOpen);mobileMenuBtn.textContent=isOpen?'✕':'☰'});
+    const reveals=document.querySelectorAll('.reveal'),revealOnScroll=()=>{reveals.forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight-80)el.classList.add('visible')})};window.addEventListener('scroll',revealOnScroll);revealOnScroll();
+    document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){const href=this.getAttribute('href');if(href!=='#'){e.preventDefault();const target=document.querySelector(href);if(target){window.scrollTo({top:target.getBoundingClientRect().top+window.scrollY-80,behavior:'smooth'});mobileNav.classList.remove('open');mobileMenuBtn.textContent='☰'}}})});
+    function animateValue(el,end,duration,prefix='',suffix=''){const startTime=performance.now();function update(currentTime){const progress=Math.min((currentTime-startTime)/duration,1),eased=1-Math.pow(1-progress,4),current=eased*end;el.textContent=suffix==='M'?prefix+current.toFixed(1)+suffix:prefix+Math.floor(current).toLocaleString()+suffix;if(progress<1)requestAnimationFrame(update)}requestAnimationFrame(update)}
+    const metricsObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.querySelectorAll('.metric-value').forEach(m=>{animateValue(m,parseFloat(m.dataset.count),2000,m.dataset.prefix||'',m.dataset.suffix||'')});metricsObserver.unobserve(entry.target)}})},{threshold:0.5});const metricsBar=document.querySelector('.metrics-bar');if(metricsBar)metricsObserver.observe(metricsBar);
+    const pricingToggle=document.getElementById('pricingToggle'),toggleLabels=document.querySelectorAll('.pricing-toggle-label'),priceAmounts=document.querySelectorAll('.pricing-amount[data-monthly]');pricingToggle.addEventListener('click',()=>{const isAnnual=pricingToggle.classList.toggle('active');toggleLabels.forEach(label=>{label.classList.toggle('active',(isAnnual&&label.dataset.billing==='annual')||(!isAnnual&&label.dataset.billing==='monthly'))});priceAmounts.forEach(el=>{el.textContent='$'+(isAnnual?el.dataset.annual:el.dataset.monthly)})});
+    document.querySelectorAll('.faq-question').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement,wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(openItem=>openItem.classList.remove('open'));if(!wasOpen)item.classList.add('open')})});
+    document.querySelectorAll('.demo-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active')})});
+    document.getElementById('newsletterForm').addEventListener('submit',e=>{e.preventDefault();const btn=e.target.querySelector('button'),input=e.target.querySelector('input');btn.textContent='Subscribing...';btn.disabled=true;setTimeout(()=>{btn.textContent='✓ Subscribed!';btn.style.background='var(--emerald)';input.value='';setTimeout(()=>{btn.textContent='Subscribe';btn.style.background='';btn.disabled=false},3000)},1000)});
+    function showCookieBanner(){if(!localStorage.getItem('cookieConsent'))setTimeout(()=>document.getElementById('cookieBanner').classList.add('visible'),2000)}function acceptCookies(){localStorage.setItem('cookieConsent','accepted');document.getElementById('cookieBanner').classList.remove('visible')}function declineCookies(){localStorage.setItem('cookieConsent','declined');document.getElementById('cookieBanner').classList.remove('visible')}showCookieBanner();
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){mobileNav.classList.remove('open');mobileMenuBtn.textContent='☰';document.querySelectorAll('.faq-item.open').forEach(item=>item.classList.remove('open'))}});
+  </script>
+</body>
+</html>
