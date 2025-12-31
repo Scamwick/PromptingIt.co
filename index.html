@@ -368,7 +368,7 @@
     <a href="#how">How It Works</a>
     <a href="#pricing">Pricing</a>
     <a href="#">Documentation</a>
-    <a href="#">Sign In</a>
+    <a href="#pricing">Sign In</a>
     <a href="#" style="background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0);">Start Free Trial</a>
   </div>
 
@@ -622,7 +622,7 @@
     <div class="footer-container">
       <div class="footer-grid">
         <div class="footer-brand"><a href="#" class="logo"><span class="logo-icon">#P</span><span>Prompting It</span></a><p>The enterprise prompt operating system. Version control, testing, and monetization for production AI.</p><div class="footer-social"><a href="#" aria-label="Twitter">𝕏</a><a href="#" aria-label="GitHub">⌘</a><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Discord">◆</a></div></div>
-        <div class="footer-col"><h4>Product</h4><ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Marketplace</a></li><li><a href="#">Enterprise</a></li><li><a href="#">Changelog</a></li></ul></div>
+        <div class="footer-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#">Marketplace</a></li><li><a href="#">Enterprise</a></li><li><a href="#">Changelog</a></li></ul></div>
         <div class="footer-col"><h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">API Reference</a></li><li><a href="#">Guides</a></li><li><a href="#">Blog</a></li><li><a href="#">Community</a></li></ul></div>
         <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li><li><a href="#">Press Kit</a></li></ul></div>
         <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Cookie Policy</a></li><li><a href="#">Security</a></li></ul></div>
@@ -631,7 +631,7 @@
     </div>
   </footer>
 
-  <div class="cookie-banner" id="cookieBanner"><h4>🍪 Cookie Preferences</h4><p>We use cookies to enhance your experience. <a href="#">Learn more</a></p><div class="cookie-buttons"><button class="cookie-btn accept" onclick="acceptCookies()">Accept All</button><button class="cookie-btn decline" onclick="declineCookies()">Decline</button></div></div>
+  <div class="cookie-banner" id="cookieBanner"><h4>🍪 Cookie Preferences</h4><p>We use cookies to enhance your experience. <a href="#features">Learn more</a></p><div class="cookie-buttons"><button class="cookie-btn accept" onclick="acceptCookies()">Accept All</button><button class="cookie-btn decline" onclick="declineCookies()">Decline</button></div></div>
 
   <script>
     const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');let particles=[];function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}function createParticle(){return{x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,size:Math.random()*2+0.5,opacity:Math.random()*0.5+0.1}}function initParticles(){particles=[];const count=Math.min(80,Math.floor(window.innerWidth/20));for(let i=0;i<count;i++)particles.push(createParticle())}function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(103,232,249,${p.opacity})`;ctx.fill()});particles.forEach((p1,i)=>{particles.slice(i+1).forEach(p2=>{const dx=p1.x-p2.x,dy=p1.y-p2.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.strokeStyle=`rgba(103,232,249,${0.1*(1-dist/150)})`;ctx.stroke()}})});requestAnimationFrame(animateParticles)}resizeCanvas();initParticles();animateParticles();window.addEventListener('resize',()=>{resizeCanvas();initParticles()});
