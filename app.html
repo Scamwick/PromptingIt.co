@@ -511,35 +511,35 @@
         <div class="app-container">
                   <header>
                                 <div class="logo">
-                                                  <i class="fas fa-wand-magic-sparkles"></i>i>
+                                                  <i class="fas fa-wand-magic-sparkles"></i>
                                                   <span>PromptingIt Optimizer</span>
-                                </div>div>
+                                </div>
                               <div class="header-actions">
                                               <button class="theme-toggle" onclick="toggleTheme()">
-                                                                  <i class="fas fa-moon"></i>i>
+                                                                  <i class="fas fa-moon"></i>
                                                                   <span>Dark</span>
-                                              </button>button>
+                                              </button>
                                               <a href="index.html" class="btn btn-secondary">
-                                                                  <i class="fas fa-home"></i>i>
+                                                                  <i class="fas fa-home"></i>
                                                                   Back to Home
-                                              </a>a>
-                              </div>div>
+                                              </a>
+                              </div>
                   </header>
         
                 <main class="main-content">
                             <div class="panel">
                                             <div class="panel-header">
                                                                 <h2 class="panel-title">
-                                                                                        <i class="fas fa-keyboard"></i>i>
+                                                                                        <i class="fas fa-keyboard"></i>
                                                                                         Input Prompt
-                                                                </h2>h2>
-                                            </div>div>
+                                                                </h2>
+                                            </div>
                             
                                             <div class="tabs">
-                                                                <button class="tab active" data-tab="write">Write</button>button>
-                                                                <button class="tab" data-tab="templates">Templates</button>button>
-                                                                <button class="tab" data-tab="history">History</button>button>
-                                            </div>div>
+                                                                <button class="tab active" data-tab="write">Write</button>
+                                                                <button class="tab" data-tab="templates">Templates</button>
+                                                                <button class="tab" data-tab="history">History</button>
+                                            </div>
                             
                                             <div id="write-tab">
                                                                 <textarea class="prompt-textarea" id="inputPrompt" placeholder="Enter your prompt here...
@@ -548,126 +548,126 @@
                                             
                                                                 <div class="action-buttons">
                                                                                         <button class="btn btn-primary" onclick="analyzePrompt()">
-                                                                                                                    <i class="fas fa-magnifying-glass-chart"></i>i>
+                                                                                                                    <i class="fas fa-magnifying-glass-chart"></i>
                                                                                                                     Analyze
-                                                                                          </button>button>
+                                                                                          </button>
                                                                                         <button class="btn btn-primary" onclick="optimizePrompt()">
-                                                                                                                    <i class="fas fa-wand-magic-sparkles"></i>i>
+                                                                                                                    <i class="fas fa-wand-magic-sparkles"></i>
                                                                                                                     Optimize
-                                                                                          </button>button>
+                                                                                          </button>
                                                                                         <button class="btn btn-secondary" onclick="clearAll()">
-                                                                                                                    <i class="fas fa-trash"></i>i>
+                                                                                                                    <i class="fas fa-trash"></i>
                                                                                                                     Clear
-                                                                                          </button>button>
-                                                                </div>div>
-                                            </div>div>
+                                                                                          </button>
+                                                                </div>
+                                            </div>
                             
                                             <div id="templates-tab" class="hidden">
                                                                 <div class="template-grid">
                                                                                         <div class="template-card" onclick="useTemplate('blog')">
-                                                                                                                    <h4><i class="fas fa-blog"></i>i> Blog Post</h4>
+                                                                                                                    <h4><i class="fas fa-blog"></i> Blog Post</h4>
                                                                                                                     <p>Create engaging blog content with SEO optimization</p>
-                                                                                          </div>div>
+                                                                                          </div>
                                                                                         <div class="template-card" onclick="useTemplate('code')">
-                                                                                                                    <h4><i class="fas fa-code"></i>i> Code Review</h4>
+                                                                                                                    <h4><i class="fas fa-code"></i> Code Review</h4>
                                                                                                                     <p>Get detailed code analysis and improvements</p>
-                                                                                          </div>div>
+                                                                                          </div>
                                                                                         <div class="template-card" onclick="useTemplate('email')">
-                                                                                                                    <h4><i class="fas fa-envelope"></i>i> Email Draft</h4>
+                                                                                                                    <h4><i class="fas fa-envelope"></i> Email Draft</h4>
                                                                                                                     <p>Professional email templates for any occasion</p>
-                                                                                          </div>div>
+                                                                                          </div>
                                                                                         <div class="template-card" onclick="useTemplate('creative')">
-                                                                                                                    <h4><i class="fas fa-palette"></i>i> Creative Writing</h4>
+                                                                                                                    <h4><i class="fas fa-palette"></i> Creative Writing</h4>
                                                                                                                     <p>Generate creative stories and narratives</p>
-                                                                                          </div>div>
-                                                                </div>div>
-                                            </div>div>
+                                                                                          </div>
+                                                                </div>
+                                            </div>
                             
                                             <div id="history-tab" class="hidden">
                                                                 <div id="historyList">
                                                                                         <p class="text-secondary" style="color: var(--text-secondary); text-align: center; padding: 2rem;">No history yet. Start optimizing prompts!</p>
-                                                                </div>div>
-                                            </div>div>
+                                                                </div>
+                                            </div>
                             
                                             <div class="analysis-section" id="analysisSection">
                                                                 <div class="score-display">
-                                                                                        <div class="score-circle" id="scoreCircle">--</div>div>
+                                                                                        <div class="score-circle" id="scoreCircle">--</div>
                                                                                         <div class="score-details">
                                                                                                                     <h4>Prompt Quality Score</h4>
                                                                                                                     <p class="score-label">Based on clarity, specificity, and structure</p>
-                                                                                          </div>div>
-                                                                </div>div>
+                                                                                          </div>
+                                                                </div>
                                             
                                                                 <div class="metrics-grid">
                                                                                         <div class="metric-card">
-                                                                                                                    <div class="metric-label">Clarity</div>div>
-                                                                                                                    <div class="metric-value" id="clarityScore">--</div>div>
+                                                                                                                    <div class="metric-label">Clarity</div>
+                                                                                                                    <div class="metric-value" id="clarityScore">--</div>
                                                                                                                     <div class="metric-bar">
-                                                                                                                                                    <div class="metric-bar-fill" id="clarityBar" style="width: 0%"></div>div>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
+                                                                                                                                                    <div class="metric-bar-fill" id="clarityBar" style="width: 0%"></div>
+                                                                                                                      </div>
+                                                                                          </div>
                                                                                         <div class="metric-card">
-                                                                                                                    <div class="metric-label">Specificity</div>div>
-                                                                                                                    <div class="metric-value" id="specificityScore">--</div>div>
+                                                                                                                    <div class="metric-label">Specificity</div>
+                                                                                                                    <div class="metric-value" id="specificityScore">--</div>
                                                                                                                     <div class="metric-bar">
-                                                                                                                                                    <div class="metric-bar-fill" id="specificityBar" style="width: 0%"></div>div>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
+                                                                                                                                                    <div class="metric-bar-fill" id="specificityBar" style="width: 0%"></div>
+                                                                                                                      </div>
+                                                                                          </div>
                                                                                         <div class="metric-card">
-                                                                                                                    <div class="metric-label">Structure</div>div>
-                                                                                                                    <div class="metric-value" id="structureScore">--</div>div>
+                                                                                                                    <div class="metric-label">Structure</div>
+                                                                                                                    <div class="metric-value" id="structureScore">--</div>
                                                                                                                     <div class="metric-bar">
-                                                                                                                                                    <div class="metric-bar-fill" id="structureBar" style="width: 0%"></div>div>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
+                                                                                                                                                    <div class="metric-bar-fill" id="structureBar" style="width: 0%"></div>
+                                                                                                                      </div>
+                                                                                          </div>
                                                                                         <div class="metric-card">
-                                                                                                                    <div class="metric-label">Context</div>div>
-                                                                                                                    <div class="metric-value" id="contextScore">--</div>div>
+                                                                                                                    <div class="metric-label">Context</div>
+                                                                                                                    <div class="metric-value" id="contextScore">--</div>
                                                                                                                     <div class="metric-bar">
-                                                                                                                                                    <div class="metric-bar-fill" id="contextBar" style="width: 0%"></div>div>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
-                                                                </div>div>
+                                                                                                                                                    <div class="metric-bar-fill" id="contextBar" style="width: 0%"></div>
+                                                                                                                      </div>
+                                                                                          </div>
+                                                                </div>
                                             
-                                                                <ul class="suggestions-list" id="suggestionsList"></ul>ul>
-                                            </div>div>
-                            </div>div>
+                                                                <ul class="suggestions-list" id="suggestionsList"></ul>
+                                            </div>
+                            </div>
                 
                             <div class="panel">
                                             <div class="panel-header">
                                                                 <h2 class="panel-title">
-                                                                                        <i class="fas fa-sparkles"></i>i>
+                                                                                        <i class="fas fa-sparkles"></i>
                                                                                         Optimized Output
                                                                 </h2>
-                                            </div>div>
+                                            </div>
                             
                                             <div class="output-wrapper">
-                                                                <div class="optimized-output" id="optimizedOutput">Your optimized prompt will appear here after analysis...</div>div>
+                                                                <div class="optimized-output" id="optimizedOutput">Your optimized prompt will appear here after analysis...</div>
                                                                 <button class="copy-btn" onclick="copyOutput()" title="Copy to clipboard">
-                                                                                        <i class="fas fa-copy"></i>i>
-                                                                </button>button>
+                                                                                        <i class="fas fa-copy"></i>
+                                                                </button>
                                                                 <div class="loading-overlay hidden" id="loadingOverlay">
-                                                                                        <div class="spinner"></div>div>
-                                                                </div>div>
-                                            </div>div>
+                                                                                        <div class="spinner"></div>
+                                                                </div>
+                                            </div>
                             
                                             <div class="action-buttons" style="margin-top: 1rem;">
                                                                 <button class="btn btn-secondary" onclick="saveToHistory()">
-                                                                                        <i class="fas fa-bookmark"></i>i>
+                                                                                        <i class="fas fa-bookmark"></i>
                                                                                         Save
-                                                                </button>button>
+                                                                </button>
                                                                 <button class="btn btn-secondary" onclick="exportPrompt()">
-                                                                                        <i class="fas fa-download"></i>i>
+                                                                                        <i class="fas fa-download"></i>
                                                                                         Export
-                                                                </button>button>
-                                            </div>div>
-                            </div>div>
-                </main>main>
+                                                                </button>
+                                            </div>
+                            </div>
+                </main>
         
                 <footer>
-                              <p>&copy; 2025 PromptingIt. All rights reserved. | <a href="privacy.html">Privacy Policy</a>a> | <a href="terms.html">Terms of Service</a>a></p>p>
+                              <p>&copy; 2025 PromptingIt. All rights reserved. | <a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a></p>
                 </footer>
-        </div>div>
+        </div>
 
         <script>
                   // Theme toggle
