@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Prompting It — The Enterprise Prompt Operating System. Version control, approval workflows, multi-model testing, and monetization for production AI prompts.">
-  <title>Prompting It — The Enterprise Prompt Operating System</title>
+  <meta name="description" content="Prompting It. The Enterprise Prompt Operating System. Version control, approval workflows, multimodel testing, and monetization for production AI prompts.">
+  <title>Prompting It | The Enterprise Prompt Operating System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
     body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
     ::selection { background: var(--glacier); color: var(--surface-0); }
     :focus-visible { outline: 2px solid var(--glacier); outline-offset: 2px; }
-    
+
     .skip-link { position: absolute; top: -100px; left: 16px; background: var(--glacier); color: var(--surface-0); padding: 12px 24px; border-radius: 8px; font-weight: 600; z-index: 10000; transition: top 200ms; text-decoration: none; }
     .skip-link:focus { top: 16px; }
 
@@ -63,7 +63,7 @@
     .hero-bg { position: absolute; inset: 0; pointer-events: none; }
     .hero-bg::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 200%; height: 100%; background: radial-gradient(ellipse 80% 50% at 50% 20%, rgba(103,232,249,0.15) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 30% 60%, rgba(52,211,153,0.1) 0%, transparent 40%), radial-gradient(ellipse 50% 30% at 70% 70%, rgba(167,139,250,0.08) 0%, transparent 40%); }
     .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(103,232,249,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%); }
-    
+
     .floating-elements { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
     .floating-card { position: absolute; background: rgba(24,24,27,0.8); backdrop-filter: blur(12px); border: 1px solid var(--surface-3); border-radius: 12px; padding: 14px 18px; font-size: 13px; color: var(--text-2); box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: float 6s ease-in-out infinite; display: flex; align-items: center; gap: 10px; }
     .floating-card .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
@@ -85,7 +85,7 @@
     .hero-subtitle { font-size: clamp(17px, 2.2vw, 21px); color: var(--text-2); max-width: 580px; margin: 0 auto 44px; line-height: 1.7; }
     .hero-subtitle strong { color: var(--text-1); font-weight: 600; }
     .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
-    
+
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 250ms var(--ease-out-expo); cursor: pointer; border: none; font-family: var(--font-sans); position: relative; overflow: hidden; }
     .btn-primary { background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); box-shadow: 0 4px 20px rgba(103,232,249,0.3); }
     .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(103,232,249,0.5); }
@@ -93,11 +93,11 @@
     .btn-secondary:hover { border-color: var(--glacier); background: var(--surface-3); transform: translateY(-2px); }
     .btn-icon { transition: transform 200ms var(--ease-spring); }
     .btn:hover .btn-icon { transform: translateX(3px); }
-    
+
     .hero-note { font-size: 13px; color: var(--text-3); display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
     .hero-note span { display: flex; align-items: center; gap: 6px; }
     .checkmark { color: var(--emerald); }
-    
+
     .trust-badges { display: flex; justify-content: center; gap: 20px; margin-top: 56px; flex-wrap: wrap; }
     .trust-badge { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 8px; font-size: 12px; color: var(--text-3); transition: all 200ms; }
     .trust-badge:hover { border-color: var(--surface-4); color: var(--text-2); }
@@ -358,7 +358,7 @@
       <a href="#pricing" class="nav-link">Pricing</a>
       <a href="docs.html" class="nav-link">Docs</a>
       <a href="login.html" class="nav-link">Sign In</a>
-      <a href="signup.html" class="nav-cta">Start Free →</a>
+      <a href="signup.html" class="nav-cta">Start Free</a>
     </nav>
     <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
   </header>
@@ -382,9 +382,9 @@
         <div class="floating-card card-4"><span class="icon" style="background: rgba(167,139,250,0.15);">◉</span><span>Testing 4 models...</span></div>
       </div>
       <div class="hero-content">
-        <a href="#features" class="hero-badge"><span class="hero-badge-dot"></span><span>Now in Public Beta — See what's new</span><span>→</span></a>
+        <a href="#features" class="hero-badge"><span class="hero-badge-dot"></span><span>Now in Public Beta. See what is new</span><span>→</span></a>
         <h1 class="hero-title"><span class="line">Your prompts are</span><span class="line gradient">production code</span></h1>
-        <p class="hero-subtitle">The <strong>enterprise prompt operating system</strong>. Version control, multi-model testing, approval workflows, and monetization — for teams that treat AI seriously.</p>
+        <p class="hero-subtitle">The <strong>enterprise prompt operating system</strong>. Version control, multimodel testing, approval workflows, and monetization for teams that treat AI seriously.</p>
         <div class="hero-ctas">
           <a href="signup.html" class="btn btn-primary"><span>Start Free Trial</span><span class="btn-icon">→</span></a>
           <a href="demo.html" class="btn btn-secondary"><span>Watch Demo</span><span class="btn-icon">▶</span></a>
@@ -392,7 +392,7 @@
         <div class="hero-note">
           <span><span class="checkmark">✓</span> No credit card</span>
           <span><span class="checkmark">✓</span> Free up to 25 prompts</span>
-          <span><span class="checkmark">✓</span> 14-day Pro trial</span>
+          <span><span class="checkmark">✓</span> 14 day Pro trial</span>
         </div>
         <div class="trust-badges">
           <div class="trust-badge"><span>🔒</span><span>SOC 2 Type II</span></div>
@@ -424,14 +424,14 @@
         <div class="section-header">
           <span class="section-label">⚡ The Problem</span>
           <h2 class="section-title">Prompt chaos is killing productivity</h2>
-          <p class="section-subtitle">Most teams manage prompts like it's 2005. Scattered files, zero visibility, compliance nightmares.</p>
+          <p class="section-subtitle">Most teams manage prompts like it is 2005. Scattered files, zero visibility, compliance nightmares.</p>
         </div>
         <div class="problem-grid">
           <div class="problem-column reveal">
             <div class="problem-header"><div class="problem-icon-large bad">✗</div><h3>The Old Way</h3></div>
             <ul class="problem-list">
               <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Prompts scattered everywhere</strong><span>Notion docs, Slack threads, random .txt files.</span></div></li>
-              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>No version control</strong><span>Final_v2_REAL_final.txt — what changed?</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>No version control</strong><span>Final_v2_REAL_final.txt. What changed?</span></div></li>
               <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Zero visibility</strong><span>Is your prompt working? How much does it cost?</span></div></li>
               <li class="problem-item"><span class="problem-item-icon bad">✗</span><div class="problem-item-content"><strong>Compliance nightmare</strong><span>Who approved this? When? Good luck with audits.</span></div></li>
             </ul>
@@ -440,8 +440,8 @@
             <div class="problem-header"><div class="problem-icon-large good">✓</div><h3>The Prompting It Way</h3></div>
             <ul class="problem-list">
               <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Single source of truth</strong><span>Every prompt versioned, searchable, organized.</span></div></li>
-              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Git-like version control</strong><span>Branch, diff, merge, rollback. Full history.</span></div></li>
-              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Multi-model testing & analytics</strong><span>Test across Claude, GPT-4, Gemini in real-time.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Git style version control</strong><span>Branch, diff, merge, rollback. Full history.</span></div></li>
+              <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Multimodel testing and analytics</strong><span>Test across Claude, GPT 4, Gemini in real time.</span></div></li>
               <li class="problem-item"><span class="problem-item-icon good">✓</span><div class="problem-item-content"><strong>Complete audit trail</strong><span>SOC2, HIPAA, GDPR ready out of the box.</span></div></li>
             </ul>
           </div>
@@ -454,14 +454,14 @@
         <div class="section-header">
           <span class="section-label">🛠️ Features</span>
           <h2 class="section-title">Everything to operationalize AI</h2>
-          <p class="section-subtitle">From development to deployment to monetization — one platform.</p>
+          <p class="section-subtitle">From development to deployment to monetization. One platform.</p>
         </div>
         <div class="features-grid">
-          <div class="feature-card reveal"><div class="feature-icon glacier">⎇</div><h3 class="feature-title">Version Control</h3><p class="feature-desc">Git-like branching, diffing, rollback. Full history with blame, annotations, and instant restore.</p><a href="#features" class="feature-link">Learn more →</a></div>
-          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon emerald">◉</div><h3 class="feature-title">Multi-Model Testing</h3><p class="feature-desc">Test across Claude, GPT-4, Gemini, Llama simultaneously. Compare cost, latency, accuracy.</p><a href="#features" class="feature-link">Learn more →</a></div>
-          <div class="feature-card reveal reveal-delay-2"><div class="feature-icon solar">⚙</div><h3 class="feature-title">Approval Workflows</h3><p class="feature-desc">Enterprise-grade gates: Draft → Review → Test → Staging → Canary → Production.</p><a href="#features" class="feature-link">Learn more →</a></div>
-          <div class="feature-card reveal"><div class="feature-icon violet">📊</div><h3 class="feature-title">Cost & Performance</h3><p class="feature-desc">Real-time visibility into token usage, model costs, latency, and accuracy.</p><a href="#features" class="feature-link">Learn more →</a></div>
-          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon glacier">🔒</div><h3 class="feature-title">Audit & Compliance</h3><p class="feature-desc">Complete trail of who changed what, when, and why. SOC2, HIPAA, GDPR ready.</p><a href="#features" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal"><div class="feature-icon glacier">⎇</div><h3 class="feature-title">Version Control</h3><p class="feature-desc">Git style branching, diffing, rollback. Full history with blame, annotations, and instant restore.</p><a href="#features" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon emerald">◉</div><h3 class="feature-title">Multimodel Testing</h3><p class="feature-desc">Test across Claude, GPT 4, Gemini, Llama simultaneously. Compare cost, latency, accuracy.</p><a href="#features" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-2"><div class="feature-icon solar">⚙</div><h3 class="feature-title">Approval Workflows</h3><p class="feature-desc">Enterprise grade gates: Draft, Review, Test, Staging, Canary, Production.</p><a href="#features" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal"><div class="feature-icon violet">📊</div><h3 class="feature-title">Cost and Performance</h3><p class="feature-desc">Real time visibility into token usage, model costs, latency, and accuracy.</p><a href="#features" class="feature-link">Learn more →</a></div>
+          <div class="feature-card reveal reveal-delay-1"><div class="feature-icon glacier">🔒</div><h3 class="feature-title">Audit and Compliance</h3><p class="feature-desc">Complete trail of who changed what, when, and why. SOC2, HIPAA, GDPR ready.</p><a href="#features" class="feature-link">Learn more →</a></div>
           <div class="feature-card reveal reveal-delay-2"><div class="feature-icon emerald">💰</div><h3 class="feature-title">Marketplace</h3><p class="feature-desc">Monetize your prompts. Earn 80% of every sale plus passive royalties when others fork.</p><a href="#features" class="feature-link">Learn more →</a></div>
         </div>
       </div>
@@ -475,10 +475,10 @@
             <h2>Deploy prompts like production code</h2>
             <p>Prompting It integrates seamlessly with your existing workflow. Version, test, and deploy with confidence.</p>
             <div class="demo-features">
-              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>One-line SDK integration</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>One line SDK integration</span></div>
               <div class="demo-feature"><span class="demo-feature-check">✓</span><span>Automatic version tracking</span></div>
-              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>Real-time cost monitoring</span></div>
-              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>A/B testing built-in</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>Real time cost monitoring</span></div>
+              <div class="demo-feature"><span class="demo-feature-check">✓</span><span>A/B testing built in</span></div>
             </div>
             <a href="signup.html" class="btn btn-primary"><span>Try It Free</span><span class="btn-icon">→</span></a>
           </div>
@@ -498,7 +498,7 @@
         <div class="section-header">
           <span class="section-label">🚀 How It Works</span>
           <h2 class="section-title">From idea to production in minutes</h2>
-          <p class="section-subtitle">The workflow you wish you'd had from day one.</p>
+          <p class="section-subtitle">The workflow you wish you had from day one.</p>
         </div>
         <div class="steps-container">
           <div class="steps-connector"></div>
@@ -522,12 +522,12 @@
             <thead><tr><th>Feature</th><th>Text Files</th><th>PromptLayer</th><th>LangSmith</th><th class="th-highlight">Prompting It</th></tr></thead>
             <tbody>
               <tr><td><div class="comparison-feature">Version Control</div><div class="comparison-feature-sub">Branch, diff, merge, rollback</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-yes">✓</span></td></tr>
-              <tr><td><div class="comparison-feature">Multi-Model Testing</div><div class="comparison-feature-sub">Claude, GPT-4, Gemini, Llama</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
-              <tr><td><div class="comparison-feature">Approval Workflows</div><div class="comparison-feature-sub">Enterprise gates & sign-offs</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
-              <tr><td><div class="comparison-feature">Cost Analytics</div><div class="comparison-feature-sub">Per-prompt token tracking</div></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Multimodel Testing</div><div class="comparison-feature-sub">Claude, GPT 4, Gemini, Llama</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Approval Workflows</div><div class="comparison-feature-sub">Enterprise gates and sign offs</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Cost Analytics</div><div class="comparison-feature-sub">Per prompt token tracking</div></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td></tr>
               <tr><td><div class="comparison-feature">Audit Logging</div><div class="comparison-feature-sub">SOC2 / HIPAA compliant</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-partial">Basic</span></td><td><span class="check-yes">✓</span></td></tr>
               <tr><td><div class="comparison-feature">Marketplace</div><div class="comparison-feature-sub">Monetize your prompts</div></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
-              <tr><td><div class="comparison-feature">Non-Technical UX</div><div class="comparison-feature-sub">PMs & domain experts</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Partial</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
+              <tr><td><div class="comparison-feature">Nontechnical UX</div><div class="comparison-feature-sub">PMs and domain experts</div></td><td><span class="check-no">✗</span></td><td><span class="check-partial">Partial</span></td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -542,9 +542,9 @@
           <p class="section-subtitle">See what engineers, PMs, and creators are saying.</p>
         </div>
         <div class="testimonials-grid">
-          <div class="testimonial-card reveal"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"We cut prompt-related incidents by 80% after switching. The approval workflows alone saved us from two major production issues."</p><div class="testimonial-author"><div class="testimonial-avatar glacier">SK</div><div class="testimonial-info"><div class="testimonial-name">Sarah Kim</div><div class="testimonial-role">Head of AI, FinTech Startup</div><div class="testimonial-logo">Series C • 200 employees</div></div></div></div>
+          <div class="testimonial-card reveal"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"We cut prompt related incidents by 80% after switching. The approval workflows alone saved us from two major production issues."</p><div class="testimonial-author"><div class="testimonial-avatar glacier">SK</div><div class="testimonial-info"><div class="testimonial-name">Sarah Kim</div><div class="testimonial-role">Head of AI, FinTech Startup</div><div class="testimonial-logo">Series C • 200 employees</div></div></div></div>
           <div class="testimonial-card reveal reveal-delay-1"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"The marketplace changed everything. I earned $12K last month from prompts I wrote once. The royalty system when people fork is genius."</p><div class="testimonial-author"><div class="testimonial-avatar emerald">MR</div><div class="testimonial-info"><div class="testimonial-name">Marcus Rodriguez</div><div class="testimonial-role">Prompt Engineer</div><div class="testimonial-logo">Top 100 Creator</div></div></div></div>
-          <div class="testimonial-card reveal reveal-delay-2"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"Finally, a tool that treats prompts like the production code they are. Version control, testing, rollback — this is what enterprise AI teams need."</p><div class="testimonial-author"><div class="testimonial-avatar violet">JL</div><div class="testimonial-info"><div class="testimonial-name">Jennifer Liu</div><div class="testimonial-role">VP Engineering</div><div class="testimonial-logo">Enterprise SaaS</div></div></div></div>
+          <div class="testimonial-card reveal reveal-delay-2"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"Finally, a tool that treats prompts like the production code they are. Version control, testing, rollback. This is what enterprise AI teams need."</p><div class="testimonial-author"><div class="testimonial-avatar violet">JL</div><div class="testimonial-info"><div class="testimonial-name">Jennifer Liu</div><div class="testimonial-role">VP Engineering</div><div class="testimonial-logo">Enterprise SaaS</div></div></div></div>
         </div>
       </div>
     </section>
@@ -554,7 +554,7 @@
         <div class="section-header">
           <span class="section-label">💎 Pricing</span>
           <h2 class="section-title">Start free, scale as you grow</h2>
-          <p class="section-subtitle">No credit card required. Upgrade when you're ready.</p>
+          <p class="section-subtitle">No credit card required. Upgrade when you are ready.</p>
         </div>
         <div class="pricing-toggle">
           <span class="pricing-toggle-label active" data-billing="monthly">Monthly</span>
@@ -564,8 +564,8 @@
         </div>
         <div class="pricing-grid">
           <div class="pricing-card reveal"><div class="pricing-name">Starter</div><p class="pricing-desc">For individuals getting started with prompt management.</p><div class="pricing-price"><span class="pricing-amount">$0</span><span class="pricing-period">forever free</span></div><ul class="pricing-features"><li>Up to 25 prompts</li><li>Basic version control</li><li>Single model testing</li><li>Community support</li><li>Marketplace selling (80/20)</li></ul><button class="pricing-cta">Get Started Free</button></div>
-          <div class="pricing-card featured reveal reveal-delay-1"><span class="pricing-badge">Most Popular</span><div class="pricing-name">Pro</div><p class="pricing-desc">For teams shipping prompts to production.</p><div class="pricing-price"><span class="pricing-amount" data-monthly="49" data-annual="39">$49</span><span class="pricing-period">per seat / month</span></div><ul class="pricing-features"><li>Unlimited prompts</li><li>Multi-model testing</li><li>Approval workflows</li><li>Full audit logging</li><li>Team collaboration (up to 10)</li><li>Priority support</li><li>Advanced analytics</li></ul><button class="pricing-cta">Start 14-Day Free Trial</button></div>
-          <div class="pricing-card reveal reveal-delay-2"><div class="pricing-name">Enterprise</div><p class="pricing-desc">For organizations with advanced security needs.</p><div class="pricing-price"><span class="pricing-amount">Custom</span><span class="pricing-period">contact for pricing</span></div><ul class="pricing-features"><li>Everything in Pro</li><li>Unlimited team members</li><li>SSO / SAML authentication</li><li>SOC2 & HIPAA compliance</li><li>Custom deployment options</li><li>99.9% uptime SLA</li><li>Dedicated success manager</li></ul><button class="pricing-cta">Contact Sales</button></div>
+          <div class="pricing-card featured reveal reveal-delay-1"><span class="pricing-badge">Most Popular</span><div class="pricing-name">Pro</div><p class="pricing-desc">For teams shipping prompts to production.</p><div class="pricing-price"><span class="pricing-amount" data-monthly="49" data-annual="39">$49</span><span class="pricing-period">per seat / month</span></div><ul class="pricing-features"><li>Unlimited prompts</li><li>Multimodel testing</li><li>Approval workflows</li><li>Full audit logging</li><li>Team collaboration (up to 10)</li><li>Priority support</li><li>Advanced analytics</li></ul><button class="pricing-cta">Start 14 Day Free Trial</button></div>
+          <div class="pricing-card reveal reveal-delay-2"><div class="pricing-name">Enterprise</div><p class="pricing-desc">For organizations with advanced security needs.</p><div class="pricing-price"><span class="pricing-amount">Custom</span><span class="pricing-period">contact for pricing</span></div><ul class="pricing-features"><li>Everything in Pro</li><li>Unlimited team members</li><li>SSO / SAML authentication</li><li>SOC2 and HIPAA compliance</li><li>Custom deployment options</li><li>99.9% uptime SLA</li><li>Dedicated success manager</li></ul><button class="pricing-cta">Contact Sales</button></div>
         </div>
       </div>
     </section>
@@ -579,10 +579,10 @@
         </div>
         <div class="faq-grid">
           <div class="faq-item reveal"><button class="faq-question"><span>How is this different from Notion or Google Docs?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Documents are designed for humans to read. Prompting It treats prompts as executable production code with version control, automated testing across models, approval workflows, cost tracking, and deployment pipelines.</p></div></div>
-          <div class="faq-item reveal reveal-delay-1"><button class="faq-question"><span>Which AI models do you support?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>We support all major LLM providers including OpenAI (GPT-4), Anthropic (Claude 3), Google (Gemini), Meta (Llama), and open-source models via API. Test the same prompt across multiple models simultaneously.</p></div></div>
-          <div class="faq-item reveal reveal-delay-2"><button class="faq-question"><span>How does the marketplace revenue split work?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Creators keep 80% of every sale. When someone forks your prompt and sells their improved version, you continue earning 10-15% royalties from their sales forever.</p></div></div>
-          <div class="faq-item reveal reveal-delay-3"><button class="faq-question"><span>Is Prompting It secure for enterprise use?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Yes. We're SOC 2 Type II certified and HIPAA compliant. Enterprise plans include SSO/SAML authentication, role-based access control, complete audit logging, and data encryption.</p></div></div>
-          <div class="faq-item reveal"><button class="faq-question"><span>Can I try it before committing?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Absolutely. Our Starter plan is free forever for up to 25 prompts. Pro plans include a 14-day free trial with no credit card required.</p></div></div>
+          <div class="faq-item reveal reveal-delay-1"><button class="faq-question"><span>Which AI models do you support?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>We support all major LLM providers including OpenAI (GPT 4), Anthropic (Claude 3), Google (Gemini), Meta (Llama), and open source models via API. Test the same prompt across multiple models simultaneously.</p></div></div>
+          <div class="faq-item reveal reveal-delay-2"><button class="faq-question"><span>How does the marketplace revenue split work?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Creators keep 80% of every sale. When someone forks your prompt and sells their improved version, you continue earning 10 to 15% royalties from their sales forever.</p></div></div>
+          <div class="faq-item reveal reveal-delay-3"><button class="faq-question"><span>Is Prompting It secure for enterprise use?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Yes. We are SOC 2 Type II certified and HIPAA compliant. Enterprise plans include SSO/SAML authentication, role based access control, complete audit logging, and data encryption.</p></div></div>
+          <div class="faq-item reveal"><button class="faq-question"><span>Can I try it before committing?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Absolutely. Our Starter plan is free forever for up to 25 prompts. Pro plans include a 14 day free trial with no credit card required.</p></div></div>
           <div class="faq-item reveal reveal-delay-1"><button class="faq-question"><span>How quickly can we get started?</span><span class="faq-icon">+</span></button><div class="faq-answer"><p>Most teams are up and running in under 30 minutes. Our SDK requires just one line of code to integrate.</p></div></div>
         </div>
       </div>
@@ -631,7 +631,7 @@
     </div>
   </footer>
 
-  <div class="cookie-banner" id="cookieBanner"><h4>🍪 Cookie Preferences</h4><p>We use cookies to enhance your experience. <a href="#features">Learn more</a></p><div class="cookie-buttons"><button class="cookie-btn accept" onclick="acceptCookies()">Accept All</button><button class="cookie-btn decline" onclick="declineCookies()">Decline</button></div></div>
+  <div class="cookie-banner" id="cookieBanner"><h4>Cookie Preferences</h4><p>We use cookies to enhance your experience. <a href="#features">Learn more</a></p><div class="cookie-buttons"><button class="cookie-btn accept" onclick="acceptCookies()">Accept All</button><button class="cookie-btn decline" onclick="declineCookies()">Decline</button></div></div>
 
   <script>
     const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');let particles=[];function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}function createParticle(){return{x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,size:Math.random()*2+0.5,opacity:Math.random()*0.5+0.1}}function initParticles(){particles=[];const count=Math.min(80,Math.floor(window.innerWidth/20));for(let i=0;i<count;i++)particles.push(createParticle())}function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(103,232,249,${p.opacity})`;ctx.fill()});particles.forEach((p1,i)=>{particles.slice(i+1).forEach(p2=>{const dx=p1.x-p2.x,dy=p1.y-p2.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.strokeStyle=`rgba(103,232,249,${0.1*(1-dist/150)})`;ctx.stroke()}})});requestAnimationFrame(animateParticles)}resizeCanvas();initParticles();animateParticles();window.addEventListener('resize',()=>{resizeCanvas();initParticles()});

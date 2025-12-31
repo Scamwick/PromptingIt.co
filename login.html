@@ -1,112 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="description" content="Sign in to Prompting It — The Enterprise Prompt Operating System">
-      <title>Sign In — Prompting It</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to Prompting It. The Enterprise Prompt Operating System">
+    <title>Sign In | Prompting It</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-          :root {
-                  --glacier: #67e8f9;
-                  --glacier-deep: #22d3ee;
-                  --emerald: #34d399;
-                  --surface-0: #030306;
-                  --surface-1: #09090b;
-                  --surface-2: #18181b;
-                  --surface-3: #27272a;
-                  --text-1: #ffffff;
-                  --text-2: rgba(255,255,255,0.75);
-                  --text-3: rgba(255,255,255,0.45);
-                  --text-4: rgba(255,255,255,0.2);
-                  --error: #ef4444;
-                  --font-mono: 'JetBrains Mono', monospace;
-                  --font-sans: 'Inter', -apple-system, sans-serif;
-                  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-          }
-          *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-          html { scroll-behavior: smooth; }
-          body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; -webkit-font-smoothing: antialiased; }
-          ::selection { background: var(--glacier); color: var(--surface-0); }
-          :focus-visible { outline: 2px solid var(--glacier); outline-offset: 2px; }
-          .auth-container { width: 100%; max-width: 420px; padding: 24px; }
-          .auth-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 20px; padding: 40px; }
-          .logo { font-family: var(--font-mono); font-weight: 800; font-size: 24px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 32px; }
-          .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; -webkit-text-fill-color: var(--surface-0); font-weight: 800; }
-          .auth-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 8px; }
-          .auth-subtitle { font-size: 14px; color: var(--text-3); text-align: center; margin-bottom: 32px; }
-          .form-group { margin-bottom: 20px; }
-          .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 8px; }
-          .form-input { width: 100%; padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 10px; color: var(--text-1); font-size: 14px; font-family: var(--font-sans); transition: all 200ms; }
-          .form-input:focus { outline: none; border-color: var(--glacier); box-shadow: 0 0 0 4px rgba(103,232,249,0.15); }
-          .form-input::placeholder { color: var(--text-4); }
-          .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-          .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-3); cursor: pointer; }
-          .checkbox-label input { width: 16px; height: 16px; accent-color: var(--glacier); }
-          .forgot-link { font-size: 13px; color: var(--glacier); text-decoration: none; transition: opacity 200ms; }
-          .forgot-link:hover { opacity: 0.8; }
-          .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 200ms var(--ease-out-expo); font-family: var(--font-sans); }
-          .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(103,232,249,0.4); }
-          .divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: var(--text-4); font-size: 12px; }
-          .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--surface-3); }
-          .social-buttons { display: flex; gap: 12px; }
-          .social-btn { flex: 1; padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 10px; color: var(--text-1); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 200ms; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; gap: 8px; }
-          .social-btn:hover { border-color: var(--glacier); background: var(--surface-3); }
-          .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-3); }
-          .auth-footer a { color: var(--glacier); text-decoration: none; font-weight: 500; }
-          .auth-footer a:hover { text-decoration: underline; }
-          .back-link { display: block; text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 200ms; }
-          .back-link:hover { color: var(--glacier); }
-        </style>
+      :root {
+        --glacier: #67e8f9;
+        --glacier-deep: #22d3ee;
+        --emerald: #34d399;
+        --surface-0: #030306;
+        --surface-1: #09090b;
+        --surface-2: #18181b;
+        --surface-3: #27272a;
+        --text-1: #ffffff;
+        --text-2: rgba(255,255,255,0.75);
+        --text-3: rgba(255,255,255,0.45);
+        --text-4: rgba(255,255,255,0.2);
+        --error: #ef4444;
+        --font-mono: 'JetBrains Mono', monospace;
+        --font-sans: 'Inter', -apple-system, sans-serif;
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; -webkit-font-smoothing: antialiased; }
+      ::selection { background: var(--glacier); color: var(--surface-0); }
+      :focus-visible { outline: 2px solid var(--glacier); outline-offset: 2px; }
+      .auth-container { width: 100%; max-width: 420px; padding: 24px; }
+      .auth-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 20px; padding: 40px; }
+      .logo { font-family: var(--font-mono); font-weight: 800; font-size: 24px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 32px; }
+      .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; -webkit-text-fill-color: var(--surface-0); font-weight: 800; }
+      .auth-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+      .auth-subtitle { font-size: 14px; color: var(--text-3); text-align: center; margin-bottom: 32px; }
+      .form-group { margin-bottom: 20px; }
+      .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 8px; }
+      .form-input { width: 100%; padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 10px; color: var(--text-1); font-size: 14px; font-family: var(--font-sans); transition: all 200ms; }
+      .form-input:focus { outline: none; border-color: var(--glacier); box-shadow: 0 0 0 4px rgba(103,232,249,0.15); }
+      .form-input::placeholder { color: var(--text-4); }
+      .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+      .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-3); cursor: pointer; }
+      .checkbox-label input { width: 16px; height: 16px; accent-color: var(--glacier); }
+      .forgot-link { font-size: 13px; color: var(--glacier); text-decoration: none; transition: opacity 200ms; }
+      .forgot-link:hover { opacity: 0.8; }
+      .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-0); border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 200ms var(--ease-out-expo); font-family: var(--font-sans); }
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(103,232,249,0.4); }
+      .divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: var(--text-4); font-size: 12px; }
+      .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--surface-3); }
+      .social-buttons { display: flex; gap: 12px; }
+      .social-btn { flex: 1; padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 10px; color: var(--text-1); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 200ms; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .social-btn:hover { border-color: var(--glacier); background: var(--surface-3); }
+      .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-3); }
+      .auth-footer a { color: var(--glacier); text-decoration: none; font-weight: 500; }
+      .auth-footer a:hover { text-decoration: underline; }
+      .back-link { display: block; text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 200ms; }
+      .back-link:hover { color: var(--glacier); }
+    </style>
   </head>
   <body>
-      <div class="auth-container">
-            <div class="auth-card">
-                    <a href="index.html" class="logo"><span class="logo-icon">#P</span>span><span>Prompting It</span></a>a>
-                  <h1 class="auth-title">Welcome back</h1>h1>
-                  <p class="auth-subtitle">Sign in to your account to continue</p>p>
-                  <form id="loginForm">
-                          <div class="form-group">
-                                    <label class="form-label" for="email">Email address</label>label>
-                                    <input type="email" id="email" class="form-input" placeholder="you@company.com" required>
-                          </div>div>
-                          <div class="form-group">
-                                    <label class="form-label" for="password">Password</label>label>
-                                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
-                          </div>div>
-                          <div class="form-row">
-                                    <label class="checkbox-label"><input type="checkbox" checked> Remember me</label>label>
-                                    <a href="#" class="forgot-link">Forgot password?</a>a>
-                          </div>div>
-                          <button type="submit" class="btn-primary">Sign In</button>button>
-                  </form>form>
-                  <div class="divider">or continue with</div>div>
-                  <div class="social-buttons">
-                          <button type="button" class="social-btn">Google</button>button>
-                          <button type="button" class="social-btn">GitHub</button>button>
-                  </div>div>
-                  <p class="auth-footer">Don't have an account? <a href="signup.html">Sign up for free</a>a></p>p>
-            </div>div>
-          <a href="index.html" class="back-link">← Back to home</a>a>
-      </div>div>
+    <div class="auth-container">
+      <div class="auth-card">
+        <a href="index.html" class="logo"><span class="logo-icon">#P</span><span>Prompting It</span></a>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your account to continue</p>
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="email">Email address</label>
+            <input type="email" id="email" class="form-input" placeholder="you@company.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label"><input type="checkbox" checked> Remember me</label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        <div class="divider">or continue with</div>
+        <div class="social-buttons">
+          <button type="button" class="social-btn">Google</button>
+          <button type="button" class="social-btn">GitHub</button>
+        </div>
+        <p class="auth-footer">Do not have an account? <a href="signup.html">Sign up for free</a></p>
+      </div>
+      <a href="index.html" class="back-link">Back to home</a>
+    </div>
     <script>
-          document.getElementById('loginForm').addEventListener('submit', function(e) {
-                  e.preventDefault();
-                  const btn = this.querySelector('button[type="submit"]');
-                  btn.textContent = 'Signing in...';
-                  btn.disabled = true;
-                  setTimeout(() => {
-                            alert('Login functionality will be implemented with your authentication provider (Auth0, Firebase, Supabase, etc.)');
-                            btn.textContent = 'Sign In';
-                            btn.disabled = false;
-                  }, 1000);
-          });
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        btn.textContent = 'Signing in...';
+        btn.disabled = true;
+        setTimeout(() => {
+          alert('Login functionality will be implemented with your authentication provider (Auth0, Firebase, Supabase, etc.)');
+          btn.textContent = 'Sign In';
+          btn.disabled = false;
+        }, 1000);
+      });
     </script>
   </body>
-</html>html>
-    </script></span>
-  </body>
-    </style></title>
-  </head>
+</html>
