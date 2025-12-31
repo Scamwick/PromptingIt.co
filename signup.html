@@ -103,9 +103,7 @@
                   btn.textContent = 'Creating account...';
                   btn.disabled = true;
                   setTimeout(() => {
-                            alert('Registration will be connected to your auth provider. Redirecting to dashboard...');
-                            btn.textContent = 'Create Account';
-                            btn.disabled = false;
+                            window.location.href = 'creator-dashboard.html';
                   }, 1500);
           });
     </script>

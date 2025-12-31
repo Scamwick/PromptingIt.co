@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prompting It Marketplace - Discover and purchase premium AI prompts from verified creators">
+    <meta name="keywords" content="AI prompts, prompt marketplace, buy prompts, prompt engineering, GPT prompts, Claude prompts">
+    <title>Marketplace - Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+    <style>
+        /* Marketplace Specific Styles */
+        .marketplace-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface-base) 100%);
+        }
+
+        .marketplace-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(103, 232, 249, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .marketplace-hero h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 16px;
+        }
+
+        .marketplace-hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px;
+            padding-left: 52px;
+            font-size: 16px;
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-xl);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            transition: all var(--duration-200) var(--ease-out);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-400);
+            box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-quaternary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 18px;
+        }
+
+        .marketplace-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .marketplace-stat {
+            text-align: center;
+        }
+
+        .marketplace-stat-value {
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-300), var(--emerald-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .marketplace-stat-label {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .marketplace-content {
+            padding: 60px 0;
+        }
+
+        .marketplace-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Filters Sidebar */
+        .filters-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .filter-section {
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-clear {
+            font-size: 12px;
+            color: var(--primary-400);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-sans);
+        }
+
+        .filter-clear:hover {
+            text-decoration: underline;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: color var(--duration-150);
+        }
+
+        .filter-option:hover {
+            color: var(--text-primary);
+        }
+
+        .filter-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--surface-border-strong);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--duration-150);
+            flex-shrink: 0;
+        }
+
+        .filter-option.active .filter-checkbox {
+            background: var(--primary-400);
+            border-color: var(--primary-400);
+        }
+
+        .filter-option.active .filter-checkbox::after {
+            content: '&#10003;';
+            color: var(--surface-base);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .filter-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-quaternary);
+        }
+
+        .price-range {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .price-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: var(--surface-overlay);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-default);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-mono);
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: var(--primary-400);
+        }
+
+        .price-divider {
+            color: var(--text-quaternary);
+        }
+
+        /* Prompts Grid */
+        .prompts-section {
+            flex: 1;
+        }
+
+        .prompts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .prompts-count {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        .prompts-count strong {
+            color: var(--text-primary);
+        }
+
+        .sort-select {
+            padding: 10px 16px;
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-default);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--primary-400);
+        }
+
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Prompt Card */
+        .prompt-card {
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all var(--duration-200) var(--ease-out);
+            cursor: pointer;
+        }
+
+        .prompt-card:hover {
+            border-color: var(--surface-border-strong);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .prompt-card-header {
+            padding: 20px 20px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .prompt-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .prompt-card-icon.primary { background: rgba(103, 232, 249, 0.15); }
+        .prompt-card-icon.emerald { background: rgba(52, 211, 153, 0.15); }
+        .prompt-card-icon.violet { background: rgba(167, 139, 250, 0.15); }
+        .prompt-card-icon.amber { background: rgba(251, 191, 36, 0.15); }
+
+        .prompt-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .prompt-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prompt-card-category {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .prompt-card-body {
+            padding: 0 20px 16px;
+        }
+
+        .prompt-card-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .prompt-card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .prompt-tag {
+            padding: 4px 10px;
+            background: var(--surface-overlay);
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .prompt-card-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prompt-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .prompt-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+        }
+
+        .prompt-rating-star {
+            color: var(--amber-400);
+        }
+
+        .prompt-rating-value {
+            font-weight: 600;
+        }
+
+        .prompt-rating-count {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+
+        .prompt-sales {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .prompt-price {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--emerald-400);
+        }
+
+        .prompt-card-creator {
+            padding: 12px 20px;
+            background: var(--surface-overlay);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .creator-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-400), var(--emerald-400));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--surface-base);
+        }
+
+        .creator-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .creator-badge {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--emerald-400);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Featured Section */
+        .featured-section {
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 40px 0;
+        }
+
+        .featured-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .featured-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .featured-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .featured-badge {
+            background: linear-gradient(135deg, var(--amber-400), var(--amber-500));
+            color: var(--surface-base);
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .featured-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            scrollbar-width: thin;
+        }
+
+        .featured-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .featured-scroll::-webkit-scrollbar-thumb {
+            background: var(--neutral-600);
+            border-radius: var(--radius-full);
+        }
+
+        .featured-card {
+            min-width: 320px;
+            flex-shrink: 0;
+        }
+
+        /* Categories Section */
+        .categories-section {
+            padding: 40px 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .categories-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .category-card {
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--duration-200) var(--ease-out);
+        }
+
+        .category-card:hover {
+            border-color: var(--primary-400);
+            transform: translateY(-2px);
+        }
+
+        .category-card.active {
+            border-color: var(--primary-400);
+            background: rgba(103, 232, 249, 0.05);
+        }
+
+        .category-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* CTA Section */
+        .marketplace-cta {
+            background: linear-gradient(135deg, rgba(103, 232, 249, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%);
+            border-top: 1px solid var(--surface-border);
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .marketplace-cta h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .marketplace-cta p {
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 24px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            .marketplace-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+                display: none;
+            }
+
+            .filters-sidebar.show {
+                display: block;
+            }
+
+            .filter-toggle {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .marketplace-hero {
+                padding: 100px 16px 40px;
+            }
+
+            .marketplace-stats {
+                gap: 24px;
+            }
+
+            .prompts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filter Toggle Button (Mobile) */
+        .filter-toggle {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-default);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .filter-toggle {
+                display: flex;
+            }
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+        }
+
+        .pagination-btn {
+            padding: 10px 16px;
+            background: var(--surface-raised);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-default);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--duration-150);
+            font-family: var(--font-sans);
+        }
+
+        .pagination-btn:hover {
+            background: var(--surface-overlay);
+            color: var(--text-primary);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-400);
+            border-color: var(--primary-400);
+            color: var(--surface-base);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface-overlay);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all var(--duration-300) var(--ease-out-expo);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--emerald-400);
+        }
+
+        .toast-message {
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <a href="index.html" class="logo" aria-label="Prompting It Home">
+            <span class="logo-icon">#P</span>
+            <span class="logo-text">Prompting It</span>
+        </a>
+
+        <nav class="nav" aria-label="Main navigation">
+            <a href="index.html#features" class="nav-link">Features</a>
+            <a href="marketplace.html" class="nav-link" style="color: var(--primary-400);">Marketplace</a>
+            <a href="index.html#pricing" class="nav-link">Pricing</a>
+            <a href="docs.html" class="nav-link">Docs</a>
+            <a href="login.html" class="nav-link">Sign In</a>
+            <a href="signup.html" class="btn btn-primary btn-sm nav-cta">
+                Start Free
+                <span class="icon icon-arrow">&#8594;</span>
+            </a>
+        </nav>
+
+        <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html#features">Features</a>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="docs.html">Documentation</a>
+        <a href="login.html">Sign In</a>
+        <a href="signup.html" class="btn btn-primary">Start Free Trial</a>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="marketplace-hero">
+            <div class="container">
+                <h1 class="gradient-text">Prompt Marketplace</h1>
+                <p>Discover production-ready prompts from verified creators. Find the perfect prompt for your use case.</p>
+
+                <div class="search-container">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" class="search-input" id="marketplaceSearch" placeholder="Search prompts by name, category, or use case...">
+                </div>
+
+                <div class="marketplace-stats">
+                    <div class="marketplace-stat">
+                        <div class="marketplace-stat-value">2,847</div>
+                        <div class="marketplace-stat-label">Active Prompts</div>
+                    </div>
+                    <div class="marketplace-stat">
+                        <div class="marketplace-stat-value">1,234</div>
+                        <div class="marketplace-stat-label">Verified Creators</div>
+                    </div>
+                    <div class="marketplace-stat">
+                        <div class="marketplace-stat-value">$1.2M</div>
+                        <div class="marketplace-stat-label">Creator Earnings</div>
+                    </div>
+                    <div class="marketplace-stat">
+                        <div class="marketplace-stat-value">4.8&#9733;</div>
+                        <div class="marketplace-stat-label">Avg Rating</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories-section">
+            <div class="categories-container">
+                <div class="categories-grid" id="categoriesGrid">
+                    <div class="category-card active" data-category="all">
+                        <div class="category-icon">&#128200;</div>
+                        <div class="category-name">All Prompts</div>
+                        <div class="category-count">2,847</div>
+                    </div>
+                    <div class="category-card" data-category="engineering">
+                        <div class="category-icon">&#128187;</div>
+                        <div class="category-name">Engineering</div>
+                        <div class="category-count">847</div>
+                    </div>
+                    <div class="category-card" data-category="content">
+                        <div class="category-icon">&#9997;&#65039;</div>
+                        <div class="category-name">Content</div>
+                        <div class="category-count">623</div>
+                    </div>
+                    <div class="category-card" data-category="marketing">
+                        <div class="category-icon">&#128226;</div>
+                        <div class="category-name">Marketing</div>
+                        <div class="category-count">412</div>
+                    </div>
+                    <div class="category-card" data-category="analytics">
+                        <div class="category-icon">&#128202;</div>
+                        <div class="category-name">Analytics</div>
+                        <div class="category-count">356</div>
+                    </div>
+                    <div class="category-card" data-category="design">
+                        <div class="category-icon">&#127912;</div>
+                        <div class="category-name">Design</div>
+                        <div class="category-count">289</div>
+                    </div>
+                    <div class="category-card" data-category="productivity">
+                        <div class="category-icon">&#9889;</div>
+                        <div class="category-name">Productivity</div>
+                        <div class="category-count">320</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Section -->
+        <section class="featured-section">
+            <div class="featured-container">
+                <div class="featured-header">
+                    <h2 class="featured-title">
+                        <span>&#11088;</span>
+                        Featured Prompts
+                        <span class="featured-badge">HOT</span>
+                    </h2>
+                    <a href="#" class="nav-link" style="color: var(--primary-400);">View All &#8594;</a>
+                </div>
+                <div class="featured-scroll" id="featuredScroll">
+                    <!-- Featured cards will be rendered here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="marketplace-content">
+            <div class="marketplace-layout">
+                <!-- Filters Sidebar -->
+                <aside class="filters-sidebar" id="filtersSidebar">
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Price Range
+                            <button class="filter-clear" id="clearPriceFilter">Clear</button>
+                        </div>
+                        <div class="price-range">
+                            <input type="text" class="price-input" id="priceMin" placeholder="$0">
+                            <span class="price-divider">to</span>
+                            <input type="text" class="price-input" id="priceMax" placeholder="$999">
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Rating</div>
+                        <div class="filter-options" id="ratingFilters">
+                            <label class="filter-option" data-rating="4.5">
+                                <span class="filter-checkbox"></span>
+                                <span>&#9733; 4.5 & up</span>
+                                <span class="filter-count">1,234</span>
+                            </label>
+                            <label class="filter-option" data-rating="4.0">
+                                <span class="filter-checkbox"></span>
+                                <span>&#9733; 4.0 & up</span>
+                                <span class="filter-count">1,892</span>
+                            </label>
+                            <label class="filter-option" data-rating="3.5">
+                                <span class="filter-checkbox"></span>
+                                <span>&#9733; 3.5 & up</span>
+                                <span class="filter-count">2,156</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Model Compatibility</div>
+                        <div class="filter-options" id="modelFilters">
+                            <label class="filter-option active" data-model="gpt-4">
+                                <span class="filter-checkbox"></span>
+                                <span>GPT-4</span>
+                                <span class="filter-count">2,234</span>
+                            </label>
+                            <label class="filter-option active" data-model="claude-3">
+                                <span class="filter-checkbox"></span>
+                                <span>Claude 3</span>
+                                <span class="filter-count">1,987</span>
+                            </label>
+                            <label class="filter-option" data-model="gemini">
+                                <span class="filter-checkbox"></span>
+                                <span>Gemini Pro</span>
+                                <span class="filter-count">1,456</span>
+                            </label>
+                            <label class="filter-option" data-model="llama">
+                                <span class="filter-checkbox"></span>
+                                <span>Llama 3</span>
+                                <span class="filter-count">892</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Creator Status</div>
+                        <div class="filter-options" id="creatorFilters">
+                            <label class="filter-option" data-creator="verified">
+                                <span class="filter-checkbox"></span>
+                                <span>&#10003; Verified Only</span>
+                                <span class="filter-count">1,234</span>
+                            </label>
+                            <label class="filter-option" data-creator="top100">
+                                <span class="filter-checkbox"></span>
+                                <span>&#127942; Top 100</span>
+                                <span class="filter-count">100</span>
+                            </label>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Prompts Grid -->
+                <div class="prompts-section">
+                    <div class="prompts-header">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <button class="filter-toggle" id="filterToggle">
+                                <span>&#9776;</span> Filters
+                            </button>
+                            <span class="prompts-count">Showing <strong>48</strong> of <strong>2,847</strong> prompts</span>
+                        </div>
+                        <select class="sort-select" id="sortSelect">
+                            <option value="popular">Most Popular</option>
+                            <option value="newest">Newest First</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <div class="prompts-grid" id="promptsGrid">
+                        <!-- Prompts will be rendered here -->
+                    </div>
+
+                    <div class="pagination" id="pagination">
+                        <button class="pagination-btn" disabled>&#8592; Prev</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">...</button>
+                        <button class="pagination-btn">24</button>
+                        <button class="pagination-btn">Next &#8594;</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="marketplace-cta">
+            <div class="container">
+                <h2>Ready to Sell Your Prompts?</h2>
+                <p>Join thousands of creators earning passive income from their prompts. Keep 80% of every sale.</p>
+                <div class="cta-buttons">
+                    <a href="creator-dashboard.html" class="btn btn-primary btn-lg">
+                        <span>Open Creator Dashboard</span>
+                        <span class="icon icon-arrow">&#8594;</span>
+                    </a>
+                    <a href="signup.html" class="btn btn-secondary btn-lg">
+                        <span>Become a Creator</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">#P</span>
+                        <span class="logo-text">Prompting It</span>
+                    </a>
+                    <p>The enterprise prompt operating system. Version control, testing, and monetization for production AI.</p>
+                    <div class="footer-social">
+                        <a href="https://twitter.com/promptingit" aria-label="Twitter">&#120143;</a>
+                        <a href="https://github.com/promptingit" aria-label="GitHub">&#9049;</a>
+                        <a href="https://linkedin.com/company/promptingit" aria-label="LinkedIn">in</a>
+                        <a href="https://discord.gg/promptingit" aria-label="Discord">&#9670;</a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#pricing">Pricing</a></li>
+                        <li><a href="marketplace.html">Marketplace</a></li>
+                        <li><a href="creator-dashboard.html">Creator Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="docs.html">Documentation</a></li>
+                        <li><a href="app.html">Prompt Optimizer</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="cookies.html">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>&copy; 2025 Prompting It, Inc. All rights reserved.</span>
+                <div class="footer-legal">
+                    <a href="privacy.html">Privacy</a>
+                    <a href="terms.html">Terms</a>
+                    <a href="cookies.html">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="scripts.js"></script>
+    <script>
+        // Marketplace Data
+        const prompts = [
+            {
+                id: 1,
+                title: 'Code Review Pro v3',
+                category: 'Engineering',
+                categoryKey: 'engineering',
+                icon: '&#128269;',
+                iconClass: 'primary',
+                description: 'Comprehensive code review that catches bugs, security issues, and suggests improvements. Works with any programming language.',
+                tags: ['code-review', 'debugging', 'best-practices'],
+                rating: 4.9,
+                reviews: 847,
+                sales: 2341,
+                price: 29.99,
+                creator: { initials: 'CS', name: 'Cody Short', verified: true }
+            },
+            {
+                id: 2,
+                title: 'Blog Post Generator',
+                category: 'Content',
+                categoryKey: 'content',
+                icon: '&#9997;&#65039;',
+                iconClass: 'emerald',
+                description: 'Generate engaging, SEO-optimized blog posts with proper structure, headings, and calls to action.',
+                tags: ['content', 'seo', 'blogging'],
+                rating: 4.7,
+                reviews: 523,
+                sales: 1876,
+                price: 19.99,
+                creator: { initials: 'AW', name: 'Alex Wang', verified: true }
+            },
+            {
+                id: 3,
+                title: 'Data Analysis Suite',
+                category: 'Analytics',
+                categoryKey: 'analytics',
+                icon: '&#128202;',
+                iconClass: 'violet',
+                description: 'Transform raw data into actionable insights with statistical analysis, visualization suggestions, and trend detection.',
+                tags: ['data', 'analysis', 'statistics'],
+                rating: 4.8,
+                reviews: 312,
+                sales: 987,
+                price: 49.99,
+                creator: { initials: 'MR', name: 'Marcus Rodriguez', verified: true }
+            },
+            {
+                id: 4,
+                title: 'Marketing Copy Engine',
+                category: 'Marketing',
+                categoryKey: 'marketing',
+                icon: '&#127919;',
+                iconClass: 'amber',
+                description: 'Create compelling marketing copy for ads, landing pages, emails, and social media that converts.',
+                tags: ['marketing', 'copywriting', 'conversion'],
+                rating: 4.6,
+                reviews: 234,
+                sales: 654,
+                price: 24.99,
+                creator: { initials: 'JL', name: 'Jennifer Liu', verified: true }
+            },
+            {
+                id: 5,
+                title: 'SQL Query Optimizer',
+                category: 'Engineering',
+                categoryKey: 'engineering',
+                icon: '&#128206;',
+                iconClass: 'primary',
+                description: 'Analyze and optimize SQL queries for better performance. Identifies bottlenecks and suggests indexes.',
+                tags: ['sql', 'database', 'optimization'],
+                rating: 4.9,
+                reviews: 456,
+                sales: 1234,
+                price: 34.99,
+                creator: { initials: 'DK', name: 'David Kim', verified: true }
+            },
+            {
+                id: 6,
+                title: 'UX Copy Writer',
+                category: 'Design',
+                categoryKey: 'design',
+                icon: '&#127912;',
+                iconClass: 'violet',
+                description: 'Generate user-friendly microcopy for buttons, error messages, tooltips, and onboarding flows.',
+                tags: ['ux', 'microcopy', 'design'],
+                rating: 4.5,
+                reviews: 189,
+                sales: 432,
+                price: 14.99,
+                creator: { initials: 'SK', name: 'Sarah Kim', verified: true }
+            },
+            {
+                id: 7,
+                title: 'Email Automation Pro',
+                category: 'Marketing',
+                categoryKey: 'marketing',
+                icon: '&#128231;',
+                iconClass: 'amber',
+                description: 'Create complete email sequences for nurturing, onboarding, and re-engagement campaigns.',
+                tags: ['email', 'automation', 'drip'],
+                rating: 4.7,
+                reviews: 278,
+                sales: 789,
+                price: 39.99,
+                creator: { initials: 'TM', name: 'Tom Miller', verified: true }
+            },
+            {
+                id: 8,
+                title: 'API Documentation',
+                category: 'Engineering',
+                categoryKey: 'engineering',
+                icon: '&#128196;',
+                iconClass: 'primary',
+                description: 'Generate comprehensive API documentation from code comments and OpenAPI specs.',
+                tags: ['api', 'documentation', 'developer'],
+                rating: 4.8,
+                reviews: 345,
+                sales: 567,
+                price: 29.99,
+                creator: { initials: 'RP', name: 'Rachel Park', verified: true }
+            },
+            {
+                id: 9,
+                title: 'Social Media Planner',
+                category: 'Content',
+                categoryKey: 'content',
+                icon: '&#128242;',
+                iconClass: 'emerald',
+                description: 'Plan and generate a month\'s worth of social media content with hashtags and posting times.',
+                tags: ['social', 'content', 'planning'],
+                rating: 4.6,
+                reviews: 412,
+                sales: 1023,
+                price: 24.99,
+                creator: { initials: 'LW', name: 'Lisa Wong', verified: true }
+            }
+        ];
+
+        // Toast function
+        const toast = {
+            element: document.getElementById('toast'),
+            show(message) {
+                this.element.querySelector('.toast-message').textContent = message;
+                this.element.classList.add('show', 'success');
+                setTimeout(() => {
+                    this.element.classList.remove('show');
+                }, 3000);
+            }
+        };
+
+        // Render Prompt Card
+        function renderPromptCard(prompt) {
+            return `
+                <div class="prompt-card" data-id="${prompt.id}">
+                    <div class="prompt-card-header">
+                        <div class="prompt-card-icon ${prompt.iconClass}">${prompt.icon}</div>
+                        <div class="prompt-card-info">
+                            <div class="prompt-card-title">${prompt.title}</div>
+                            <div class="prompt-card-category">${prompt.category}</div>
+                        </div>
+                    </div>
+                    <div class="prompt-card-body">
+                        <p class="prompt-card-desc">${prompt.description}</p>
+                        <div class="prompt-card-tags">
+                            ${prompt.tags.map(tag => `<span class="prompt-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="prompt-card-footer">
+                        <div class="prompt-card-meta">
+                            <div class="prompt-rating">
+                                <span class="prompt-rating-star">&#9733;</span>
+                                <span class="prompt-rating-value">${prompt.rating}</span>
+                                <span class="prompt-rating-count">(${prompt.reviews})</span>
+                            </div>
+                            <span class="prompt-sales">${prompt.sales.toLocaleString()} sales</span>
+                        </div>
+                        <span class="prompt-price">$${prompt.price.toFixed(2)}</span>
+                    </div>
+                    <div class="prompt-card-creator">
+                        <div class="creator-avatar">${prompt.creator.initials}</div>
+                        <span class="creator-name">${prompt.creator.name}</span>
+                        ${prompt.creator.verified ? '<span class="creator-badge">&#10003; Verified</span>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Prompts Grid
+        function renderPrompts(filteredPrompts = prompts) {
+            const grid = document.getElementById('promptsGrid');
+            grid.innerHTML = filteredPrompts.map(renderPromptCard).join('');
+
+            // Add click handlers
+            grid.querySelectorAll('.prompt-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.id;
+                    const prompt = prompts.find(p => p.id == id);
+                    toast.show(`Opening "${prompt.title}"...`);
+                });
+            });
+        }
+
+        // Render Featured
+        function renderFeatured() {
+            const featured = prompts.slice(0, 4);
+            const container = document.getElementById('featuredScroll');
+            container.innerHTML = featured.map(p => `<div class="featured-card">${renderPromptCard(p)}</div>`).join('');
+
+            container.querySelectorAll('.prompt-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.id;
+                    const prompt = prompts.find(p => p.id == id);
+                    toast.show(`Opening "${prompt.title}"...`);
+                });
+            });
+        }
+
+        // Category Filter
+        document.getElementById('categoriesGrid').addEventListener('click', (e) => {
+            const card = e.target.closest('.category-card');
+            if (!card) return;
+
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            const category = card.dataset.category;
+            if (category === 'all') {
+                renderPrompts();
+            } else {
+                const filtered = prompts.filter(p => p.categoryKey === category);
+                renderPrompts(filtered);
+            }
+        });
+
+        // Search
+        document.getElementById('marketplaceSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = prompts.filter(p =>
+                p.title.toLowerCase().includes(query) ||
+                p.category.toLowerCase().includes(query) ||
+                p.description.toLowerCase().includes(query) ||
+                p.tags.some(t => t.toLowerCase().includes(query))
+            );
+            renderPrompts(filtered);
+        });
+
+        // Sort
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            const sortBy = e.target.value;
+            let sorted = [...prompts];
+
+            switch (sortBy) {
+                case 'popular':
+                    sorted.sort((a, b) => b.sales - a.sales);
+                    break;
+                case 'newest':
+                    sorted.sort((a, b) => b.id - a.id);
+                    break;
+                case 'rating':
+                    sorted.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'price-low':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+            }
+
+            renderPrompts(sorted);
+        });
+
+        // Filter Toggle (Mobile)
+        document.getElementById('filterToggle').addEventListener('click', () => {
+            const sidebar = document.getElementById('filtersSidebar');
+            sidebar.classList.toggle('show');
+        });
+
+        // Filter Options
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', () => {
+                option.classList.toggle('active');
+                toast.show('Filters updated');
+            });
+        });
+
+        // Clear Price Filter
+        document.getElementById('clearPriceFilter').addEventListener('click', () => {
+            document.getElementById('priceMin').value = '';
+            document.getElementById('priceMax').value = '';
+            toast.show('Price filter cleared');
+        });
+
+        // Pagination
+        document.getElementById('pagination').addEventListener('click', (e) => {
+            const btn = e.target.closest('.pagination-btn');
+            if (!btn || btn.disabled) return;
+
+            document.querySelectorAll('.pagination-btn').forEach(b => b.classList.remove('active'));
+            if (!btn.textContent.includes('Prev') && !btn.textContent.includes('Next') && btn.textContent !== '...') {
+                btn.classList.add('active');
+            }
+            toast.show(`Loading page ${btn.textContent}...`);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPrompts();
+            renderFeatured();
+        });
+    </script>
+</body>
+</html>
