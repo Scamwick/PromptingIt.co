@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Prompting It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --glacier: #67e8f9;
+            --glacier-deep: #22d3ee;
+            --glacier-dark: #0891b2;
+            --emerald: #34d399;
+            --emerald-dark: #10b981;
+            --solar: #facc15;
+            --solar-dark: #eab308;
+            --surface-0: #050508;
+            --surface-1: #09090b;
+            --surface-2: #18181b;
+            --surface-3: #27272a;
+            --surface-4: #3f3f46;
+            --text-1: #ffffff;
+            --text-2: rgba(255, 255, 255, 0.7);
+            --text-3: rgba(255, 255, 255, 0.4);
+            --text-4: rgba(255, 255, 255, 0.2);
+            --success: #10b981;
+            --error: #ef4444;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+            --shadow-xl: 0 24px 60px rgba(0,0,0,0.6);
+            --glow-glacier: 0 0 40px rgba(103,232,249,0.3);
+            --glow-emerald: 0 0 40px rgba(52,211,153,0.3);
+            --duration-fast: 150ms;
+            --duration-normal: 300ms;
+            --duration-slow: 500ms;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--surface-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Background */
+        .ambient {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .ambient::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(103, 232, 249, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(52, 211, 153, 0.06) 0%, transparent 50%);
+            animation: ambientDrift 20s ease-in-out infinite;
+        }
+
+        @keyframes ambientDrift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, -2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+
+        /* Main Container */
+        .onboarding {
+            width: 100%;
+            max-width: 560px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo */
+        .logo {
+            text-align: center;
+            margin-bottom: 48px;
+            opacity: 0;
+            animation: fadeUp 600ms var(--ease-out-expo) forwards;
+        }
+
+        .logo-mark {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeUp 600ms var(--ease-out-expo) 100ms forwards;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .progress-step {
+            width: 32px;
+            height: 4px;
+            background: var(--surface-3);
+            border-radius: 2px;
+            transition: all var(--duration-normal) var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--glacier), var(--glacier-deep));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform var(--duration-slow) var(--ease-out-expo);
+        }
+
+        .progress-step.active::after,
+        .progress-step.complete::after {
+            transform: scaleX(1);
+        }
+
+        .progress-step.active {
+            width: 48px;
+        }
+
+        .progress-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-3);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Card */
+        .card {
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            box-shadow: var(--shadow-xl);
+            opacity: 0;
+            animation: fadeUp 600ms var(--ease-out-expo) 200ms forwards;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 32px 24px;
+            }
+        }
+
+        /* Step Content */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: stepEnter 400ms var(--ease-out-expo);
+        }
+
+        @keyframes stepEnter {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-exit {
+            animation: stepExit 200ms var(--ease-out-expo) forwards;
+        }
+
+        @keyframes stepExit {
+            to {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+
+        /* Typography */
+        .step-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .step-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .step-subtitle {
+            font-size: 15px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        /* Role Selection */
+        .role-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .role-card {
+            background: var(--surface-2);
+            border: 2px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(103, 232, 249, 0.1), rgba(52, 211, 153, 0.05));
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .role-card:hover {
+            border-color: var(--surface-4);
+            transform: translateY(-2px);
+        }
+
+        .role-card:hover::before {
+            opacity: 1;
+        }
+
+        .role-card.selected {
+            border-color: var(--glacier);
+            box-shadow: var(--glow-glacier);
+        }
+
+        .role-card.selected::before {
+            opacity: 1;
+        }
+
+        .role-card:focus {
+            outline: none;
+            border-color: var(--glacier);
+        }
+
+        .role-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--surface-3);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all var(--duration-fast);
+        }
+
+        .role-card.selected .role-icon {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+        }
+
+        .role-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--surface-4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--duration-fast);
+        }
+
+        .role-card.selected .role-check {
+            background: var(--glacier);
+            border-color: var(--glacier);
+        }
+
+        .role-check svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--surface-1);
+            stroke-width: 3;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .role-card.selected .role-check svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .role-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .role-desc {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.5;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            color: var(--text-1);
+            transition: all var(--duration-fast);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-4);
+        }
+
+        .form-input:hover {
+            border-color: var(--surface-4);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--glacier);
+            box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.15);
+        }
+
+        .form-input.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+        }
+
+        .form-error {
+            font-size: 12px;
+            color: var(--error);
+            margin-top: 8px;
+            display: none;
+        }
+
+        .form-input.error + .form-error {
+            display: block;
+        }
+
+        /* Interests */
+        .interests-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+
+        .interest-tag {
+            padding: 10px 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-2);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out-expo);
+            user-select: none;
+        }
+
+        .interest-tag:hover {
+            border-color: var(--surface-4);
+            color: var(--text-1);
+        }
+
+        .interest-tag.selected {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            border-color: transparent;
+            color: var(--surface-1);
+            font-weight: 600;
+        }
+
+        .interest-tag:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--glacier);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out-expo);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text-1);
+            border: 1px solid var(--surface-3);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-3);
+            border-color: var(--surface-4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
+            color: var(--surface-1);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--glacier-deep), var(--glacier-dark));
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-glacier);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0) !important;
+        }
+
+        /* Success State */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: successPop 500ms var(--ease-spring);
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--surface-1);
+            stroke-width: 3;
+            animation: checkDraw 400ms var(--ease-out-expo) 300ms both;
+        }
+
+        @keyframes checkDraw {
+            from { stroke-dashoffset: 100; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .success-features {
+            display: grid;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--surface-2);
+            border-radius: var(--radius-md);
+            opacity: 0;
+            animation: featureSlide 400ms var(--ease-out-expo) forwards;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 400ms; }
+        .feature-item:nth-child(2) { animation-delay: 500ms; }
+        .feature-item:nth-child(3) { animation-delay: 600ms; }
+
+        @keyframes featureSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-3);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.5;
+        }
+
+        .feature-text strong {
+            color: var(--text-1);
+            font-weight: 600;
+        }
+
+        /* Loading State */
+        .btn-loading {
+            pointer-events: none;
+        }
+
+        .btn-loading span {
+            opacity: 0;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: var(--surface-1);
+            border-radius: 50%;
+            animation: spin 600ms linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Skip Link */
+        .skip-intro {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: var(--text-3);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all var(--duration-fast);
+            opacity: 0;
+            animation: fadeUp 600ms var(--ease-out-expo) 800ms forwards;
+        }
+
+        .skip-intro:hover {
+            color: var(--text-2);
+            background: var(--surface-2);
+        }
+
+        /* Avatar Picker */
+        .avatar-picker {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .avatar-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--glacier), var(--emerald));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--surface-1);
+            border: 3px solid var(--surface-3);
+            transition: all var(--duration-fast);
+        }
+
+        .avatar-container:hover .avatar {
+            border-color: var(--glacier);
+            transform: scale(1.05);
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--surface-2);
+            border: 2px solid var(--surface-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--duration-fast);
+        }
+
+        .avatar-edit svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-2);
+        }
+
+        .avatar-container:hover .avatar-edit {
+            background: var(--glacier);
+        }
+
+        .avatar-container:hover .avatar-edit svg {
+            stroke: var(--surface-1);
+        }
+
+        /* Name display in header */
+        .user-greeting {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--glacier);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+
+    <div class="onboarding">
+        <div class="logo">
+            <div class="logo-mark"># Prompting It</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-step active" data-step="1"></div>
+                <div class="progress-step" data-step="2"></div>
+                <div class="progress-step" data-step="3"></div>
+                <div class="progress-step" data-step="4"></div>
+            </div>
+            <div class="progress-label">Step <span id="currentStep">1</span> of 4</div>
+        </div>
+
+        <div class="card">
+            <!-- Step 1: Role Selection -->
+            <div class="step active" data-step="1">
+                <div class="step-header">
+                    <h1 class="step-title">How will you use Prompting It?</h1>
+                    <p class="step-subtitle">Choose your primary role. You can always access all features later.</p>
+                </div>
+
+                <div class="role-grid">
+                    <div class="role-card" tabindex="0" data-role="creator" onclick="selectRole(this)">
+                        <div class="role-header">
+                            <div class="role-icon">✨</div>
+                            <div class="role-check">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="role-content">
+                            <div class="role-title">Prompt Creator</div>
+                            <div class="role-desc">Build, test, and monetize production-grade prompts in the marketplace.</div>
+                        </div>
+                    </div>
+
+                    <div class="role-card" tabindex="0" data-role="enterprise" onclick="selectRole(this)">
+                        <div class="role-header">
+                            <div class="role-icon">🏢</div>
+                            <div class="role-check">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="role-content">
+                            <div class="role-title">Enterprise Team</div>
+                            <div class="role-desc">Manage prompts at scale with version control, approval workflows, and compliance.</div>
+                        </div>
+                    </div>
+
+                    <div class="role-card" tabindex="0" data-role="both" onclick="selectRole(this)">
+                        <div class="role-header">
+                            <div class="role-icon">🚀</div>
+                            <div class="role-check">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="role-content">
+                            <div class="role-title">Both</div>
+                            <div class="role-desc">Full platform access — create for the marketplace and manage enterprise workflows.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="step1Next" disabled onclick="nextStep()">
+                        <span>Continue</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Profile Setup -->
+            <div class="step" data-step="2">
+                <div class="step-header">
+                    <h1 class="step-title">Let's set up your profile</h1>
+                    <p class="step-subtitle">This helps us personalize your experience.</p>
+                </div>
+
+                <div class="avatar-picker">
+                    <div class="avatar-container" onclick="changeAvatar()">
+                        <div class="avatar" id="userAvatar">C</div>
+                        <div class="avatar-edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-input" id="displayName" placeholder="How should we call you?" oninput="validateStep2()">
+                    <div class="form-error">Please enter a display name</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Company <span style="color: var(--text-3)">(optional)</span></label>
+                    <input type="text" class="form-input" id="company" placeholder="Where do you work?">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button class="btn btn-primary" id="step2Next" disabled onclick="nextStep()">
+                        <span>Continue</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Interests -->
+            <div class="step" data-step="3">
+                <div class="step-header">
+                    <div class="user-greeting" id="greeting"></div>
+                    <h1 class="step-title">What are you building?</h1>
+                    <p class="step-subtitle">Select your areas of interest. We'll customize your dashboard and recommendations.</p>
+                </div>
+
+                <div class="interests-grid">
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Code Review</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Content Writing</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Data Analysis</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Customer Support</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Marketing</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Sales</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Legal / Compliance</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Research</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Healthcare</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Education</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Finance</div>
+                    <div class="interest-tag" tabindex="0" onclick="toggleInterest(this)">Creative</div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button class="btn btn-primary" id="step3Next" onclick="nextStep()">
+                        <span>Continue</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Complete -->
+            <div class="step" data-step="4">
+                <div class="step-header">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-dasharray="100" stroke-dashoffset="100">
+                            <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1 class="step-title">You're all set!</h1>
+                    <p class="step-subtitle">Your workspace is ready. Here's what you can do next:</p>
+                </div>
+
+                <div class="success-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">📦</div>
+                        <div class="feature-text">
+                            <strong>Create your first prompt</strong> — Build, test, and version control production-grade prompts.
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛒</div>
+                        <div class="feature-text">
+                            <strong>Explore the marketplace</strong> — Discover certified prompts from expert creators.
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-text">
+                            <strong>Invite your team</strong> — Collaborate with approval workflows and audit trails.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="launchDashboard()" style="flex: 2">
+                        <span>Launch Dashboard</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <a href="#" class="skip-intro" id="skipLink" onclick="skipToEnd(event)">I'll explore on my own →</a>
+    </div>
+
+    <script>
+        // State
+        let currentStep = 1;
+        let selectedRole = null;
+        let userData = {
+            role: null,
+            name: '',
+            company: '',
+            interests: []
+        };
+
+        // Role Selection
+        function selectRole(card) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedRole = card.dataset.role;
+            userData.role = selectedRole;
+            document.getElementById('step1Next').disabled = false;
+        }
+
+        // Interest Toggle
+        function toggleInterest(tag) {
+            tag.classList.toggle('selected');
+            const interest = tag.textContent;
+            if (tag.classList.contains('selected')) {
+                userData.interests.push(interest);
+            } else {
+                userData.interests = userData.interests.filter(i => i !== interest);
+            }
+        }
+
+        // Validate Step 2
+        function validateStep2() {
+            const name = document.getElementById('displayName').value.trim();
+            const nextBtn = document.getElementById('step2Next');
+            const avatar = document.getElementById('userAvatar');
+
+            if (name.length > 0) {
+                nextBtn.disabled = false;
+                avatar.textContent = name.charAt(0).toUpperCase();
+                userData.name = name;
+            } else {
+                nextBtn.disabled = true;
+                avatar.textContent = 'C';
+            }
+        }
+
+        // Avatar Change (placeholder)
+        function changeAvatar() {
+            // In production, this would open a file picker or avatar selector
+            console.log('Avatar picker would open here');
+        }
+
+        // Navigation
+        function nextStep() {
+            if (currentStep >= 4) return;
+
+            const currentStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+            currentStepEl.classList.add('step-exit');
+
+            setTimeout(() => {
+                currentStepEl.classList.remove('active', 'step-exit');
+                currentStep++;
+
+                // Update progress
+                updateProgress();
+
+                // Show next step
+                const nextStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+                nextStepEl.classList.add('active');
+
+                // Step-specific updates
+                if (currentStep === 3) {
+                    const greeting = document.getElementById('greeting');
+                    if (userData.name) {
+                        greeting.textContent = `Hey ${userData.name} 👋`;
+                    }
+                }
+
+                // Hide skip link on last step
+                if (currentStep === 4) {
+                    document.getElementById('skipLink').style.display = 'none';
+                    // Update progress to all complete
+                    document.querySelectorAll('.progress-step').forEach(step => {
+                        step.classList.add('complete');
+                    });
+                }
+
+            }, 200);
+        }
+
+        function prevStep() {
+            if (currentStep <= 1) return;
+
+            const currentStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+            currentStepEl.classList.remove('active');
+            currentStep--;
+
+            updateProgress();
+
+            const prevStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+            prevStepEl.classList.add('active');
+        }
+
+        function updateProgress() {
+            document.getElementById('currentStep').textContent = currentStep;
+
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'complete');
+
+                if (stepNum < currentStep) {
+                    step.classList.add('complete');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function skipToEnd(e) {
+            e.preventDefault();
+            currentStep = 3;
+            nextStep();
+        }
+
+        function launchDashboard() {
+            const btn = event.target.closest('.btn');
+            btn.classList.add('btn-loading');
+
+            // Simulate dashboard load
+            setTimeout(() => {
+                // In production, redirect to dashboard
+                console.log('User data:', userData);
+                window.location.href = 'app.html';
+            }, 1500);
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const focused = document.activeElement;
+                if (focused.classList.contains('role-card')) {
+                    selectRole(focused);
+                } else if (focused.classList.contains('interest-tag')) {
+                    toggleInterest(focused);
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Focus first role card for accessibility
+            setTimeout(() => {
+                document.querySelector('.role-card')?.focus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
