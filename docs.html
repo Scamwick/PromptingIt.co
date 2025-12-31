@@ -1,487 +1,386 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="description" content="Documentation for Prompting It - The Enterprise Prompt Operating System. Get started with our comprehensive guides, API reference, and templates.">
-      <title>Documentation — Prompting It</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-          :root {
-                  --glacier: #67e8f9;
-                  --glacier-deep: #22d3ee;
-                  --glacier-dark: #0891b2;
-                  --emerald: #34d399;
-                  --emerald-dark: #10b981;
-                  --solar: #facc15;
-                  --violet: #a78bfa;
-                  --surface-0: #030306;
-                  --surface-1: #09090b;
-                  --surface-2: #18181b;
-                  --surface-3: #27272a;
-                  --surface-4: #3f3f46;
-                  --text-1: #ffffff;
-                  --text-2: rgba(255,255,255,0.75);
-                  --text-3: rgba(255,255,255,0.45);
-                  --text-4: rgba(255,255,255,0.2);
-                  --error: #ef4444;
-                  --font-mono: 'JetBrains Mono', monospace;
-                  --font-sans: 'Inter', -apple-system, sans-serif;
-          }
-          *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-          html { scroll-behavior: smooth; }
-          body { font-family: var(--font-sans); background: var(--surface-0); color: var(--text-1); line-height: 1.6; }
-          ::selection { background: var(--glacier); color: var(--surface-0); }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Prompting It Documentation - Learn how to build, manage, and deploy production-ready AI prompts.">
+  <title>Documentation - Prompting It</title>
 
-          /* Header */
-          header {
-                  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-                  padding: 0 48px; height: 72px; display: flex; justify-content: space-between; align-items: center;
-                  background: rgba(3,3,6,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--surface-3);
-          }
-          .logo { font-family: var(--font-mono); font-weight: 800; font-size: 20px; text-decoration: none;
-                       background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); -webkit-background-clip: text;
-                       -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; }
-          .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
-                            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-                            font-size: 13px; -webkit-text-fill-color: var(--surface-0); font-weight: 800; }
-          nav { display: flex; align-items: center; gap: 4px; }
-          .nav-link { padding: 10px 16px; color: var(--text-2); text-decoration: none; font-size: 14px;
-                           font-weight: 500; border-radius: 8px; transition: all 150ms; }
-          .nav-link:hover { color: var(--text-1); background: var(--surface-2); }
-          .nav-cta { margin-left: 16px; padding: 10px 20px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep));
-                          color: var(--surface-0); font-weight: 600; font-size: 14px; border-radius: 8px; text-decoration: none; transition: all 200ms; }
-          .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(103,232,249,0.4); }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-          /* Main Layout */
-          .docs-container { display: flex; min-height: 100vh; padding-top: 72px; }
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
 
-          /* Sidebar */
-          .sidebar {
-                  width: 280px; position: fixed; left: 0; top: 72px; bottom: 0; overflow-y: auto;
-                  background: var(--surface-1); border-right: 1px solid var(--surface-3); padding: 24px;
-          }
-          .sidebar-section { margin-bottom: 32px; }
-          .sidebar-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase;
-                                letter-spacing: 0.1em; margin-bottom: 12px; }
-          .sidebar-nav { list-style: none; }
-          .sidebar-nav li { margin-bottom: 4px; }
-          .sidebar-nav a { display: block; padding: 8px 12px; color: var(--text-2); text-decoration: none;
-                                font-size: 14px; border-radius: 6px; transition: all 150ms; }
-          .sidebar-nav a:hover { color: var(--text-1); background: var(--surface-2); }
-          .sidebar-nav a.active { color: var(--glacier); background: rgba(103,232,249,0.1); }
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header scrolled" id="header">
+    <a href="index.html" class="logo" aria-label="Prompting It Home">
+      <span class="logo-icon">#P</span>
+      <span class="logo-text">Prompting It</span>
+    </a>
 
-          /* Content */
-          .docs-content { flex: 1; margin-left: 280px; padding: 48px 64px; max-width: 900px; }
-          .docs-content h1 { font-size: 36px; font-weight: 800; margin-bottom: 16px;
-                                  background: linear-gradient(135deg, var(--text-1), var(--text-2)); -webkit-background-clip: text;
-                                  -webkit-text-fill-color: transparent; }
-          .docs-content h2 { font-size: 24px; font-weight: 700; margin-top: 48px; margin-bottom: 16px;
-                                  color: var(--text-1); padding-bottom: 12px; border-bottom: 1px solid var(--surface-3); }
-          .docs-content h3 { font-size: 18px; font-weight: 600; margin-top: 32px; margin-bottom: 12px; color: var(--text-1); }
-          .docs-content p { color: var(--text-2); margin-bottom: 16px; line-height: 1.8; }
-          .docs-content ul, .docs-content ol { margin-bottom: 16px; padding-left: 24px; color: var(--text-2); }
-          .docs-content li { margin-bottom: 8px; }
-          .docs-content code { font-family: var(--font-mono); background: var(--surface-2); padding: 2px 6px;
-                                    border-radius: 4px; font-size: 13px; color: var(--glacier); }
-          .docs-content pre { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 8px;
-                                   padding: 20px; overflow-x: auto; margin-bottom: 24px; }
-          .docs-content pre code { background: none; padding: 0; color: var(--text-2); }
+    <nav class="nav" aria-label="Main navigation">
+      <a href="index.html#features" class="nav-link">Features</a>
+      <a href="index.html#pricing" class="nav-link">Pricing</a>
+      <a href="docs.html" class="nav-link" style="color: var(--primary-400);">Docs</a>
+      <a href="login.html" class="nav-link">Sign In</a>
+      <a href="signup.html" class="btn btn-primary btn-sm nav-cta">
+        Start Free
+        <span class="icon icon-arrow">&#8594;</span>
+      </a>
+    </nav>
 
-          /* Code Block Syntax */
-          .code-keyword { color: var(--violet); }
-          .code-string { color: var(--emerald); }
-          .code-function { color: var(--glacier); }
-          .code-comment { color: var(--text-4); }
+    <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+  </header>
 
-          /* Section Cards */
-          .section-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 12px;
-                               padding: 24px; margin-bottom: 24px; transition: all 200ms; }
-          .section-card:hover { border-color: var(--glacier); transform: translateY(-2px);
-                                     box-shadow: 0 8px 32px rgba(103,232,249,0.1); }
-          .section-card h3 { margin-top: 0; color: var(--glacier); }
+  <!-- Docs Layout -->
+  <div class="docs-layout">
+    <!-- Sidebar -->
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-section">
+        <div class="docs-sidebar-title">Getting Started</div>
+        <div class="docs-sidebar-links">
+          <a href="#introduction" class="docs-sidebar-link active">Introduction</a>
+          <a href="#quickstart" class="docs-sidebar-link">Quick Start</a>
+          <a href="#installation" class="docs-sidebar-link">Installation</a>
+          <a href="#first-prompt" class="docs-sidebar-link">Your First Prompt</a>
+        </div>
+      </div>
 
-          /* FAQ */
-          .faq-item { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 8px;
-                           margin-bottom: 12px; overflow: hidden; }
-          .faq-question { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between;
-                               align-items: center; font-weight: 500; transition: background 150ms; }
-          .faq-question:hover { background: var(--surface-2); }
-          .faq-icon { color: var(--glacier); transition: transform 200ms; }
-          .faq-item.open .faq-icon { transform: rotate(45deg); }
-          .faq-answer { padding: 0 20px 16px; color: var(--text-2); display: none; }
-          .faq-item.open .faq-answer { display: block; }
+      <div class="docs-sidebar-section">
+        <div class="docs-sidebar-title">API Reference</div>
+        <div class="docs-sidebar-links">
+          <a href="#api-overview" class="docs-sidebar-link">Overview</a>
+          <a href="#authentication" class="docs-sidebar-link">Authentication</a>
+          <a href="#endpoints" class="docs-sidebar-link">Endpoints</a>
+          <a href="#rate-limits" class="docs-sidebar-link">Rate Limits</a>
+        </div>
+      </div>
 
-          /* API Table */
-          .api-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-          .api-table th, .api-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--surface-3); }
-          .api-table th { background: var(--surface-1); color: var(--text-1); font-weight: 600; font-size: 13px;
-                               text-transform: uppercase; letter-spacing: 0.05em; }
-          .api-table td { color: var(--text-2); font-size: 14px; }
-          .api-table code { font-size: 12px; }
-          .method-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px;
-                               font-weight: 600; font-family: var(--font-mono); }
-          .method-get { background: rgba(52,211,153,0.15); color: var(--emerald); }
-          .method-post { background: rgba(103,232,249,0.15); color: var(--glacier); }
-          .method-put { background: rgba(250,204,21,0.15); color: var(--solar); }
-          .method-delete { background: rgba(239,68,68,0.15); color: var(--error); }
+      <div class="docs-sidebar-section">
+        <div class="docs-sidebar-title">Templates</div>
+        <div class="docs-sidebar-links">
+          <a href="#templates" class="docs-sidebar-link">Prompt Templates</a>
+          <a href="#custom-templates" class="docs-sidebar-link">Custom Templates</a>
+        </div>
+      </div>
 
-          /* Template Cards */
-          .template-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
-          .template-card { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: 8px;
-                                padding: 20px; transition: all 200ms; cursor: pointer; }
-          .template-card:hover { border-color: var(--glacier); transform: translateY(-2px); }
-          .template-card h4 { font-size: 15px; margin-bottom: 8px; color: var(--text-1); }
-          .template-card p { font-size: 13px; color: var(--text-3); margin: 0; }
-          .template-tag { display: inline-block; padding: 4px 8px; background: var(--surface-2);
-                               border-radius: 4px; font-size: 11px; color: var(--glacier); margin-top: 12px; }
+      <div class="docs-sidebar-section">
+        <div class="docs-sidebar-title">Enterprise</div>
+        <div class="docs-sidebar-links">
+          <a href="#enterprise" class="docs-sidebar-link">Enterprise Features</a>
+          <a href="#sso" class="docs-sidebar-link">SSO Integration</a>
+          <a href="#compliance" class="docs-sidebar-link">Compliance</a>
+        </div>
+      </div>
 
-          /* Responsive */
-          @media (max-width: 1024px) {
-                  .sidebar { width: 240px; padding: 16px; }
-                  .docs-content { margin-left: 240px; padding: 32px; }
-          }
-          @media (max-width: 768px) {
-                  header { padding: 0 16px; }
-                  nav { display: none; }
-                  .sidebar { display: none; }
-                  .docs-content { margin-left: 0; padding: 24px 16px; }
-                  .template-grid { grid-template-columns: 1fr; }
-          }
-        </style>
-  </head>
-  <body>
-      <header>
-            <a href="index.html" class="logo"><span class="logo-icon">#P</span>span><span>Prompting It</span></a>a>
-          <nav>
-                  <a href="index.html#features" class="nav-link">Features</a>a>
-                  <a href="index.html#how" class="nav-link">How It Works</a>a>
-                  <a href="index.html#pricing" class="nav-link">Pricing</a>a>
-                  <a href="docs.html" class="nav-link">Docs</a>a>
-                  <a href="login.html" class="nav-link">Sign In</a>a>
-                  <a href="signup.html" class="nav-cta">Start Free →</a>a>
-          </nav>
-      </header>
+      <div class="docs-sidebar-section">
+        <div class="docs-sidebar-title">Support</div>
+        <div class="docs-sidebar-links">
+          <a href="#faq" class="docs-sidebar-link">FAQ</a>
+          <a href="#contact" class="docs-sidebar-link">Contact Us</a>
+        </div>
+      </div>
+    </aside>
 
-      <div class="docs-container">
-            <aside class="sidebar">
-                    <div class="sidebar-section">
-                              <div class="sidebar-title">Getting Started</div>div>
-                              <ul class="sidebar-nav">
-                                          <li><a href="#introduction" class="active">Introduction</a>a></li>
-                                        <li><a href="#quickstart">Quick Start</a>a></li>
-                                        <li><a href="#installation">Installation</a>a></li>
-                                        <li><a href="#first-prompt">Your First Prompt</a>a></li>
-                              </ul>ul>
-                    </div>div>
-                  <div class="sidebar-section">
-                          <div class="sidebar-title">API Reference</div>div>
-                          <ul class="sidebar-nav">
-                                    <li><a href="#api-overview">Overview</a>a></li>
-                                    <li><a href="#authentication">Authentication</a>a></li>
-                                    <li><a href="#endpoints">Endpoints</a>a></li>
-                                    <li><a href="#rate-limits">Rate Limits</a>a></li>
-                          </ul>ul>
-                  </div>div>
-                  <div class="sidebar-section">
-                          <div class="sidebar-title">Templates</div>div>
-                          <ul class="sidebar-nav">
-                                    <li><a href="#templates">Prompt Templates</a>a></li>
-                                    <li><a href="#custom-templates">Custom Templates</a>a></li>
-                          </ul>ul>
-                  </div>div>
-                  <div class="sidebar-section">
-                          <div class="sidebar-title">Enterprise</div>div>
-                          <ul class="sidebar-nav">
-                                    <li><a href="#enterprise">Enterprise Features</a>a></li>
-                                    <li><a href="#sso">SSO Integration</a>a></li>
-                                    <li><a href="#compliance">Compliance</a>a></li>
-                          </ul>ul>
-                  </div>div>
-                  <div class="sidebar-section">
-                          <div class="sidebar-title">Support</div>div>
-                          <ul class="sidebar-nav">
-                                    <li><a href="#faq">FAQ</a>a></li>
-                                    <li><a href="#contact">Contact Us</a>a></li>
-                          </ul>ul>
-                  </div>div>
-            </aside>aside>
-      
-          <main class="docs-content">
-                <h1>Documentation</h1>
-                <p>Welcome to the Prompting It documentation. Learn how to build, manage, and deploy production-ready AI prompts at scale.</p>
-          
-                <section id="introduction">
-                        <h2>Introduction</h2>
-                        <p>Prompting It is the enterprise prompt operating system that brings version control, approval workflows, and multi-model testing to your AI prompts. Whether you're a solo developer or an enterprise team, our platform helps you ship better prompts faster.</p>
-                        
-                        <div class="section-card">
-                                  <h3>Why Prompting It?</h3>
-                                  <p>Traditional prompt management leads to scattered files, no version history, and zero visibility into what's working. Prompting It solves this with a purpose-built platform for production AI workflows.</p>
-                                  <ul>
-                                                <li>Version control for every prompt iteration</li>
-                                              <li>Built-in A/B testing and performance analytics</li>
-                                              <li>Team collaboration with approval workflows</li>
-                                              <li>Multi-model deployment (GPT-4, Claude, Gemini)</li>
-                                  </ul>
-                        </div>div>
-                </section>section>
-          
-                <section id="quickstart">
-                        <h2>Quick Start</h2>
-                        <p>Get up and running with Prompting It in under 5 minutes.</p>
-                        
-                        <h3>1. Create an Account</h3>
-                        <p>Sign up for a free account at <a href="signup.html" style="color: var(--glacier);">promptingit.co/signup</a>a>. No credit card required.</p>
-                        
-                        <h3>2. Create Your First Project</h3>
-                        <p>Once logged in, click "New Project" and give it a name. Projects organize your prompts by use case or application.</p>
-                        
-                        <h3>3. Add a Prompt</h3>
-                        <p>Create your first prompt using our visual editor or import existing prompts from a file:</p>
-                        <pre><code><span class="code-keyword">const</span>span> prompt = {
-                          <span class="code-string">"name"</span>span>: <span class="code-string">"customer-support-v1"</span>span>,
-                          <span class="code-string">"template"</span>span>: <span class="code-string">"You are a helpful customer support agent for {{company}}..."</span>span>,
-                          <span class="code-string">"variables"</span>span>: [<span class="code-string">"company"</span>span>, <span class="code-string">"product"</span>span>],
-                          <span class="code-string">"model"</span>span>: <span class="code-string">"gpt-4"</span>span>
-                        }</code></pre>
-                </section>section>
-          
-                <section id="installation">
-                        <h2>Installation</h2>
-                        <p>Install the Prompting It SDK in your project:</p>
-                        
-                        <h3>NPM</h3>
-                        <pre><code>npm install @promptingit/sdk</code></pre>
-                        
-                        <h3>Python</h3>
-                        <pre><code>pip install promptingit</code></pre>
-                        
-                        <h3>Initialize the Client</h3>
-                        <pre><code><span class="code-keyword">import</span> { PromptingIt } <span class="code-keyword">from</span> <span class="code-string">'@promptingit/sdk'</span>;
-                        
-                        <span class="code-keyword">const</span> client = <span class="code-keyword">new</span> <span class="code-function">PromptingIt</span>({
-                          apiKey: process.env.PROMPTINGIT_API_KEY
-                        });</code></pre>
-                </section>section>
-          
-                <section id="api-overview">
-                        <h2>API Reference</h2>
-                        <p>The Prompting It API allows you to programmatically manage prompts, run tests, and deploy to production.</p>
-                        
-                        <h3 id="authentication">Authentication</h3>
-                        <p>All API requests require an API key. Include it in the <code>Authorization</code> header:</p>
-                        <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-                        
-                        <h3 id="endpoints">Endpoints</h3>
-                        <table class="api-table">
-                                  <thead>
-                                                <tr>
-                                                                <th>Method</th>
-                                                <th>Endpoint</th>
-                                                <th>Description</th>
-                                                </tr>
-                                  </thead>
-                                  <tbody>
-                                                <tr>
-                                                                <td><span class="method-badge method-get">GET</span></td>
-                                      <td><code>/v1/prompts</code></td>
-                                      <td>List all prompts</td>
-                                                </tr>
-                                    <tr>
-                                                    <td><span class="method-badge method-post">POST</span>span></td>
-                                      <td><code>/v1/prompts</code></td>
-                                      <td>Create a new prompt</td>
-                                    </tr>
-                                    <tr>
-                                                    <td><span class="method-badge method-get">GET</span>span></td>
-                                      <td><code>/v1/prompts/:id</code></td>
-                                      <td>Get prompt by ID</td>
-                                    </tr>
-                                    <tr>
-                                                    <td><span class="method-badge method-put">PUT</span>span></td>
-                                      <td><code>/v1/prompts/:id</code></td>
-                                      <td>Update a prompt</td>
-                                    </tr>
-                                    <tr>
-                                                    <td><span class="method-badge method-delete">DELETE</span>span></td>
-                                      <td><code>/v1/prompts/:id</code></td>
-                                      <td>Delete a prompt</td>
-                                    </tr>
-                                    <tr>
-                                                    <td><span class="method-badge method-post">POST</span>span></td>
-                                      <td><code>/v1/prompts/:id/execute</code></td>
-                                      <td>Execute a prompt</td>
-                                    </tr>
-                                  </tbody>
-                        </table>table>
-                
-                        <h3 id="rate-limits">Rate Limits</h3>
-                        <p>API rate limits depend on your plan:</p>
-                        <ul>
-                                  <li><strong>Free:</strong> 100 requests/minute</li>
-                                  <li><strong>Pro:</strong> 1,000 requests/minute</li>
-                                  <li><strong>Enterprise:</strong>strong> Custom limits</li>
-                        </ul>
-                </section>section>
-          
-                <section id="templates">
-                        <h2>Prompt Templates</h2>
-                        <p>Start with our battle-tested templates or create your own.</p>
-                        
-                        <div class="template-grid">
-                                  <div class="template-card">
-                                              <h4>Customer Support Agent</h4>
-                                              <p>A helpful, empathetic support agent for handling customer inquiries.</p>
-                                              <span class="template-tag">Support</span>
-                                  </div>div>
-                                  <div class="template-card">
-                                              <h4>Code Review Assistant</h4>
-                                              <p>Reviews code for bugs, security issues, and best practices.</p>
-                                              <span class="template-tag">Development</span>
-                                  </div>div>
-                                  <div class="template-card">
-                                              <h4>Content Writer</h4>
-                                              <p>Generates blog posts, marketing copy, and social content.</p>
-                                              <span class="template-tag">Marketing</span>
-                                  </div>div>
-                                  <div class="template-card">
-                                              <h4>Data Analyst</h4>
-                                              <p>Analyzes data and generates insights with SQL queries.</p>
-                                              <span class="template-tag">Analytics</span>
-                                  </div>div>
-                        </div>div>
-                
-                        <h3 id="custom-templates">Custom Templates</h3>
-                        <p>Create custom templates with variables using double curly braces:</p>
-                        <pre><code><span class="code-comment">// Template with variables</span>span>
-                        You are a {{role}} for {{company}}.
-                        Your goal is to {{objective}}.
-                        Always maintain a {{tone}} tone.</code></pre>
-                </section>section>
-          
-                <section id="enterprise">
-                        <h2>Enterprise Features</h2>
-                        <p>Enterprise plans include advanced features for large teams and regulated industries.</p>
-                        
-                        <div class="section-card">
-                                  <h3>Security & Compliance</h3>
-                                  <ul>
-                                              <li>SOC 2 Type II certified</li>
-                                              <li>HIPAA compliant deployment options</li>
-                                              <li>GDPR data handling</li>
-                                              <li>SSO with SAML 2.0 and OAuth</li>
-                                              <li>Role-based access control (RBAC)</li>
-                                  </ul>
-                        </div>div>
-                
-                        <div class="section-card">
-                                  <h3 id="sso">SSO Integration</h3>
-                                  <p>Connect your identity provider for seamless team access:</p>
-                                  <ul>
-                                              <li>Okta</li>
-                                              <li>Azure AD</li>
-                                              <li>Google Workspace</li>
-                                              <li>OneLogin</li>
-                                              <li>Custom SAML providers</li>
-                                  </ul>
-                        </div>div>
-                
-                        <div class="section-card" id="compliance">
-                                  <h3>Audit & Compliance</h3>
-                                  <ul>
-                                              <li>Complete audit logs for all actions</li>
-                                              <li>Prompt version history and rollback</li>
-                                              <li>Approval workflows for production changes</li>
-                                              <li>Data residency options (US, EU, APAC)</li>
-                                  </ul>
-                        </div>div>
-                </section>section>
-          
-                <section id="faq">
-                        <h2>Frequently Asked Questions</h2>
-                        
-                        <div class="faq-item">
-                                  <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                                              <span>What AI models does Prompting It support?</span>
-                                              <span class="faq-icon">+</span>
-                                  </div>div>
-                                  <div class="faq-answer">
-                                              <p>We support all major AI models including OpenAI (GPT-4, GPT-3.5), Anthropic (Claude), Google (Gemini), and open-source models via custom endpoints. You can test the same prompt across multiple models and compare results.</p>
-                                  </div>div>
-                        </div>div>
-                        
-                        <div class="faq-item">
-                                  <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                                              <span>Can I use my own API keys?</span>
-                                              <span class="faq-icon">+</span>
-                                  </div>div>
-                                  <div class="faq-answer">
-                                              <p>Yes! Bring your own API keys for any supported model. Your keys are encrypted and stored securely. You can also use our managed keys on Pro and Enterprise plans for simplified billing.</p>
-                                  </div>div>
-                        </div>div>
-                        
-                        <div class="faq-item">
-                                  <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                                              <span>Is there a free tier?</span>
-                                              <span class="faq-icon">+</span>
-                                  </div>div>
-                                  <div class="faq-answer">
-                                              <p>Yes! Our free tier includes up to 25 prompts, 1,000 executions per month, and basic version control. No credit card required to get started.</p>
-                                  </div>div>
-                        </div>div>
-                        
-                        <div class="faq-item">
-                                  <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                                              <span>How does team collaboration work?</span>
-                                              <span class="faq-icon">+</span>
-                                  </div>div>
-                                  <div class="faq-answer">
-                                              <p>Teams can collaborate on prompts with role-based permissions. Set up approval workflows so changes require review before going to production. All changes are tracked with full version history.</p>
-                                  </div>div>
-                        </div>div>
-                        
-                        <div class="faq-item">
-                                  <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                                              <span>What kind of support is available?</span>
-                                              <span class="faq-icon">+</span>
-                                  </div>div>
-                                  <div class="faq-answer">
-                                              <p>Free users get community support via Discord. Pro users receive email support with 24-hour response times. Enterprise customers get dedicated account managers, custom SLAs, and optional professional services.</p>
-                                  </div>div>
-                        </div>div>
-                </section>section>
-          
-                <section id="contact">
-                        <h2>Need Help?</h2>
-                        <p>We're here to help you succeed with Prompting It.</p>
-                        <div class="section-card">
-                                  <h3>Contact Options</h3>
-                                  <ul>
-                                              <li><strong>Email:</strong> support@promptingit.co</li>
-                                              <li><strong>Discord:</strong> Join our community for real-time help</li>
-                                              <li><strong>Enterprise:</strong>strong> Contact sales@promptingit.co</li>
-                                  </ul>
-                        </div>div>
-                </section>section>
-          </main>main>
-      </div>div>
-  </body>
-</html>html></li></strong></strong></li></p></p></li></li></p></p></li></strong></strong></li></p></code></td></td>
-                                    </tr></code></td></td>
-                                    </tr></code></td></td>
-                                    </tr></code></td></td>
-                                    </tr></code></td></td>
-                                    </tr></code></td></td>
-                                                </tr>
-                                  </tbody></th></th>
-                                                </tr>
-                                  </thead></code></p></p></code></pre></p></p></li></li>
-                                  </ul></p></p></h1></li></li>
-          </nav></span>
-      </header>
-  </body>
-    </style></title>
-  </head>
+    <!-- Main Content -->
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="index.html">Home</a>
+        <span>/</span>
+        <span>Documentation</span>
+      </div>
+
+      <div class="docs-content">
+        <h1>Documentation</h1>
+        <p>Welcome to the Prompting It documentation. Learn how to build, manage, and deploy production-ready AI prompts at scale.</p>
+
+        <section id="introduction">
+          <h2>Introduction</h2>
+          <p>Prompting It is the enterprise prompt operating system that brings version control, approval workflows, and multi-model testing to your AI prompts. Whether you're a solo developer or an enterprise team, our platform helps you ship better prompts faster.</p>
+
+          <div class="card" style="margin-top: var(--space-6);">
+            <h3 style="color: var(--primary-400); margin-bottom: var(--space-4);">Why Prompting It?</h3>
+            <p style="margin-bottom: var(--space-4);">Traditional prompt management leads to scattered files, no version history, and zero visibility into what's working. Prompting It solves this with a purpose-built platform for production AI workflows.</p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-2);">
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                Version control for every prompt iteration
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                Built-in A/B testing and performance analytics
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                Team collaboration with approval workflows
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                Multi-model deployment (GPT-4, Claude, Gemini)
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="quickstart">
+          <h2>Quick Start</h2>
+          <p>Get up and running with Prompting It in under 5 minutes.</p>
+
+          <h3>1. Create an Account</h3>
+          <p>Sign up for a free account at <a href="signup.html" style="color: var(--primary-400);">promptingit.co/signup</a>. No credit card required.</p>
+
+          <h3>2. Create Your First Project</h3>
+          <p>Once logged in, click "New Project" and give it a name. Projects organize your prompts by use case or application.</p>
+
+          <h3>3. Add a Prompt</h3>
+          <p>Create your first prompt using our visual editor or import existing prompts from a file:</p>
+          <pre><code><span class="keyword">const</span> prompt = {
+  <span class="string">"name"</span>: <span class="string">"customer-support-v1"</span>,
+  <span class="string">"template"</span>: <span class="string">"You are a helpful customer support agent for {{company}}..."</span>,
+  <span class="string">"variables"</span>: [<span class="string">"company"</span>, <span class="string">"product"</span>],
+  <span class="string">"model"</span>: <span class="string">"gpt-4"</span>
+}</code></pre>
+        </section>
+
+        <section id="installation">
+          <h2>Installation</h2>
+          <p>Install the Prompting It SDK in your project:</p>
+
+          <h3>NPM</h3>
+          <pre><code>npm install @promptingit/sdk</code></pre>
+
+          <h3>Python</h3>
+          <pre><code>pip install promptingit</code></pre>
+
+          <h3>Initialize the Client</h3>
+          <pre><code><span class="keyword">import</span> { <span class="function">PromptingIt</span> } <span class="keyword">from</span> <span class="string">'@promptingit/sdk'</span>;
+
+<span class="keyword">const</span> client = <span class="keyword">new</span> <span class="function">PromptingIt</span>({
+  <span class="property">apiKey</span>: process.env.<span class="property">PROMPTINGIT_API_KEY</span>
+});</code></pre>
+        </section>
+
+        <section id="api-overview">
+          <h2>API Reference</h2>
+          <p>The Prompting It API allows you to programmatically manage prompts, run tests, and deploy to production.</p>
+
+          <h3 id="authentication">Authentication</h3>
+          <p>All API requests require an API key. Include it in the <code>Authorization</code> header:</p>
+          <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+
+          <h3 id="endpoints">Endpoints</h3>
+          <div class="comparison-table-container" style="margin-bottom: var(--space-6);">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Endpoint</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td><code>/v1/prompts</code></td>
+                  <td>List all prompts</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">POST</span></td>
+                  <td><code>/v1/prompts</code></td>
+                  <td>Create a new prompt</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td><code>/v1/prompts/:id</code></td>
+                  <td>Get prompt by ID</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-warning">PUT</span></td>
+                  <td><code>/v1/prompts/:id</code></td>
+                  <td>Update a prompt</td>
+                </tr>
+                <tr>
+                  <td><span class="badge" style="background: rgba(244,63,94,0.1); color: var(--rose-500); border-color: rgba(244,63,94,0.2);">DELETE</span></td>
+                  <td><code>/v1/prompts/:id</code></td>
+                  <td>Delete a prompt</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">POST</span></td>
+                  <td><code>/v1/prompts/:id/execute</code></td>
+                  <td>Execute a prompt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="rate-limits">Rate Limits</h3>
+          <p>API rate limits depend on your plan:</p>
+          <ul>
+            <li><strong>Free:</strong> 100 requests/minute</li>
+            <li><strong>Pro:</strong> 1,000 requests/minute</li>
+            <li><strong>Enterprise:</strong> Custom limits</li>
+          </ul>
+        </section>
+
+        <section id="templates">
+          <h2>Prompt Templates</h2>
+          <p>Start with our battle-tested templates or create your own.</p>
+
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); margin: var(--space-6) 0;">
+            <div class="card">
+              <h4 style="margin-bottom: var(--space-2);">Customer Support Agent</h4>
+              <p style="font-size: var(--text-sm); margin-bottom: var(--space-3);">A helpful, empathetic support agent for handling customer inquiries.</p>
+              <span class="badge badge-primary">Support</span>
+            </div>
+            <div class="card">
+              <h4 style="margin-bottom: var(--space-2);">Code Review Assistant</h4>
+              <p style="font-size: var(--text-sm); margin-bottom: var(--space-3);">Reviews code for bugs, security issues, and best practices.</p>
+              <span class="badge badge-success">Development</span>
+            </div>
+            <div class="card">
+              <h4 style="margin-bottom: var(--space-2);">Content Writer</h4>
+              <p style="font-size: var(--text-sm); margin-bottom: var(--space-3);">Generates blog posts, marketing copy, and social content.</p>
+              <span class="badge badge-warning">Marketing</span>
+            </div>
+            <div class="card">
+              <h4 style="margin-bottom: var(--space-2);">Data Analyst</h4>
+              <p style="font-size: var(--text-sm); margin-bottom: var(--space-3);">Analyzes data and generates insights with SQL queries.</p>
+              <span class="badge" style="background: rgba(167,139,250,0.1); color: var(--violet-400); border: 1px solid rgba(167,139,250,0.2);">Analytics</span>
+            </div>
+          </div>
+
+          <h3 id="custom-templates">Custom Templates</h3>
+          <p>Create custom templates with variables using double curly braces:</p>
+          <pre><code><span class="comment">// Template with variables</span>
+You are a {{role}} for {{company}}.
+Your goal is to {{objective}}.
+Always maintain a {{tone}} tone.</code></pre>
+        </section>
+
+        <section id="enterprise">
+          <h2>Enterprise Features</h2>
+          <p>Enterprise plans include advanced features for large teams and regulated industries.</p>
+
+          <div class="card" style="margin: var(--space-6) 0;">
+            <h3 style="color: var(--primary-400); margin-bottom: var(--space-4);">Security & Compliance</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-2);">
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                SOC 2 Type II certified
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                HIPAA compliant deployment options
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                GDPR data handling
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                SSO with SAML 2.0 and OAuth
+              </li>
+              <li style="display: flex; align-items: center; gap: var(--space-3); color: var(--text-secondary);">
+                <span style="color: var(--emerald-400);">&#10003;</span>
+                Role-based access control (RBAC)
+              </li>
+            </ul>
+          </div>
+
+          <div class="card" id="sso" style="margin: var(--space-6) 0;">
+            <h3 style="color: var(--primary-400); margin-bottom: var(--space-4);">SSO Integration</h3>
+            <p style="margin-bottom: var(--space-4);">Connect your identity provider for seamless team access:</p>
+            <ul>
+              <li>Okta</li>
+              <li>Azure AD</li>
+              <li>Google Workspace</li>
+              <li>OneLogin</li>
+              <li>Custom SAML providers</li>
+            </ul>
+          </div>
+
+          <div class="card" id="compliance" style="margin: var(--space-6) 0;">
+            <h3 style="color: var(--primary-400); margin-bottom: var(--space-4);">Audit & Compliance</h3>
+            <ul>
+              <li>Complete audit logs for all actions</li>
+              <li>Prompt version history and rollback</li>
+              <li>Approval workflows for production changes</li>
+              <li>Data residency options (US, EU, APAC)</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently Asked Questions</h2>
+
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                <span>What AI models does Prompting It support?</span>
+                <span class="faq-icon">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>We support all major AI models including OpenAI (GPT-4, GPT-3.5), Anthropic (Claude), Google (Gemini), and open-source models via custom endpoints.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                <span>Can I use my own API keys?</span>
+                <span class="faq-icon">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Yes! Bring your own API keys for any supported model. Your keys are encrypted and stored securely.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                <span>Is there a free tier?</span>
+                <span class="faq-icon">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Yes! Our free tier includes up to 25 prompts, 1,000 executions per month, and basic version control.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                <span>How does team collaboration work?</span>
+                <span class="faq-icon">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Teams can collaborate on prompts with role-based permissions. Set up approval workflows so changes require review before going to production.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact">
+          <h2>Need Help?</h2>
+          <p>We're here to help you succeed with Prompting It.</p>
+
+          <div class="card" style="margin-top: var(--space-6);">
+            <h3 style="color: var(--primary-400); margin-bottom: var(--space-4);">Contact Options</h3>
+            <ul>
+              <li><strong>Email:</strong> support@promptingit.co</li>
+              <li><strong>Discord:</strong> Join our community for real-time help</li>
+              <li><strong>Enterprise:</strong> Contact sales@promptingit.co</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts.js"></script>
+</body>
+</html>
