@@ -768,12 +768,18 @@
                                 document.getElementById('contextBar').style.width = analysis.context + '%';
 
                                 const suggestionsList = document.getElementById('suggestionsList');
+                                // Sanitize user-generated content to prevent XSS
+                                const sanitize = (str) => {
+                                    const div = document.createElement('div');
+                                    div.textContent = str;
+                                    return div.innerHTML;
+                                };
                                 suggestionsList.innerHTML = analysis.suggestions.map(s => `
                                                 <li class="suggestion-item">
-                                                                    <span class="suggestion-icon ${s.type}">
+                                                                    <span class="suggestion-icon ${sanitize(s.type)}">
                                                                                             <i class="fas fa-${s.type === 'tip' ? 'lightbulb' : 'exclamation'}"></i>
                                                                                                                 </span>
-                                                                                                                                    <span>${s.text}</span>
+                                                                                                                                    <span>${sanitize(s.text)}</span>
                                                                                                                                                     </li>
                                                                                                                                                                 `).join('');
                   }
@@ -908,10 +914,16 @@
                                                   return;
                                 }
 
+                                // Sanitize user input to prevent XSS
+                                const sanitize = (str) => {
+                                    const div = document.createElement('div');
+                                    div.textContent = str;
+                                    return div.innerHTML;
+                                };
                                 historyList.innerHTML = history.map(item => `
-                                                <div class="history-item" onclick="loadHistory(${item.id})">
-                                                                    <span class="history-text">${item.input}...</span>
-                                                                                        <span class="history-time">${item.timestamp}</span>
+                                                <div class="history-item" onclick="loadHistory(${parseInt(item.id)})">
+                                                                    <span class="history-text">${sanitize(item.input)}...</span>
+                                                                                        <span class="history-time">${sanitize(item.timestamp)}</span>
                                                                                                         </div>
                                                                                                                     `).join('');
                   }

@@ -134,163 +134,66 @@
     <script src="auth.js"></script>
 
     <script>
-      (function() {
-        'use strict';
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
 
-        const form = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const submitBtn = document.getElementById('submitBtn');
-        const errorEl = document.getElementById('authError');
-        const successEl = document.getElementById('authSuccess');
-        const googleBtn = document.getElementById('googleBtn');
-        const githubBtn = document.getElementById('githubBtn');
-        const forgotLink = document.getElementById('forgotPasswordLink');
-        const passwordToggle = document.querySelector('.password-toggle-btn');
+            // Client-side validation (supplement to server-side, not replacement)
+            if (!email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
 
-        // Get redirect URL from query params
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectTo = urlParams.get('redirect') || 'creator-dashboard.html';
+            btn.textContent = 'Signing in...';
+            btn.disabled = true;
 
-        // Show error
+            try {
+                // ============================================
+                // SERVER-SIDE VALIDATION REQUIRED
+                // In production, replace this with actual API call:
+                //
+                // const response = await fetch('/api/auth/login', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ email, password })
+                // });
+                //
+                // Server MUST validate:
+                // - Email format and existence
+                // - Password against hashed value (bcrypt/argon2)
+                // - Rate limiting (prevent brute force)
+                // - CSRF token verification
+                // - Account lockout after failed attempts
+                //
+                // const data = await response.json();
+                // if (!response.ok) throw new Error(data.message);
+                // localStorage.setItem('authToken', data.token);
+                // localStorage.setItem('userRole', data.role);
+                // ============================================
+
+                // Demo redirect (remove in production)
+                setTimeout(() => {
+                    window.location.href = 'creator-dashboard.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message || 'Login failed. Please try again.');
+                btn.textContent = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
         function showError(message) {
-          errorEl.innerHTML = '<span style="font-size: 16px;">⚠</span> ' + message;
-          errorEl.style.display = 'flex';
-          successEl.style.display = 'none';
-        }
-
-        // Show success
-        function showSuccess(message) {
-          successEl.innerHTML = '<span style="font-size: 16px;">✓</span> ' + message;
-          successEl.style.display = 'flex';
-          errorEl.style.display = 'none';
-        }
-
-        // Set loading state
-        function setLoading(loading) {
-          if (loading) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span>Signing in...';
-          } else {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Sign In';
-          }
-        }
-
-        // Password visibility toggle
-        passwordToggle.addEventListener('click', function() {
-          const type = passwordInput.type === 'password' ? 'text' : 'password';
-          passwordInput.type = type;
-          this.innerHTML = type === 'password'
-            ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
-            : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        });
-
-        // Form submission
-        form.addEventListener('submit', async function(e) {
-          e.preventDefault();
-
-          const email = emailInput.value.trim();
-          const password = passwordInput.value;
-
-          // Validation
-          if (!email) {
-            showError('Please enter your email address');
-            emailInput.focus();
-            return;
-          }
-
-          if (!password) {
-            showError('Please enter your password');
-            passwordInput.focus();
-            return;
-          }
-
-          setLoading(true);
-          errorEl.style.display = 'none';
-
-          try {
-            const result = await window.Auth.signIn(email, password);
-
-            if (result && result.user) {
-              showSuccess('Sign in successful! Redirecting...');
-
-              // Check if user is owner/admin and redirect accordingly
-              setTimeout(async () => {
-                await window.Auth.loadUserProfile();
-                if (window.Auth.checkIsOwner()) {
-                  window.location.href = 'owner-dashboard.html';
-                } else {
-                  window.location.href = decodeURIComponent(redirectTo);
-                }
-              }, 1000);
+            let errorDiv = document.querySelector('.form-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'form-error';
+                errorDiv.style.cssText = 'color: #fb7185; font-size: 14px; margin-bottom: 16px; padding: 12px; background: rgba(251,113,133,0.1); border-radius: 8px;';
+                document.getElementById('loginForm').prepend(errorDiv);
             }
-          } catch (error) {
-            console.error('Login error:', error);
-
-            // User-friendly error messages
-            let message = 'An error occurred. Please try again.';
-            if (error.message) {
-              if (error.message.includes('Invalid login')) {
-                message = 'Invalid email or password. Please try again.';
-              } else if (error.message.includes('Email not confirmed')) {
-                message = 'Please verify your email address before signing in.';
-              } else if (error.message.includes('Too many requests')) {
-                message = 'Too many attempts. Please wait a moment and try again.';
-              } else {
-                message = error.message;
-              }
-            }
-
-            showError(message);
-            setLoading(false);
-          }
-        });
-
-        // Google OAuth
-        googleBtn.addEventListener('click', async function() {
-          try {
-            await window.Auth.signInWithOAuth('google');
-          } catch (error) {
-            showError('Google sign in failed. Please try again.');
-          }
-        });
-
-        // GitHub OAuth
-        githubBtn.addEventListener('click', async function() {
-          try {
-            await window.Auth.signInWithOAuth('github');
-          } catch (error) {
-            showError('GitHub sign in failed. Please try again.');
-          }
-        });
-
-        // Forgot password
-        forgotLink.addEventListener('click', async function(e) {
-          e.preventDefault();
-
-          const email = emailInput.value.trim();
-          if (!email) {
-            showError('Please enter your email address first');
-            emailInput.focus();
-            return;
-          }
-
-          try {
-            await window.Auth.resetPassword(email);
-            showSuccess('Password reset email sent! Check your inbox.');
-          } catch (error) {
-            showError('Failed to send reset email. Please try again.');
-          }
-        });
-
-        // Check if already logged in
-        window.Auth?.init().then(user => {
-          if (user) {
-            window.location.href = decodeURIComponent(redirectTo);
-          }
-        });
-      })();
+            errorDiv.textContent = message;
+        }
     </script>
   </body>
 </html>
