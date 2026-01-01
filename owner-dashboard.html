@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322d3ee' rx='20' width='100' height='100'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%23030306' font-family='monospace' font-weight='bold'>#P</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="security.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -968,19 +971,49 @@
                 });
             });
 
-            // Check auth and owner status
+            // Check auth and owner status with server-side validation
             async function checkAccess() {
+                // Hide content while checking access
+                document.body.style.visibility = 'hidden';
+
                 await window.Auth?.init();
 
+                // Check authentication
                 if (!window.Auth?.isAuthenticated()) {
+                    // Log unauthorized access attempt
+                    if (window.Security?.AuditLog) {
+                        await window.Security.AuditLog.logAdminAccess('owner-dashboard.html', false);
+                    }
                     window.location.href = 'login.html?redirect=owner-dashboard.html';
                     return;
                 }
 
-                if (!window.Auth?.checkIsOwner()) {
-                    // For demo purposes, allow access but show warning
-                    console.warn('User is not an owner, but allowing access for demo.');
+                // Server-side role validation - MUST be owner/admin
+                let isOwner = false;
+                if (window.Security?.RoleValidator) {
+                    isOwner = await window.Security.RoleValidator.isOwner();
+                } else {
+                    // Fallback to client-side check if security module not loaded
+                    isOwner = window.Auth?.checkIsOwner();
                 }
+
+                if (!isOwner) {
+                    // Log unauthorized access attempt
+                    if (window.Security?.AuditLog) {
+                        await window.Security.AuditLog.logAdminAccess('owner-dashboard.html', false);
+                    }
+                    // BLOCK ACCESS - redirect to dashboard with error
+                    window.location.href = 'creator-dashboard.html?error=unauthorized';
+                    return;
+                }
+
+                // Log successful admin access
+                if (window.Security?.AuditLog) {
+                    await window.Security.AuditLog.logAdminAccess('owner-dashboard.html', true);
+                }
+
+                // Show content after access is verified
+                document.body.style.visibility = 'visible';
 
                 // Update user info
                 const user = window.Auth?.getUser();

@@ -115,7 +115,14 @@
 
     async loadSubscription() {
       if (window.Auth?.isAuthenticated()) {
-        this.currentTier = window.Auth.getSubscriptionTier() || 'free';
+        // Use server-side validation instead of client state
+        if (window.Security?.SubscriptionValidator) {
+          const subscription = await window.Security.SubscriptionValidator.validate();
+          this.currentTier = subscription.tier || 'free';
+        } else {
+          // Fallback to client state if security module not loaded
+          this.currentTier = window.Auth.getSubscriptionTier() || 'free';
+        }
       }
     }
 
@@ -593,7 +600,14 @@
     }
 
     async subscribe(tier) {
-      // In production, integrate with Stripe or your payment provider
+      // Log paywall shown event for audit
+      if (window.Security?.AuditLog) {
+        await window.Security.AuditLog.log(
+          window.Security.AuditLog.ACTIONS.PAYWALL_SHOWN,
+          { tier, currentTier: this.currentTier, billingPeriod: this.isAnnual ? 'annual' : 'monthly' }
+        );
+      }
+
       console.log(`Subscribing to ${tier} plan...`);
 
       // Show loading state
@@ -603,14 +617,24 @@
         btn.disabled = true;
       }
 
-      // Simulate API call
+      // Log subscription attempt for audit
+      if (window.Security?.AuditLog) {
+        await window.Security.AuditLog.logSubscriptionChange(
+          this.currentTier,
+          tier,
+          { billingPeriod: this.isAnnual ? 'annual' : 'monthly', status: 'initiated' }
+        );
+      }
+
+      // Simulate API call (in production, this would be a Stripe checkout session)
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // For demo, just redirect to a checkout page
+      // Redirect to checkout page with subscription details
+      // Note: The actual subscription should be created server-side via Stripe webhook
       window.location.href = `upgrade.html?plan=${tier}&billing=${this.isAnnual ? 'annual' : 'monthly'}`;
     }
 
-    // Check if user has access to a feature
+    // Check if user has access to a feature (synchronous check using cached tier)
     hasAccess(feature) {
       const requiredTier = FEATURE_REQUIREMENTS[feature];
       if (!requiredTier) return true;
@@ -620,6 +644,17 @@
       const requiredIndex = tierOrder.indexOf(requiredTier);
 
       return currentIndex >= requiredIndex;
+    }
+
+    // Check if user has access to a feature (async server-validated)
+    async hasAccessAsync(feature) {
+      // Use server-side validation if available
+      if (window.Security?.SubscriptionValidator) {
+        const result = await window.Security.SubscriptionValidator.hasAccess(feature);
+        return result.hasAccess;
+      }
+      // Fallback to synchronous check
+      return this.hasAccess(feature);
     }
 
     // Check subscription limits
