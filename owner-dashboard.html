@@ -604,26 +604,26 @@
                     <div class="stat-card revenue">
                         <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
                         <div class="stat-label">Monthly Revenue</div>
-                        <div class="stat-value">$47,842</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> 23.5% vs last month</div>
+                        <div class="stat-value" id="stat-revenue">Loading...</div>
+                        <div class="stat-change" id="stat-revenue-change"><i class="fas fa-arrow-up"></i> Calculating...</div>
                     </div>
                     <div class="stat-card users">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stat-label">Total Users</div>
-                        <div class="stat-value">2,431</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> 147 new this week</div>
+                        <div class="stat-value" id="stat-users">Loading...</div>
+                        <div class="stat-change" id="stat-users-change"><i class="fas fa-arrow-up"></i> Loading...</div>
                     </div>
                     <div class="stat-card subscriptions">
                         <div class="stat-icon"><i class="fas fa-gem"></i></div>
                         <div class="stat-label">Paid Subscriptions</div>
-                        <div class="stat-value">847</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> 12.3% conversion</div>
+                        <div class="stat-value" id="stat-paid">Loading...</div>
+                        <div class="stat-change" id="stat-paid-change"><i class="fas fa-arrow-up"></i> Loading...</div>
                     </div>
                     <div class="stat-card growth">
                         <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                         <div class="stat-label">MRR Growth</div>
-                        <div class="stat-value">18.2%</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> Trending up</div>
+                        <div class="stat-value" id="stat-growth">Loading...</div>
+                        <div class="stat-change" id="stat-growth-change"><i class="fas fa-arrow-up"></i> Loading...</div>
                     </div>
                 </div>
 
@@ -656,32 +656,12 @@
                             <button class="chart-filter">View All</button>
                         </div>
                         <div class="activity-list">
+                            <!-- Activity will be loaded dynamically -->
                             <div class="activity-item">
-                                <div class="activity-icon user"><i class="fas fa-user-plus"></i></div>
+                                <div class="activity-icon user"><i class="fas fa-spinner fa-spin"></i></div>
                                 <div class="activity-content">
-                                    <div class="activity-text"><strong>Sarah Johnson</strong> created a new account</div>
-                                    <div class="activity-time">2 minutes ago</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon payment"><i class="fas fa-check-circle"></i></div>
-                                <div class="activity-content">
-                                    <div class="activity-text"><strong>Mike Chen</strong> upgraded to Pro plan - $29/mo</div>
-                                    <div class="activity-time">15 minutes ago</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon subscription"><i class="fas fa-crown"></i></div>
-                                <div class="activity-content">
-                                    <div class="activity-text"><strong>TechCorp Inc</strong> subscribed to Enterprise</div>
-                                    <div class="activity-time">1 hour ago</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
-                                <div class="activity-content">
-                                    <div class="activity-text">Payment failed for <strong>john@example.com</strong></div>
-                                    <div class="activity-time">3 hours ago</div>
+                                    <div class="activity-text">Loading recent activity...</div>
+                                    <div class="activity-time">Please wait</div>
                                 </div>
                             </div>
                         </div>
@@ -738,7 +718,7 @@
 
                 <div class="table-container">
                     <div class="table-header">
-                        <div class="table-title">All Users (2,431)</div>
+                        <div class="table-title" id="table-title">All Users (Loading...)</div>
                         <div class="table-search">
                             <div class="search-wrapper">
                                 <i class="fas fa-search"></i>
@@ -759,96 +739,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Users will be loaded dynamically -->
                             <tr>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-cell-avatar">SJ</div>
-                                        <div class="user-cell-info">
-                                            <div class="user-cell-name">Sarah Johnson</div>
-                                            <div class="user-cell-email">sarah@company.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-enterprise">Enterprise</span></td>
-                                <td><span class="badge badge-active">Active</span></td>
-                                <td>Jan 15, 2024</td>
-                                <td>2 hours ago</td>
-                                <td>$1,247</td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
-                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                        <button class="action-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-cell-avatar" style="background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));">MC</div>
-                                        <div class="user-cell-info">
-                                            <div class="user-cell-name">Mike Chen</div>
-                                            <div class="user-cell-email">mike.chen@startup.io</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-pro">Pro</span></td>
-                                <td><span class="badge badge-active">Active</span></td>
-                                <td>Feb 3, 2024</td>
-                                <td>5 mins ago</td>
-                                <td>$348</td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
-                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                        <button class="action-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-cell-avatar" style="background: linear-gradient(135deg, var(--violet), var(--violet-dark));">AW</div>
-                                        <div class="user-cell-info">
-                                            <div class="user-cell-name">Alex Wilson</div>
-                                            <div class="user-cell-email">alex@freelance.dev</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-free">Free</span></td>
-                                <td><span class="badge badge-active">Active</span></td>
-                                <td>Mar 10, 2024</td>
-                                <td>1 day ago</td>
-                                <td>$0</td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
-                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                        <button class="action-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-cell-avatar" style="background: linear-gradient(135deg, var(--solar), var(--solar-dark));">JD</div>
-                                        <div class="user-cell-info">
-                                            <div class="user-cell-name">Jane Doe</div>
-                                            <div class="user-cell-email">jane.doe@agency.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-pro">Pro</span></td>
-                                <td><span class="badge badge-pending">Pending</span></td>
-                                <td>Mar 28, 2024</td>
-                                <td>Never</td>
-                                <td>$29</td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
-                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                        <button class="action-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                    </div>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-3);">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading users...
                                 </td>
                             </tr>
                         </tbody>
@@ -874,26 +768,26 @@
                     <div class="stat-card revenue">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stat-label">Free Users</div>
-                        <div class="stat-value">1,584</div>
-                        <div class="stat-change" style="background: rgba(255,255,255,0.05); color: var(--text-3);">65.2% of total</div>
+                        <div class="stat-value" id="stat-free">Loading...</div>
+                        <div class="stat-change" id="stat-free-change" style="background: rgba(255,255,255,0.05); color: var(--text-3);">Loading...</div>
                     </div>
                     <div class="stat-card users">
                         <div class="stat-icon"><i class="fas fa-star"></i></div>
                         <div class="stat-label">Pro Subscribers</div>
-                        <div class="stat-value">623</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> $18,069/mo</div>
+                        <div class="stat-value" id="stat-pro">Loading...</div>
+                        <div class="stat-change" id="stat-pro-change"><i class="fas fa-arrow-up"></i> Loading...</div>
                     </div>
                     <div class="stat-card subscriptions">
                         <div class="stat-icon"><i class="fas fa-building"></i></div>
                         <div class="stat-label">Enterprise</div>
-                        <div class="stat-value">224</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> $29,773/mo</div>
+                        <div class="stat-value" id="stat-enterprise">Loading...</div>
+                        <div class="stat-change" id="stat-enterprise-change"><i class="fas fa-arrow-up"></i> Loading...</div>
                     </div>
                     <div class="stat-card growth">
                         <div class="stat-icon"><i class="fas fa-percentage"></i></div>
                         <div class="stat-label">Churn Rate</div>
-                        <div class="stat-value">2.3%</div>
-                        <div class="stat-change positive"><i class="fas fa-arrow-down"></i> -0.8% vs last month</div>
+                        <div class="stat-value" id="stat-churn">Loading...</div>
+                        <div class="stat-change" id="stat-churn-change"><i class="fas fa-arrow-down"></i> Loading...</div>
                     </div>
                 </div>
 
@@ -1035,7 +929,680 @@
                 }
             });
 
-            checkAccess();
+            // ============================================
+            // DATA LOADING FUNCTIONS
+            // ============================================
+
+            // Load statistics
+            async function loadStatistics() {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) return;
+
+                try {
+                    // Get total users count
+                    const { count: totalUsers, error: usersError } = await supabase
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true });
+
+                    // Get subscription counts
+                    const { data: subscriptions, error: subError } = await supabase
+                        .from('subscriptions')
+                        .select('tier, status');
+
+                    if (usersError || subError) {
+                        console.error('Error loading statistics:', usersError || subError);
+                        return;
+                    }
+
+                    // Calculate subscription stats
+                    const freeUsers = subscriptions?.filter(s => s.tier === 'free').length || 0;
+                    const proUsers = subscriptions?.filter(s => s.tier === 'pro').length || 0;
+                    const enterpriseUsers = subscriptions?.filter(s => s.tier === 'enterprise').length || 0;
+                    const paidSubscriptions = proUsers + enterpriseUsers;
+                    const activeSubscriptions = subscriptions?.filter(s => s.status === 'active').length || 0;
+
+                    // Get users from last 7 days
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    const { count: newUsers, error: newUsersError } = await supabase
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('created_at', sevenDaysAgo.toISOString());
+
+                    // Update statistics display using IDs
+                    const revenueEl = document.getElementById('stat-revenue');
+                    if (revenueEl) revenueEl.textContent = '$0'; // No payment integration yet
+                    
+                    const revenueChangeEl = document.getElementById('stat-revenue-change');
+                    if (revenueChangeEl) {
+                        revenueChangeEl.textContent = 'No payment data';
+                        revenueChangeEl.className = 'stat-change';
+                    }
+
+                    const usersEl = document.getElementById('stat-users');
+                    if (usersEl) usersEl.textContent = (totalUsers || 0).toLocaleString();
+
+                    const usersChangeEl = document.getElementById('stat-users-change');
+                    if (usersChangeEl && newUsers !== undefined) {
+                        usersChangeEl.innerHTML = `<i class="fas fa-arrow-up"></i> ${newUsers || 0} new this week`;
+                        usersChangeEl.className = 'stat-change positive';
+                    }
+
+                    const paidEl = document.getElementById('stat-paid');
+                    if (paidEl) paidEl.textContent = (paidSubscriptions || 0).toLocaleString();
+
+                    const paidChangeEl = document.getElementById('stat-paid-change');
+                    if (paidChangeEl) {
+                        const conversion = totalUsers > 0 ? ((paidSubscriptions / totalUsers) * 100).toFixed(1) : 0;
+                        paidChangeEl.innerHTML = `<i class="fas fa-arrow-up"></i> ${conversion}% conversion`;
+                        paidChangeEl.className = 'stat-change positive';
+                    }
+
+                    const growthEl = document.getElementById('stat-growth');
+                    if (growthEl) growthEl.textContent = '0%';
+
+                    const growthChangeEl = document.getElementById('stat-growth-change');
+                    if (growthChangeEl) {
+                        growthChangeEl.textContent = 'No payment data';
+                        growthChangeEl.className = 'stat-change';
+                    }
+
+                    // Update subscription breakdown in Subscriptions tab
+                    const freeEl = document.getElementById('stat-free');
+                    if (freeEl) freeEl.textContent = (freeUsers || 0).toLocaleString();
+
+                    const freeChangeEl = document.getElementById('stat-free-change');
+                    if (freeChangeEl && totalUsers > 0) {
+                        const percentage = ((freeUsers / totalUsers) * 100).toFixed(1);
+                        freeChangeEl.textContent = `${percentage}% of total`;
+                    }
+
+                    const proEl = document.getElementById('stat-pro');
+                    if (proEl) proEl.textContent = (proUsers || 0).toLocaleString();
+
+                    const proChangeEl = document.getElementById('stat-pro-change');
+                    if (proChangeEl) {
+                        proChangeEl.innerHTML = `<i class="fas fa-arrow-up"></i> $${(proUsers * 29).toLocaleString()}/mo`;
+                        proChangeEl.className = 'stat-change positive';
+                    }
+
+                    const entEl = document.getElementById('stat-enterprise');
+                    if (entEl) entEl.textContent = (enterpriseUsers || 0).toLocaleString();
+
+                    const entChangeEl = document.getElementById('stat-enterprise-change');
+                    if (entChangeEl) {
+                        entChangeEl.innerHTML = `<i class="fas fa-arrow-up"></i> $${(enterpriseUsers * 299).toLocaleString()}/mo`;
+                        entChangeEl.className = 'stat-change positive';
+                    }
+
+                    const churnEl = document.getElementById('stat-churn');
+                    if (churnEl) churnEl.textContent = '0%';
+
+                    const churnChangeEl = document.getElementById('stat-churn-change');
+                    if (churnChangeEl) {
+                        churnChangeEl.textContent = 'No historical data';
+                        churnChangeEl.className = 'stat-change';
+                    }
+
+                    // Update user count in table header
+                    const tableTitle = document.getElementById('table-title');
+                    if (tableTitle) {
+                        tableTitle.textContent = `All Users (${(totalUsers || 0).toLocaleString()})`;
+                    }
+                } catch (error) {
+                    console.error('Error loading statistics:', error);
+                }
+            }
+
+            // Load users table
+            async function loadUsersTable() {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) return;
+
+                try {
+                    const { data: profiles, error } = await supabase
+                        .from('profiles')
+                        .select(`
+                            id,
+                            email,
+                            first_name,
+                            last_name,
+                            role,
+                            created_at,
+                            subscriptions (
+                                tier,
+                                status,
+                                current_period_end
+                            )
+                        `)
+                        .order('created_at', { ascending: false })
+                        .limit(100);
+
+                    if (error) {
+                        console.error('Error loading users:', error);
+                        return;
+                    }
+
+                    const tbody = document.querySelector('#users table tbody');
+                    if (!tbody) return;
+
+                    // Clear existing rows
+                    tbody.innerHTML = '';
+
+                    if (!profiles || profiles.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-3);">No users found</td></tr>';
+                        return;
+                    }
+
+                    // Populate table
+                    profiles.forEach(profile => {
+                        const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email?.split('@')[0] || 'User';
+                        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                        const subscription = profile.subscriptions?.[0];
+                        const tier = subscription?.tier || 'free';
+                        const status = subscription?.status || 'active';
+                        const joinedDate = new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const lastActive = 'Recently'; // Would need last_active field
+                        const revenue = tier === 'enterprise' ? '$299' : tier === 'pro' ? '$29' : '$0';
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-cell-avatar">${initials}</div>
+                                    <div class="user-cell-info">
+                                        <div class="user-cell-name">${name}</div>
+                                        <div class="user-cell-email">${profile.email || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-${tier}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span></td>
+                            <td><span class="badge badge-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                            <td>${joinedDate}</td>
+                            <td>${lastActive}</td>
+                            <td>${revenue}</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn" title="View" onclick="viewUser('${profile.id}')"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn" title="Edit" onclick="editUser('${profile.id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn danger" title="Delete" onclick="deleteUser('${profile.id}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error('Error loading users table:', error);
+                }
+            }
+
+            // Load activity log
+            async function loadActivityLog() {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) return;
+
+                try {
+                    // Try to load from activity_log table, fallback to profiles if table doesn't exist
+                    const { data: activities, error } = await supabase
+                        .from('activity_log')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(10);
+
+                    const activityList = document.querySelector('.activity-list');
+                    if (!activityList) return;
+
+                    // Clear existing activities
+                    activityList.innerHTML = '';
+
+                    if (error || !activities || activities.length === 0) {
+                        // Fallback: show recent user signups
+                        const { data: recentUsers } = await supabase
+                            .from('profiles')
+                            .select('email, first_name, last_name, created_at')
+                            .order('created_at', { ascending: false })
+                            .limit(4);
+
+                        if (recentUsers && recentUsers.length > 0) {
+                            recentUsers.forEach(user => {
+                                const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email?.split('@')[0] || 'User';
+                                const timeAgo = getTimeAgo(new Date(user.created_at));
+                                const item = document.createElement('div');
+                                item.className = 'activity-item';
+                                item.innerHTML = `
+                                    <div class="activity-icon user"><i class="fas fa-user-plus"></i></div>
+                                    <div class="activity-content">
+                                        <div class="activity-text"><strong>${name}</strong> created a new account</div>
+                                        <div class="activity-time">${timeAgo}</div>
+                                    </div>
+                                `;
+                                activityList.appendChild(item);
+                            });
+                        } else {
+                            activityList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-3);">No recent activity</div>';
+                        }
+                        return;
+                    }
+
+                    // Display activities from activity_log
+                    activities.forEach(activity => {
+                        const icon = getActivityIcon(activity.action);
+                        const text = getActivityText(activity);
+                        const timeAgo = getTimeAgo(new Date(activity.created_at));
+                        const item = document.createElement('div');
+                        item.className = 'activity-item';
+                        item.innerHTML = `
+                            <div class="activity-icon ${getActivityType(activity.action)}">${icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-text">${text}</div>
+                                <div class="activity-time">${timeAgo}</div>
+                            </div>
+                        `;
+                        activityList.appendChild(item);
+                    });
+                } catch (error) {
+                    console.error('Error loading activity log:', error);
+                }
+            }
+
+            // Helper functions
+            function getTimeAgo(date) {
+                const seconds = Math.floor((new Date() - date) / 1000);
+                if (seconds < 60) return 'Just now';
+                const minutes = Math.floor(seconds / 60);
+                if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+                const days = Math.floor(hours / 24);
+                return `${days} day${days !== 1 ? 's' : ''} ago`;
+            }
+
+            function getActivityIcon(action) {
+                if (action.includes('login')) return '<i class="fas fa-sign-in-alt"></i>';
+                if (action.includes('signup')) return '<i class="fas fa-user-plus"></i>';
+                if (action.includes('payment')) return '<i class="fas fa-check-circle"></i>';
+                if (action.includes('subscription')) return '<i class="fas fa-crown"></i>';
+                return '<i class="fas fa-circle"></i>';
+            }
+
+            function getActivityType(action) {
+                if (action.includes('payment')) return 'payment';
+                if (action.includes('subscription')) return 'subscription';
+                if (action.includes('failed') || action.includes('denied')) return 'alert';
+                return 'user';
+            }
+
+            function getActivityText(activity) {
+                const action = activity.action;
+                const metadata = activity.metadata || {};
+                if (action.includes('signup')) {
+                    return `<strong>${metadata.email || 'User'}</strong> created a new account`;
+                }
+                if (action.includes('login')) {
+                    return `<strong>${metadata.email || 'User'}</strong> signed in`;
+                }
+                if (action.includes('subscription')) {
+                    return `<strong>${metadata.email || 'User'}</strong> ${action.includes('upgraded') ? 'upgraded' : 'changed'} subscription`;
+                }
+                return activity.action.replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            // User action functions
+            window.viewUser = async function(userId) {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) {
+                    console.error('Supabase not available');
+                    return;
+                }
+
+                try {
+                    const { data: profile, error } = await supabase
+                        .from('profiles')
+                        .select(`
+                            *,
+                            subscriptions (*)
+                        `)
+                        .eq('id', userId)
+                        .single();
+
+                    if (error) throw error;
+
+                    // Show user details in a modal or navigate to user detail page
+                    const userInfo = `
+Name: ${profile.first_name || ''} ${profile.last_name || ''}
+Email: ${profile.email || 'N/A'}
+Role: ${profile.role || 'user'}
+Created: ${new Date(profile.created_at).toLocaleString()}
+Subscription: ${profile.subscriptions?.[0]?.tier || 'free'}
+                    `.trim();
+
+                    // Show user details in modal
+                    showUserModal(profile);
+                } catch (error) {
+                    console.error('Error loading user:', error);
+                    alert('Failed to load user details. Please try again.');
+                }
+            };
+
+            window.editUser = async function(userId) {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) {
+                    console.error('Supabase not available');
+                    return;
+                }
+
+                try {
+                    const { data: profile, error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', userId)
+                        .single();
+
+                    if (error) throw error;
+
+                    // Show edit modal
+                    showEditUserModal(profile);
+                } catch (error) {
+                    console.error('Error loading user:', error);
+                    alert('Failed to load user for editing. Please try again.');
+                }
+            };
+
+            window.deleteUser = async function(userId) {
+                if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                    return;
+                }
+
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) {
+                    console.error('Supabase not available');
+                    return;
+                }
+
+                try {
+                    // Delete user's subscription first
+                    const { error: subError } = await supabase
+                        .from('subscriptions')
+                        .delete()
+                        .eq('user_id', userId);
+
+                    if (subError) console.warn('Error deleting subscription:', subError);
+
+                    // Delete user's profile
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .delete()
+                        .eq('id', userId);
+
+                    if (profileError) throw profileError;
+
+                    // Log deletion
+                    if (window.Security?.AuditLog) {
+                        await window.Security.AuditLog.log(
+                            window.Security.AuditLog.ACTIONS.ACCOUNT_DELETED,
+                            { userId, deletedBy: window.Auth?.getUser()?.id }
+                        );
+                    }
+
+                    // Reload users table
+                    await loadUsersTable();
+                    await loadStatistics();
+
+                    alert('User deleted successfully.');
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Failed to delete user. Please try again.');
+                }
+            };
+
+            // Modal functions
+            function showUserModal(profile) {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.7); z-index: 10000;
+                    display: flex; align-items: center; justify-content: center;
+                `;
+                modal.innerHTML = `
+                    <div style="background: var(--surface-1); border: 1px solid var(--surface-3);
+                        border-radius: 16px; padding: 32px; max-width: 500px; width: 90%;
+                        max-height: 90vh; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 style="margin: 0;">User Details</h2>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                                style="background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 24px;">&times;</button>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div><strong>Name:</strong> ${(profile.first_name || '') + ' ' + (profile.last_name || '') || 'N/A'}</div>
+                            <div><strong>Email:</strong> ${profile.email || 'N/A'}</div>
+                            <div><strong>Role:</strong> ${profile.role || 'user'}</div>
+                            <div><strong>Created:</strong> ${new Date(profile.created_at).toLocaleString()}</div>
+                            ${profile.subscriptions?.[0] ? `
+                                <div><strong>Subscription:</strong> ${profile.subscriptions[0].tier} (${profile.subscriptions[0].status})</div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
+                });
+            }
+
+            function showEditUserModal(profile) {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.7); z-index: 10000;
+                    display: flex; align-items: center; justify-content: center;
+                `;
+                modal.innerHTML = `
+                    <div style="background: var(--surface-1); border: 1px solid var(--surface-3);
+                        border-radius: 16px; padding: 32px; max-width: 500px; width: 90%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 style="margin: 0;">Edit User</h2>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                                style="background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 24px;">&times;</button>
+                        </div>
+                        <form id="editUserForm" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; color: var(--text-2);">First Name</label>
+                                <input type="text" id="editFirstName" value="${profile.first_name || ''}" 
+                                    style="width: 100%; padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3);
+                                    border-radius: 8px; color: var(--text-1);">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; color: var(--text-2);">Last Name</label>
+                                <input type="text" id="editLastName" value="${profile.last_name || ''}" 
+                                    style="width: 100%; padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3);
+                                    border-radius: 8px; color: var(--text-1);">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; color: var(--text-2);">Role</label>
+                                <select id="editRole" style="width: 100%; padding: 12px; background: var(--surface-2); border: 1px solid var(--surface-3);
+                                    border-radius: 8px; color: var(--text-1);">
+                                    <option value="user" ${profile.role === 'user' ? 'selected' : ''}>User</option>
+                                    <option value="creator" ${profile.role === 'creator' ? 'selected' : ''}>Creator</option>
+                                    <option value="admin" ${profile.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                    <option value="owner" ${profile.role === 'owner' ? 'selected' : ''}>Owner</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                                <button type="submit" style="flex: 1; padding: 12px; background: var(--glacier); color: var(--surface-0);
+                                    border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
+                                <button type="button" onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                                    style="flex: 1; padding: 12px; background: var(--surface-2); color: var(--text-1);
+                                    border: 1px solid var(--surface-3); border-radius: 8px; cursor: pointer;">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                modal.querySelector('#editUserForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    if (!supabase) return;
+
+                    try {
+                        const { error } = await supabase
+                            .from('profiles')
+                            .update({
+                                first_name: document.getElementById('editFirstName').value,
+                                last_name: document.getElementById('editLastName').value,
+                                role: document.getElementById('editRole').value
+                            })
+                            .eq('id', profile.id);
+
+                        if (error) throw error;
+
+                        modal.remove();
+                        await loadUsersTable();
+                        alert('User updated successfully.');
+                    } catch (error) {
+                        console.error('Error updating user:', error);
+                        alert('Failed to update user. Please try again.');
+                    }
+                });
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
+                });
+            }
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#users table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+
+            // Quick actions functionality
+            document.querySelectorAll('.quick-action').forEach(action => {
+                action.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const text = action.querySelector('span')?.textContent || '';
+                    if (text.includes('Add New User')) {
+                        showAddUserModal();
+                    } else if (text.includes('Send Announcement')) {
+                        showAnnouncementModal();
+                    } else if (text.includes('Create Promo Code')) {
+                        showPromoCodeModal();
+                    } else if (text.includes('Export User Data')) {
+                        await exportUserData();
+                    } else if (text.includes('Platform Settings')) {
+                        window.location.href = '#settings';
+                        document.querySelector('[data-tab="settings"]')?.click();
+                    } else if (text.includes('Security Audit')) {
+                        showSecurityAudit();
+                    }
+                });
+            });
+
+            // Quick action implementations
+            function showAddUserModal() {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.7); z-index: 10000;
+                    display: flex; align-items: center; justify-content: center;
+                `;
+                modal.innerHTML = `
+                    <div style="background: var(--surface-1); border: 1px solid var(--surface-3);
+                        border-radius: 16px; padding: 32px; max-width: 500px; width: 90%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 style="margin: 0;">Add New User</h2>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                                style="background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 24px;">&times;</button>
+                        </div>
+                        <p style="color: var(--text-3); margin-bottom: 24px;">
+                            Users should sign up through the registration page. You can invite them by sharing the signup link.
+                        </p>
+                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                            style="width: 100%; padding: 12px; background: var(--glacier); color: var(--surface-0);
+                            border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Close</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
+                });
+            }
+
+            function showAnnouncementModal() {
+                alert('Announcement feature: This would integrate with an email service or in-app notification system.');
+            }
+
+            function showPromoCodeModal() {
+                alert('Promo code feature: This would create discount codes for Stripe or your payment processor.');
+            }
+
+            async function exportUserData() {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) return;
+
+                try {
+                    const { data: users, error } = await supabase
+                        .from('profiles')
+                        .select('*, subscriptions(*)')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    // Convert to CSV
+                    const headers = ['Email', 'Name', 'Role', 'Subscription Tier', 'Status', 'Created'];
+                    const rows = users.map(u => [
+                        u.email || '',
+                        `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'N/A',
+                        u.role || 'user',
+                        u.subscriptions?.[0]?.tier || 'free',
+                        u.subscriptions?.[0]?.status || 'active',
+                        new Date(u.created_at).toLocaleDateString()
+                    ]);
+
+                    const csv = [
+                        headers.join(','),
+                        ...rows.map(r => r.map(c => `"${c}"`).join(','))
+                    ].join('\n');
+
+                    // Download CSV
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Error exporting data:', error);
+                    alert('Failed to export user data. Please try again.');
+                }
+            }
+
+            function showSecurityAudit() {
+                alert('Security Audit: This would show a comprehensive security report including login attempts, failed authentications, and suspicious activity.');
+            }
+
+            // Initialize data loading after access check
+            async function initializeDashboard() {
+                await checkAccess();
+                
+                // Load all data
+                await Promise.all([
+                    loadStatistics(),
+                    loadUsersTable(),
+                    loadActivityLog()
+                ]);
+            }
+
+            // Start initialization
+            initializeDashboard();
         })();
     </script>
 </body>

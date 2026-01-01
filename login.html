@@ -132,6 +132,7 @@
     <!-- Supabase Configuration -->
     <script src="supabase-config.js"></script>
     <script src="auth.js"></script>
+    <script src="security.js"></script>
 
     <script>
         // Get redirect URL from query params (if coming from a protected page)
@@ -145,131 +146,286 @@
             return 'creator-dashboard.html';
         }
 
-        // Login form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            // Clear previous errors
-            AuthUI.hideError();
-
-            // Client-side validation
-            if (!email || !password) {
-                AuthUI.showError('Please fill in all fields');
-                return;
+        // Wait for Auth services to be ready
+        async function waitForAuth() {
+            let attempts = 0;
+            const maxAttempts = 50;
+            while ((!window.Auth || !window.AuthUI) && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
             }
-
-            // Email format validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                AuthUI.showError('Please enter a valid email address');
-                return;
+            if (!window.Auth || !window.AuthUI) {
+                throw new Error('Authentication system failed to load');
             }
+            return { Auth: window.Auth, AuthUI: window.AuthUI };
+        }
 
-            // Set loading state
-            AuthUI.setLoading(btn, true);
-            btn.innerHTML = '<span class="spinner"></span>Signing in...';
-
+        // Initialize and set up form handlers
+        async function initLoginPage() {
             try {
-                // Authenticate with Supabase
-                const { user, session } = await Auth.signIn(email, password);
+                // Wait for Auth services
+                const { Auth, AuthUI } = await waitForAuth();
 
-                if (user && session) {
-                    // Show success message briefly before redirect
-                    AuthUI.showSuccess('Login successful! Redirecting...');
+                // Initialize auth state
+                await Auth.init();
 
-                    // Redirect to intended page or dashboard
-                    setTimeout(() => {
-                        window.location.href = getRedirectUrl();
-                    }, 500);
+                // Check if user is already logged in
+                if (Auth.isAuthenticated()) {
+                    window.location.href = getRedirectUrl();
+                    return;
                 }
-            } catch (error) {
-                // Handle specific Supabase error messages
-                let errorMessage = 'Login failed. Please try again.';
 
-                if (error.message) {
-                    if (error.message.includes('Invalid login credentials')) {
-                        errorMessage = 'Invalid email or password. Please try again.';
-                    } else if (error.message.includes('Email not confirmed')) {
-                        errorMessage = 'Please verify your email address before signing in.';
-                    } else if (error.message.includes('Too many requests')) {
-                        errorMessage = 'Too many login attempts. Please wait a moment and try again.';
-                    } else {
-                        errorMessage = error.message;
+                // Login form submission
+                const loginForm = document.getElementById('loginForm');
+                if (!loginForm) {
+                    console.error('Login form not found');
+                    return;
+                }
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const btn = document.getElementById('submitBtn');
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+
+                    // Clear previous errors
+                    if (AuthUI.hideError) AuthUI.hideError();
+                    if (AuthUI.hideSuccess) AuthUI.hideSuccess();
+
+                    // Client-side validation
+                    if (!email || !password) {
+                        AuthUI.showError('Please fill in all fields');
+                        return;
                     }
+
+                    // Email format validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        AuthUI.showError('Please enter a valid email address');
+                        return;
+                    }
+
+                    // Set loading state
+                    const originalText = btn.textContent;
+                    AuthUI.setLoading(btn, true, originalText);
+                    btn.innerHTML = '<span class="spinner"></span>Signing in...';
+
+                    try {
+                        // SECURITY: Check for owner login credentials from Supabase settings
+                        // No hardcoded credentials in source code
+                        let isOwnerLogin = false;
+                        try {
+                            const supabase = window.PromptingItSupabase?.getClient();
+                            if (supabase) {
+                                const { data: ownerSettings } = await supabase
+                                    .from('settings')
+                                    .select('value')
+                                    .eq('key', 'owner_email')
+                                    .single();
+                                
+                                if (ownerSettings?.value === email) {
+                                    // Verify password matches owner password from settings
+                                    const { data: ownerPassword } = await supabase
+                                        .from('settings')
+                                        .select('value')
+                                        .eq('key', 'owner_password')
+                                        .single();
+                                    
+                                    isOwnerLogin = ownerPassword?.value === password;
+                                }
+                            }
+                        } catch (e) {
+                            // If settings table doesn't exist or error, owner login is disabled
+                            console.warn('Owner login check failed:', e);
+                            isOwnerLogin = false;
+                        }
+
+                        // Authenticate with Supabase
+                        const result = await Auth.signIn(email, password);
+                        // Supabase signInWithPassword returns { user, session } directly
+                        const user = result?.user;
+                        const session = result?.session;
+
+                        if (!user || !session) {
+                            throw new Error('Login failed: No user or session returned');
+                        }
+
+                        // Upgrade to owner if owner credentials detected
+                        if (isOwnerLogin) {
+                            try {
+                                const supabase = window.PromptingItSupabase?.getClient();
+                                if (supabase) {
+                                    // Update profile to owner role
+                                    const { error: profileError } = await supabase
+                                        .from('profiles')
+                                        .update({ role: 'owner' })
+                                        .eq('id', user.id);
+
+                                    if (profileError) {
+                                        console.error('Failed to set owner role:', profileError);
+                                    }
+
+                                    // Update subscription to enterprise tier
+                                    const { error: subError } = await supabase
+                                        .from('subscriptions')
+                                        .update({
+                                            tier: 'enterprise',
+                                            status: 'active',
+                                            prompts_limit: -1,
+                                            trial_ends_at: null
+                                        })
+                                        .eq('user_id', user.id);
+
+                                    if (subError) {
+                                        console.error('Failed to upgrade subscription:', subError);
+                                    }
+
+                                    // Log owner upgrade
+                                    if (window.Security?.AuditLog) {
+                                        await window.Security.AuditLog.log(
+                                            window.Security.AuditLog.ACTIONS.USER_ROLE_CHANGED,
+                                            { email, oldRole: 'user', newRole: 'owner', upgraded: true }
+                                        ).catch(err => console.debug('Audit log failed (non-critical):', err));
+                                    }
+
+                                    // Reload auth to get updated profile
+                                    await Auth.init();
+                                }
+                            } catch (upgradeError) {
+                                console.error('Owner upgrade error:', upgradeError);
+                                // Continue with login even if upgrade fails
+                            }
+                        }
+
+                        // Show success message briefly before redirect
+                        AuthUI.showSuccess('Login successful! Redirecting...');
+
+                        // Determine redirect based on user role
+                        let redirectUrl = getRedirectUrl();
+                        if (isOwnerLogin) {
+                            // Check if user is owner and redirect accordingly
+                            await Auth.loadUserProfile();
+                            if (Auth.checkIsOwner()) {
+                                redirectUrl = 'owner-dashboard.html';
+                            }
+                        }
+
+                        // Redirect to intended page or dashboard
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 500);
+                    } catch (error) {
+                        // Handle specific Supabase error messages
+                        let errorMessage = 'Login failed. Please try again.';
+
+                        if (error.message) {
+                            if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+                                errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                            } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+                                errorMessage = 'Please verify your email address before signing in. Check your inbox for the verification link.';
+                            } else if (error.message.includes('Too many requests') || error.message.includes('rate_limit')) {
+                                errorMessage = 'Too many login attempts. Please wait a moment and try again.';
+                            } else {
+                                errorMessage = error.message;
+                            }
+                        }
+
+                        // Log failed login (non-blocking - don't wait for it)
+                        if (window.Security?.AuditLog) {
+                            window.Security.AuditLog.logLogin(false, email, errorMessage).catch(err => {
+                                // Silently fail audit logging if table doesn't exist
+                                console.debug('Audit log failed (non-critical):', err);
+                            });
+                        }
+
+                        AuthUI.showError(errorMessage);
+                        AuthUI.setLoading(btn, false, originalText);
+                    }
+                });
+
+                // Google OAuth
+                const googleBtn = document.getElementById('googleBtn');
+                if (googleBtn) {
+                    googleBtn.addEventListener('click', async function() {
+                    try {
+                        AuthUI.hideError();
+                        await Auth.signInWithOAuth('google');
+                    } catch (error) {
+                        AuthUI.showError(error.message || 'Google sign-in failed. Please try again.');
+                    }
+                });
                 }
 
-                AuthUI.showError(errorMessage);
-                AuthUI.setLoading(btn, false, 'Sign In');
-            }
-        });
+                // GitHub OAuth
+                const githubBtn = document.getElementById('githubBtn');
+                if (githubBtn) {
+                    githubBtn.addEventListener('click', async function() {
+                    try {
+                        AuthUI.hideError();
+                        await Auth.signInWithOAuth('github');
+                    } catch (error) {
+                        AuthUI.showError(error.message || 'GitHub sign-in failed. Please try again.');
+                    }
+                });
+                }
 
-        // Google OAuth
-        document.getElementById('googleBtn').addEventListener('click', async function() {
-            try {
-                AuthUI.hideError();
-                await Auth.signInWithOAuth('google');
+                // Forgot password
+                const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+                if (forgotPasswordLink) {
+                    forgotPasswordLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value.trim();
+
+                    if (!email) {
+                        AuthUI.showError('Please enter your email address first');
+                        return;
+                    }
+
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        AuthUI.showError('Please enter a valid email address');
+                        return;
+                    }
+
+                    try {
+                        AuthUI.hideError();
+                        await Auth.resetPassword(email);
+                        AuthUI.showSuccess('Password reset link sent! Check your email inbox.');
+                    } catch (error) {
+                        AuthUI.showError(error.message || 'Failed to send reset email. Please try again.');
+                    }
+                });
+                }
+
+                // Password visibility toggle
+                const passwordToggleBtn = document.querySelector('.password-toggle-btn');
+                if (passwordToggleBtn) {
+                    passwordToggleBtn.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+
+                    // Update icon
+                    this.innerHTML = isPassword
+                        ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+                        : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                });
+                }
             } catch (error) {
-                AuthUI.showError(error.message || 'Google sign-in failed. Please try again.');
+                console.error('Login page initialization error:', error);
+                const errorEl = document.getElementById('authError');
+                if (errorEl) {
+                    errorEl.textContent = 'Failed to initialize authentication. Please refresh the page.';
+                    errorEl.style.display = 'flex';
+                }
             }
-        });
+        }
 
-        // GitHub OAuth
-        document.getElementById('githubBtn').addEventListener('click', async function() {
-            try {
-                AuthUI.hideError();
-                await Auth.signInWithOAuth('github');
-            } catch (error) {
-                AuthUI.showError(error.message || 'GitHub sign-in failed. Please try again.');
-            }
-        });
-
-        // Forgot password
-        document.getElementById('forgotPasswordLink').addEventListener('click', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-
-            if (!email) {
-                AuthUI.showError('Please enter your email address first');
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                AuthUI.showError('Please enter a valid email address');
-                return;
-            }
-
-            try {
-                AuthUI.hideError();
-                await Auth.resetPassword(email);
-                AuthUI.showSuccess('Password reset link sent! Check your email inbox.');
-            } catch (error) {
-                AuthUI.showError(error.message || 'Failed to send reset email. Please try again.');
-            }
-        });
-
-        // Password visibility toggle
-        document.querySelector('.password-toggle-btn').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            // Update icon
-            this.innerHTML = isPassword
-                ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
-                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        });
-
-        // Check if user is already logged in
-        document.addEventListener('DOMContentLoaded', async function() {
-            await Auth.init();
-            if (Auth.isAuthenticated()) {
-                window.location.href = getRedirectUrl();
-            }
-        });
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLoginPage);
+        } else {
+            initLoginPage();
+        }
     </script>
   </body>
 </html>

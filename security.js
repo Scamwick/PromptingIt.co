@@ -76,7 +76,11 @@
           .insert(logEntry);
 
         if (error) {
-          console.error('Audit log error:', error);
+          // Only log if it's not a table not found error (404)
+          if (error.code !== 'PGRST116' && error.message && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+            console.error('Audit log error:', error.message || error);
+          }
+          // Silently fail for missing tables (expected in development)
         }
       } catch (error) {
         console.error('Audit log error:', error);
@@ -88,6 +92,13 @@
       await this.log(
         success ? this.ACTIONS.LOGIN_SUCCESS : this.ACTIONS.LOGIN_FAILED,
         { email, error: errorMessage }
+      );
+    },
+
+    async logSignup(success, email, method = 'email', errorMessage = null) {
+      await this.log(
+        this.ACTIONS.SIGNUP,
+        { email, success, method, error: errorMessage }
       );
     },
 
@@ -608,6 +619,14 @@
       // Check paid feature access with server validation
       const requiredTier = this.paidPages[currentPage];
       if (requiredTier) {
+        // Owners bypass all paywalls
+        const isOwner = await RoleValidator.isOwner();
+        if (isOwner) {
+          // Owner access granted - bypassing paywall
+          await AuditLog.logFeatureAccess(currentPage, true, requiredTier);
+          return true;
+        }
+
         const subscription = await SubscriptionValidator.validate();
         const tierOrder = ['free', 'pro', 'enterprise'];
         const currentIndex = tierOrder.indexOf(subscription.tier);

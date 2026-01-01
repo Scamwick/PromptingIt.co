@@ -222,7 +222,7 @@
                 </div>
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" class="search-input" placeholder="Search templates...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search templates..." oninput="filterTemplates()">
                 </div>
             </div>
 
@@ -232,51 +232,26 @@
                     <span class="featured-badge"><i class="fas fa-star"></i> Featured Template</span>
                     <h2 class="featured-title">Enterprise Customer Support Suite</h2>
                     <p class="featured-desc">A comprehensive collection of prompts for handling customer inquiries, ticket classification, sentiment analysis, and automated responses. Includes 12 pre-configured prompts.</p>
-                    <button class="featured-cta"><i class="fas fa-download"></i> Use Template</button>
+                    <button class="featured-cta" onclick="useFeaturedTemplate()"><i class="fas fa-download"></i> Use Template</button>
                 </div>
                 <div class="featured-image"><i class="fas fa-headset"></i></div>
             </div>
 
             <!-- Categories -->
             <div class="categories">
-                <button class="category-btn active">All <span class="category-count">48</span></button>
-                <button class="category-btn">Customer Support <span class="category-count">12</span></button>
-                <button class="category-btn">Content <span class="category-count">9</span></button>
-                <button class="category-btn">Development <span class="category-count">8</span></button>
-                <button class="category-btn">Marketing <span class="category-count">7</span></button>
-                <button class="category-btn">Data Analysis <span class="category-count">6</span></button>
-                <button class="category-btn">HR <span class="category-count">6</span></button>
+                <button class="category-btn active" data-category="all">All <span class="category-count" id="countAll">48</span></button>
+                <button class="category-btn" data-category="Customer Support">Customer Support <span class="category-count" id="countSupport">12</span></button>
+                <button class="category-btn" data-category="Content">Content <span class="category-count" id="countContent">9</span></button>
+                <button class="category-btn" data-category="Development">Development <span class="category-count" id="countDev">8</span></button>
+                <button class="category-btn" data-category="Marketing">Marketing <span class="category-count" id="countMarketing">7</span></button>
+                <button class="category-btn" data-category="Data Analysis">Data Analysis <span class="category-count" id="countData">6</span></button>
+                <button class="category-btn" data-category="HR">HR <span class="category-count" id="countHR">6</span></button>
             </div>
 
             <!-- Templates Grid -->
-            <div class="templates-grid">
-                <div class="template-card">
-                    <div class="template-header">
-                        <div class="template-icon cyan"><i class="fas fa-headset"></i></div>
-                        <div class="template-info">
-                            <h3 class="template-name">Ticket Classifier</h3>
-                            <span class="template-category">Customer Support</span>
-                        </div>
-                    </div>
-                    <div class="template-body">
-                        <p class="template-desc">Automatically categorizes support tickets by type, priority, and department with high accuracy.</p>
-                        <div class="template-tags">
-                            <span class="template-tag">GPT-4</span>
-                            <span class="template-tag">Claude</span>
-                            <span class="template-tag">Classification</span>
-                        </div>
-                    </div>
-                    <div class="template-footer">
-                        <div class="template-stats">
-                            <span class="template-stat"><i class="fas fa-download"></i> 2.4k uses</span>
-                            <span class="template-stat"><i class="fas fa-star"></i> 4.9</span>
-                        </div>
-                        <div class="template-actions">
-                            <button class="template-action secondary">Preview</button>
-                            <button class="template-action primary">Use</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="templates-grid" id="templatesGrid">
+                <!-- Templates will be loaded dynamically -->
+            </div>
 
                 <div class="template-card">
                     <div class="template-header">
@@ -475,16 +450,805 @@
     </div>
 
     <script>
+        // Templates database with actual prompt content
+        const templatesData = [
+            // Customer Support (12 templates)
+            {
+                id: 1,
+                name: 'Ticket Classifier',
+                category: 'Customer Support',
+                description: 'Automatically categorizes support tickets by type, priority, and department with high accuracy.',
+                prompt: 'You are a customer support ticket classification system. Analyze the following support ticket and categorize it:\n\n1. **Category**: Technical, Billing, Account, Feature Request, Bug Report, or General Inquiry\n2. **Priority**: Low, Medium, High, or Urgent\n3. **Department**: Engineering, Sales, Billing, or Support\n4. **Sentiment**: Positive, Neutral, or Negative\n\nTicket content:\n{{ticket_content}}\n\nProvide your classification in a structured JSON format.',
+                tags: ['GPT-4', 'Claude', 'Classification'],
+                icon: 'headset',
+                iconColor: 'cyan',
+                uses: 2400,
+                rating: 4.9
+            },
+            {
+                id: 2,
+                name: 'Sentiment Analyzer',
+                category: 'Customer Support',
+                description: 'Analyzes customer messages to determine sentiment and emotional tone.',
+                prompt: 'Analyze the sentiment and emotional tone of the following customer message. Provide:\n\n1. **Sentiment**: Positive, Neutral, or Negative (with confidence score)\n2. **Emotions**: List detected emotions (frustrated, happy, confused, etc.)\n3. **Urgency**: Low, Medium, or High\n4. **Recommended Action**: Suggested response approach\n\nCustomer message:\n{{customer_message}}',
+                tags: ['GPT-4', 'Sentiment', 'Analysis'],
+                icon: 'smile',
+                iconColor: 'emerald',
+                uses: 1800,
+                rating: 4.8
+            },
+            {
+                id: 3,
+                name: 'Response Generator',
+                category: 'Customer Support',
+                description: 'Generates professional, empathetic customer support responses.',
+                prompt: 'You are a customer support agent. Generate a professional, empathetic response to the following customer inquiry.\n\nGuidelines:\n- Be friendly and understanding\n- Address all points in the inquiry\n- Provide clear, actionable solutions\n- Use appropriate tone ({{tone}}: professional, casual, or formal)\n- Keep response concise but complete\n\nCustomer inquiry:\n{{customer_inquiry}}\n\nPrevious conversation context:\n{{conversation_history}}',
+                tags: ['GPT-4', 'Claude', 'Communication'],
+                icon: 'reply',
+                iconColor: 'cyan',
+                uses: 3200,
+                rating: 4.9
+            },
+            {
+                id: 4,
+                name: 'FAQ Generator',
+                category: 'Customer Support',
+                description: 'Creates comprehensive FAQ entries from common customer questions.',
+                prompt: 'Create a comprehensive FAQ entry based on the following customer question and answer.\n\nFormat:\n**Question**: [Clear, customer-friendly question]\n**Answer**: [Detailed, helpful answer with examples if needed]\n**Related Topics**: [List 2-3 related questions]\n\nCustomer question:\n{{question}}\n\nAnswer:\n{{answer}}',
+                tags: ['GPT-4', 'Documentation'],
+                icon: 'question-circle',
+                iconColor: 'violet',
+                uses: 1500,
+                rating: 4.7
+            },
+            {
+                id: 5,
+                name: 'Escalation Detector',
+                category: 'Customer Support',
+                description: 'Identifies when customer issues need to be escalated to senior support.',
+                prompt: 'Analyze the following customer interaction and determine if it should be escalated to senior support.\n\nConsider:\n- Issue complexity\n- Customer frustration level\n- Technical difficulty\n- Billing or account concerns\n- Legal or compliance issues\n\nProvide:\n1. **Escalation Needed**: Yes or No\n2. **Reason**: Detailed explanation\n3. **Recommended Escalation Level**: Tier 2, Tier 3, or Management\n4. **Urgency**: Low, Medium, High, or Critical\n\nCustomer interaction:\n{{interaction_text}}',
+                tags: ['Claude', 'Decision', 'Support'],
+                icon: 'exclamation-triangle',
+                iconColor: 'rose',
+                uses: 2100,
+                rating: 4.8
+            },
+            {
+                id: 6,
+                name: 'SLA Monitor',
+                category: 'Customer Support',
+                description: 'Monitors and reports on ticket SLA compliance and response times.',
+                prompt: 'Analyze the following support ticket data and provide an SLA compliance report.\n\nCalculate:\n1. **Response Time**: Time to first response vs SLA target\n2. **Resolution Time**: Time to resolution vs SLA target\n3. **Status**: On Track, At Risk, or Breached\n4. **Recommendations**: Actions to improve SLA compliance\n\nTicket data:\n{{ticket_data}}',
+                tags: ['GPT-4', 'Analytics', 'SLA'],
+                icon: 'clock',
+                iconColor: 'solar',
+                uses: 1200,
+                rating: 4.6
+            },
+            {
+                id: 7,
+                name: 'Knowledge Base Searcher',
+                category: 'Customer Support',
+                description: 'Searches and retrieves relevant knowledge base articles for customer queries.',
+                prompt: 'You are a knowledge base search assistant. Given a customer query, identify the most relevant knowledge base articles.\n\nQuery: {{customer_query}}\n\nAvailable articles:\n{{knowledge_base_articles}}\n\nProvide:\n1. **Top 3 Relevant Articles**: Ranked by relevance\n2. **Key Information**: Extracted from each article\n3. **Suggested Response**: How to use this information to help the customer',
+                tags: ['Claude', 'Search', 'KB'],
+                icon: 'search',
+                iconColor: 'cyan',
+                uses: 2800,
+                rating: 4.9
+            },
+            {
+                id: 8,
+                name: 'Customer Feedback Summarizer',
+                category: 'Customer Support',
+                description: 'Summarizes customer feedback from surveys, reviews, and support interactions.',
+                prompt: 'Summarize the following customer feedback data:\n\n{{feedback_data}}\n\nProvide:\n1. **Overall Sentiment**: Positive, Neutral, or Negative\n2. **Key Themes**: Top 3-5 recurring topics\n3. **Action Items**: Specific improvements suggested\n4. **Trends**: Changes compared to previous period (if available)\n5. **Executive Summary**: 2-3 sentence overview',
+                tags: ['GPT-4', 'Summarization', 'Feedback'],
+                icon: 'comments',
+                iconColor: 'emerald',
+                uses: 1900,
+                rating: 4.7
+            },
+            {
+                id: 9,
+                name: 'Multi-language Translator',
+                category: 'Customer Support',
+                description: 'Translates customer support communications while maintaining tone and context.',
+                prompt: 'Translate the following customer support message from {{source_language}} to {{target_language}}.\n\nGuidelines:\n- Maintain professional tone\n- Preserve technical terms appropriately\n- Keep cultural context\n- Ensure clarity and accuracy\n\nMessage:\n{{message_text}}',
+                tags: ['GPT-4', 'Translation', 'Multilingual'],
+                icon: 'language',
+                iconColor: 'violet',
+                uses: 1600,
+                rating: 4.8
+            },
+            {
+                id: 10,
+                name: 'Refund Request Analyzer',
+                category: 'Customer Support',
+                description: 'Analyzes refund requests and provides recommendations based on policy and context.',
+                prompt: 'Analyze the following refund request and provide recommendations:\n\nRequest details:\n{{refund_request}}\n\nCompany policy:\n{{refund_policy}}\n\nProvide:\n1. **Eligibility**: Eligible, Partially Eligible, or Not Eligible\n2. **Reason**: Detailed explanation\n3. **Recommended Action**: Approve, Deny, or Partial Refund\n4. **Alternative Solutions**: If not eligible, suggest alternatives',
+                tags: ['Claude', 'Decision', 'Billing'],
+                icon: 'money-bill-wave',
+                iconColor: 'emerald',
+                uses: 1400,
+                rating: 4.6
+            },
+            {
+                id: 11,
+                name: 'Product Troubleshooter',
+                category: 'Customer Support',
+                description: 'Provides step-by-step troubleshooting guidance for product issues.',
+                prompt: 'You are a technical support specialist. Provide step-by-step troubleshooting for the following issue:\n\nIssue description:\n{{issue_description}}\n\nProduct: {{product_name}}\nVersion: {{product_version}}\n\nProvide:\n1. **Diagnosis**: Likely cause of the issue\n2. **Troubleshooting Steps**: Numbered, clear instructions\n3. **Expected Outcomes**: What should happen at each step\n4. **If Issue Persists**: Next steps or escalation path',
+                tags: ['GPT-4', 'Technical', 'Troubleshooting'],
+                icon: 'tools',
+                iconColor: 'cyan',
+                uses: 2500,
+                rating: 4.9
+            },
+            {
+                id: 12,
+                name: 'Customer Onboarding Guide',
+                category: 'Customer Support',
+                description: 'Creates personalized onboarding guides for new customers.',
+                prompt: 'Create a personalized onboarding guide for a new customer:\n\nCustomer profile:\n{{customer_profile}}\n\nProduct/Service: {{product_name}}\n\nInclude:\n1. **Welcome Message**: Personalized greeting\n2. **Getting Started Steps**: First 5-7 actions\n3. **Key Features**: Most relevant features for this customer\n4. **Resources**: Links to tutorials, documentation\n5. **Next Steps**: Recommended actions for week 1',
+                tags: ['Claude', 'Onboarding', 'Guide'],
+                icon: 'user-plus',
+                iconColor: 'violet',
+                uses: 1700,
+                rating: 4.8
+            },
+            // Content (9 templates)
+            {
+                id: 13,
+                name: 'SEO Blog Writer',
+                category: 'Content',
+                description: 'Creates SEO-optimized blog posts with proper structure, headings, and keyword integration.',
+                prompt: 'Write an SEO-optimized blog post on the following topic:\n\nTopic: {{blog_topic}}\n\nTarget keyword: {{target_keyword}}\n\nRequirements:\n- Word count: {{word_count}} (800-2000 words)\n- Include H1, H2, H3 headings\n- Natural keyword integration\n- Engaging introduction and conclusion\n- Internal linking suggestions\n- Meta description\n- 3-5 relevant subheadings\n\nWrite the complete blog post:',
+                tags: ['GPT-4', 'Long-form', 'SEO'],
+                icon: 'blog',
+                iconColor: 'emerald',
+                uses: 1800,
+                rating: 4.8
+            },
+            {
+                id: 14,
+                name: 'Social Media Post Generator',
+                category: 'Content',
+                description: 'Creates engaging social media posts for various platforms.',
+                prompt: 'Create {{number}} social media posts for {{platform}} about:\n\nTopic: {{topic}}\n\nTone: {{tone}} (professional, casual, humorous, inspirational)\n\nInclude:\n- Engaging hook\n- Clear call-to-action\n- Relevant hashtags ({{hashtag_count}})\n- Platform-appropriate length\n- Visual content suggestions\n\nCreate the posts:',
+                tags: ['GPT-4', 'Social Media', 'Marketing'],
+                icon: 'share-alt',
+                iconColor: 'cyan',
+                uses: 3500,
+                rating: 4.9
+            },
+            {
+                id: 15,
+                name: 'Email Newsletter Writer',
+                category: 'Content',
+                description: 'Creates compelling email newsletter content with multiple sections.',
+                prompt: 'Write an email newsletter with the following structure:\n\nSubject: {{newsletter_subject}}\n\nSections:\n1. **Header**: Engaging introduction\n2. **Main Story**: {{main_story_topic}}\n3. **Secondary Story**: {{secondary_story_topic}}\n4. **Tips/Resources**: {{tips_section}}\n5. **Call-to-Action**: {{cta_message}}\n\nTone: {{tone}}\nLength: {{length}} (short, medium, long)\n\nWrite the complete newsletter:',
+                tags: ['GPT-4', 'Email', 'Newsletter'],
+                icon: 'envelope-open',
+                iconColor: 'violet',
+                uses: 2200,
+                rating: 4.7
+            },
+            {
+                id: 16,
+                name: 'Product Description Writer',
+                category: 'Content',
+                description: 'Creates compelling product descriptions for e-commerce and marketing.',
+                prompt: 'Write a compelling product description for:\n\nProduct: {{product_name}}\nFeatures: {{key_features}}\nTarget audience: {{target_audience}}\n\nInclude:\n- Attention-grabbing headline\n- Key benefits (3-5)\n- Technical specifications (if relevant)\n- Use cases\n- Call-to-action\n- SEO keywords naturally integrated\n\nWrite the product description:',
+                tags: ['GPT-4', 'E-commerce', 'Marketing'],
+                icon: 'tag',
+                iconColor: 'emerald',
+                uses: 2900,
+                rating: 4.8
+            },
+            {
+                id: 17,
+                name: 'Press Release Writer',
+                category: 'Content',
+                description: 'Creates professional press releases following industry standards.',
+                prompt: 'Write a professional press release:\n\nHeadline: {{headline}}\nCompany: {{company_name}}\nDate: {{release_date}}\n\nKey information:\n{{key_information}}\n\nInclude:\n- Compelling headline\n- Dateline (location, date)\n- Strong lead paragraph (who, what, when, where, why)\n- Body paragraphs with quotes\n- Boilerplate (company info)\n- Contact information\n\nWrite the press release:',
+                tags: ['GPT-4', 'PR', 'Professional'],
+                icon: 'newspaper',
+                iconColor: 'cyan',
+                uses: 1100,
+                rating: 4.6
+            },
+            {
+                id: 18,
+                name: 'Video Script Writer',
+                category: 'Content',
+                description: 'Creates engaging video scripts for YouTube, marketing, and training videos.',
+                prompt: 'Write a video script for:\n\nVideo type: {{video_type}} (tutorial, marketing, explainer, etc.)\nTopic: {{video_topic}}\nDuration: {{duration}} minutes\nTarget audience: {{target_audience}}\n\nInclude:\n- Hook (first 10 seconds)\n- Introduction\n- Main content (structured segments)\n- Visual cues/descriptions\n- Call-to-action\n- Outro\n\nWrite the complete script:',
+                tags: ['GPT-4', 'Video', 'Script'],
+                icon: 'video',
+                iconColor: 'rose',
+                uses: 1900,
+                rating: 4.7
+            },
+            {
+                id: 19,
+                name: 'Case Study Writer',
+                category: 'Content',
+                description: 'Creates detailed case studies showcasing customer success stories.',
+                prompt: 'Write a case study:\n\nClient: {{client_name}}\nIndustry: {{industry}}\nChallenge: {{challenge}}\nSolution: {{solution}}\nResults: {{results}}\n\nStructure:\n1. **Executive Summary**\n2. **The Challenge**\n3. **The Solution**\n4. **The Results** (with metrics)\n5. **Testimonial** (if available)\n6. **Conclusion**\n\nWrite the case study:',
+                tags: ['Claude', 'Case Study', 'B2B'],
+                icon: 'file-alt',
+                iconColor: 'violet',
+                uses: 1300,
+                rating: 4.8
+            },
+            {
+                id: 20,
+                name: 'Whitepaper Writer',
+                category: 'Content',
+                description: 'Creates comprehensive whitepapers on technical or business topics.',
+                prompt: 'Write a whitepaper on:\n\nTopic: {{whitepaper_topic}}\nLength: {{length}} pages\nTarget audience: {{target_audience}}\n\nInclude:\n- Abstract/Executive Summary\n- Introduction\n- Problem Statement\n- Methodology/Approach\n- Findings/Analysis\n- Recommendations\n- Conclusion\n- References\n\nWrite the whitepaper:',
+                tags: ['Claude', 'Whitepaper', 'B2B'],
+                icon: 'file-pdf',
+                iconColor: 'emerald',
+                uses: 900,
+                rating: 4.7
+            },
+            {
+                id: 21,
+                name: 'Content Repurposer',
+                category: 'Content',
+                description: 'Repurposes existing content into different formats and platforms.',
+                prompt: 'Repurpose the following content:\n\nOriginal content:\n{{original_content}}\n\nTarget format: {{target_format}} (blog post, social media, video script, infographic text, etc.)\nTarget platform: {{target_platform}}\n\nAdapt the content while:\n- Maintaining core message\n- Optimizing for new format\n- Adjusting tone/length as needed\n- Adding platform-specific elements\n\nProvide the repurposed content:',
+                tags: ['GPT-4', 'Repurposing', 'Content'],
+                icon: 'sync-alt',
+                iconColor: 'cyan',
+                uses: 2400,
+                rating: 4.9
+            },
+            // Development (8 templates)
+            {
+                id: 22,
+                name: 'Code Reviewer',
+                category: 'Development',
+                description: 'Reviews code for bugs, security issues, and best practices. Suggests improvements.',
+                prompt: 'Review the following code and provide feedback:\n\nCode:\n```{{language}}\n{{code}}\n```\n\nReview for:\n1. **Bugs**: Identify any errors or potential issues\n2. **Security**: Check for vulnerabilities\n3. **Performance**: Suggest optimizations\n4. **Best Practices**: Code style, patterns, conventions\n5. **Documentation**: Comment quality\n6. **Suggestions**: Specific improvements\n\nProvide a detailed code review:',
+                tags: ['GPT-4', 'Claude', 'Code'],
+                icon: 'code',
+                iconColor: 'violet',
+                uses: 3200,
+                rating: 4.9
+            },
+            {
+                id: 23,
+                name: 'API Documentation Generator',
+                category: 'Development',
+                description: 'Generates comprehensive API documentation from code or specifications.',
+                prompt: 'Generate API documentation for:\n\nAPI endpoint: {{endpoint}}\nMethod: {{method}}\nParameters: {{parameters}}\nResponse: {{response_structure}}\n\nInclude:\n- Endpoint description\n- Authentication requirements\n- Request parameters (with types, required/optional)\n- Response format (with examples)\n- Error codes\n- Example requests (cURL, JavaScript, Python)\n- Rate limits\n\nGenerate the documentation:',
+                tags: ['GPT-4', 'API', 'Documentation'],
+                icon: 'book',
+                iconColor: 'cyan',
+                uses: 2100,
+                rating: 4.8
+            },
+            {
+                id: 24,
+                name: 'Test Case Generator',
+                category: 'Development',
+                description: 'Generates comprehensive test cases for functions and features.',
+                prompt: 'Generate test cases for:\n\nFunction/Feature: {{function_name}}\nDescription: {{function_description}}\nInput parameters: {{parameters}}\nExpected behavior: {{expected_behavior}}\n\nCreate test cases covering:\n1. **Happy Path**: Normal operation\n2. **Edge Cases**: Boundary conditions\n3. **Error Cases**: Invalid inputs, exceptions\n4. **Performance**: Load, stress tests\n5. **Security**: Input validation, injection tests\n\nProvide test cases in {{test_framework}} format:',
+                tags: ['GPT-4', 'Testing', 'QA'],
+                icon: 'vial',
+                iconColor: 'emerald',
+                uses: 1800,
+                rating: 4.7
+            },
+            {
+                id: 25,
+                name: 'Code Explainer',
+                category: 'Development',
+                description: 'Explains complex code in simple, understandable terms.',
+                prompt: 'Explain the following code in simple terms:\n\nCode:\n```{{language}}\n{{code}}\n```\n\nProvide:\n1. **What it does**: High-level overview\n2. **How it works**: Step-by-step explanation\n3. **Key concepts**: Important programming concepts used\n4. **Example**: Simple example of usage\n5. **Potential issues**: Things to watch out for\n\nExplain the code:',
+                tags: ['GPT-4', 'Education', 'Code'],
+                icon: 'graduation-cap',
+                iconColor: 'violet',
+                uses: 2500,
+                rating: 4.9
+            },
+            {
+                id: 26,
+                name: 'Bug Fixer',
+                category: 'Development',
+                description: 'Identifies and suggests fixes for code bugs and errors.',
+                prompt: 'Analyze and fix the following code:\n\nCode with bug:\n```{{language}}\n{{buggy_code}}\n```\n\nError message: {{error_message}}\n\nProvide:\n1. **Bug identification**: What\'s wrong\n2. **Root cause**: Why it\'s happening\n3. **Fix**: Corrected code\n4. **Explanation**: Why the fix works\n5. **Prevention**: How to avoid similar bugs\n\nFix the code:',
+                tags: ['GPT-4', 'Debugging', 'Code'],
+                icon: 'bug',
+                iconColor: 'rose',
+                uses: 3000,
+                rating: 4.8
+            },
+            {
+                id: 27,
+                name: 'Database Query Optimizer',
+                category: 'Development',
+                description: 'Optimizes SQL queries for better performance.',
+                prompt: 'Optimize the following SQL query:\n\nQuery:\n```sql\n{{sql_query}}\n```\n\nDatabase: {{database_type}}\nCurrent performance: {{current_performance}}\n\nProvide:\n1. **Analysis**: Performance bottlenecks\n2. **Optimized Query**: Improved version\n3. **Indexes**: Recommended indexes\n4. **Explanation**: Why optimizations help\n5. **Expected improvement**: Performance gains\n\nOptimize the query:',
+                tags: ['GPT-4', 'SQL', 'Performance'],
+                icon: 'database',
+                iconColor: 'cyan',
+                uses: 1600,
+                rating: 4.7
+            },
+            {
+                id: 28,
+                name: 'Regex Generator',
+                category: 'Development',
+                description: 'Generates regular expressions for pattern matching.',
+                prompt: 'Generate a regular expression for:\n\nPattern description: {{pattern_description}}\n\nExamples of matches:\n{{match_examples}}\n\nExamples of non-matches:\n{{non_match_examples}}\n\nLanguage: {{language}}\n\nProvide:\n1. **Regex pattern**: The regular expression\n2. **Explanation**: How it works\n3. **Test cases**: Examples showing matches\n4. **Variations**: Alternative patterns if applicable\n\nGenerate the regex:',
+                tags: ['GPT-4', 'Regex', 'Pattern'],
+                icon: 'search',
+                iconColor: 'emerald',
+                uses: 2200,
+                rating: 4.8
+            },
+            {
+                id: 29,
+                name: 'Dockerfile Generator',
+                category: 'Development',
+                description: 'Generates optimized Dockerfiles for applications.',
+                prompt: 'Generate a Dockerfile for:\n\nApplication: {{application_name}}\nLanguage: {{language}}\nFramework: {{framework}}\nDependencies: {{dependencies}}\n\nRequirements:\n- Multi-stage build (if applicable)\n- Security best practices\n- Optimized layer caching\n- Minimal image size\n- Health checks\n- Proper user permissions\n\nGenerate the Dockerfile:',
+                tags: ['GPT-4', 'Docker', 'DevOps'],
+                icon: 'box',
+                iconColor: 'violet',
+                uses: 1400,
+                rating: 4.6
+            },
+            // Marketing (7 templates)
+            {
+                id: 30,
+                name: 'Ad Copy Generator',
+                category: 'Marketing',
+                description: 'Creates compelling ad copy for social media, Google Ads, and display advertising.',
+                prompt: 'Create ad copy for:\n\nProduct/Service: {{product_name}}\nPlatform: {{platform}} (Google Ads, Facebook, LinkedIn, etc.)\nTarget audience: {{target_audience}}\nKey message: {{key_message}}\n\nCreate:\n1. **Headline**: Attention-grabbing headline ({{headline_length}} characters)\n2. **Description**: Compelling description ({{description_length}} characters)\n3. **Call-to-Action**: Clear CTA\n4. **Variations**: 3-5 variations for A/B testing\n\nGenerate the ad copy:',
+                tags: ['GPT-4', 'Marketing', 'Ads'],
+                icon: 'bullhorn',
+                iconColor: 'cyan',
+                uses: 2100,
+                rating: 4.6
+            },
+            {
+                id: 31,
+                name: 'Landing Page Copy',
+                category: 'Marketing',
+                description: 'Creates persuasive landing page copy optimized for conversions.',
+                prompt: 'Write landing page copy for:\n\nProduct/Service: {{product_name}}\nValue proposition: {{value_proposition}}\nTarget audience: {{target_audience}}\nGoal: {{conversion_goal}}\n\nInclude:\n1. **Headline**: Compelling H1\n2. **Subheadline**: Supporting H2\n3. **Benefits**: 3-5 key benefits\n4. **Social Proof**: Testimonial placeholders\n5. **CTA Buttons**: Multiple CTAs\n6. **FAQ Section**: 3-5 common questions\n\nWrite the landing page copy:',
+                tags: ['GPT-4', 'Landing Page', 'Conversion'],
+                icon: 'mouse-pointer',
+                iconColor: 'emerald',
+                uses: 1900,
+                rating: 4.8
+            },
+            {
+                id: 32,
+                name: 'Email Campaign Writer',
+                category: 'Marketing',
+                description: 'Creates email marketing campaigns with multiple touchpoints.',
+                prompt: 'Create an email campaign sequence:\n\nCampaign goal: {{campaign_goal}}\nProduct/Service: {{product_name}}\nTarget audience: {{target_audience}}\nNumber of emails: {{email_count}}\n\nCreate:\n1. **Welcome Email**: First touchpoint\n2. **Educational Emails**: Value-providing content\n3. **Promotional Emails**: Offers and incentives\n4. **Re-engagement**: Win-back campaigns\n\nFor each email include: Subject line, preview text, body copy, CTA',
+                tags: ['GPT-4', 'Email Marketing', 'Campaign'],
+                icon: 'envelope',
+                iconColor: 'violet',
+                uses: 2400,
+                rating: 4.7
+            },
+            {
+                id: 33,
+                name: 'Influencer Outreach',
+                category: 'Marketing',
+                description: 'Creates personalized outreach messages for influencer partnerships.',
+                prompt: 'Write an influencer outreach message:\n\nInfluencer: {{influencer_name}}\nTheir niche: {{niche}}\nYour brand: {{brand_name}}\nPartnership type: {{partnership_type}}\n\nCreate:\n1. **Subject Line**: Attention-grabbing\n2. **Opening**: Personalized hook\n3. **Value Proposition**: What\'s in it for them\n4. **Partnership Details**: Clear proposal\n5. **Call-to-Action**: Next steps\n\nWrite the outreach message:',
+                tags: ['GPT-4', 'Outreach', 'Influencer'],
+                icon: 'user-friends',
+                iconColor: 'cyan',
+                uses: 1200,
+                rating: 4.6
+            },
+            {
+                id: 34,
+                name: 'Product Launch Plan',
+                category: 'Marketing',
+                description: 'Creates comprehensive product launch marketing plans.',
+                prompt: 'Create a product launch marketing plan:\n\nProduct: {{product_name}}\nLaunch date: {{launch_date}}\nTarget market: {{target_market}}\nBudget: {{budget}}\n\nInclude:\n1. **Pre-Launch** (4 weeks before): Teaser campaigns, influencer outreach\n2. **Launch Week**: Launch events, PR, social media blitz\n3. **Post-Launch** (4 weeks after): Sustained marketing, feedback collection\n4. **Channels**: Social media, email, PR, paid ads\n5. **KPIs**: Success metrics\n\nCreate the launch plan:',
+                tags: ['Claude', 'Strategy', 'Launch'],
+                icon: 'rocket',
+                iconColor: 'rose',
+                uses: 1000,
+                rating: 4.7
+            },
+            {
+                id: 35,
+                name: 'Customer Testimonial Writer',
+                category: 'Marketing',
+                description: 'Transforms customer feedback into compelling testimonials.',
+                prompt: 'Transform the following customer feedback into a compelling testimonial:\n\nCustomer: {{customer_name}}\nCompany: {{company_name}}\nFeedback: {{customer_feedback}}\n\nCreate:\n1. **Short testimonial**: 1-2 sentences for websites\n2. **Medium testimonial**: Paragraph for case studies\n3. **Quote format**: Pull quote version\n4. **Social media version**: Optimized for sharing\n\nTransform the feedback:',
+                tags: ['GPT-4', 'Testimonials', 'Social Proof'],
+                icon: 'quote-left',
+                iconColor: 'emerald',
+                uses: 1700,
+                rating: 4.8
+            },
+            {
+                id: 36,
+                name: 'SEO Meta Tags Generator',
+                category: 'Marketing',
+                description: 'Generates SEO-optimized meta titles and descriptions.',
+                prompt: 'Generate SEO meta tags for:\n\nPage title: {{page_title}}\nContent: {{page_content}}\nTarget keyword: {{target_keyword}}\n\nCreate:\n1. **Meta Title**: 50-60 characters, includes keyword\n2. **Meta Description**: 150-160 characters, compelling\n3. **Open Graph Tags**: For social sharing\n4. **Twitter Card Tags**: For Twitter sharing\n5. **Keywords**: 5-10 relevant keywords\n\nGenerate the meta tags:',
+                tags: ['GPT-4', 'SEO', 'Meta'],
+                icon: 'tags',
+                iconColor: 'violet',
+                uses: 2800,
+                rating: 4.9
+            },
+            // Data Analysis (6 templates)
+            {
+                id: 37,
+                name: 'Data Analyst',
+                category: 'Data Analysis',
+                description: 'Analyzes datasets and generates insights, visualizations, and executive summaries.',
+                prompt: 'Analyze the following dataset and provide insights:\n\nDataset:\n{{dataset}}\n\nAnalysis requirements:\n1. **Summary Statistics**: Mean, median, mode, range\n2. **Key Insights**: 3-5 main findings\n3. **Trends**: Patterns and trends identified\n4. **Anomalies**: Outliers or unusual data points\n5. **Visualization Suggestions**: Recommended charts/graphs\n6. **Executive Summary**: 2-3 sentence overview\n\nProvide the analysis:',
+                tags: ['GPT-4', 'Analytics'],
+                icon: 'chart-pie',
+                iconColor: 'rose',
+                uses: 1500,
+                rating: 4.8
+            },
+            {
+                id: 38,
+                name: 'Report Generator',
+                category: 'Data Analysis',
+                description: 'Generates comprehensive data analysis reports with visualizations.',
+                prompt: 'Generate a data analysis report:\n\nData: {{data}}\nReport type: {{report_type}} (weekly, monthly, quarterly)\nAudience: {{audience}} (executive, technical, general)\n\nInclude:\n1. **Executive Summary**\n2. **Key Metrics**: Top KPIs\n3. **Trends Analysis**: Period-over-period changes\n4. **Visualizations**: Chart descriptions and data\n5. **Recommendations**: Actionable insights\n6. **Appendix**: Detailed data tables\n\nGenerate the report:',
+                tags: ['Claude', 'Reporting', 'Analytics'],
+                icon: 'file-chart-line',
+                iconColor: 'cyan',
+                uses: 1800,
+                rating: 4.7
+            },
+            {
+                id: 39,
+                name: 'A/B Test Analyzer',
+                category: 'Data Analysis',
+                description: 'Analyzes A/B test results and provides statistical significance and recommendations.',
+                prompt: 'Analyze the following A/B test results:\n\nTest name: {{test_name}}\nVariant A: {{variant_a_data}}\nVariant B: {{variant_b_data}}\nDuration: {{test_duration}}\nSample size: {{sample_size}}\n\nProvide:\n1. **Results Summary**: Winner and margin\n2. **Statistical Significance**: Confidence level, p-value\n3. **Performance Metrics**: Conversion rates, engagement\n4. **Recommendation**: Implement, continue testing, or stop\n5. **Confidence**: How confident in the results\n\nAnalyze the test:',
+                tags: ['GPT-4', 'A/B Testing', 'Statistics'],
+                icon: 'flask',
+                iconColor: 'emerald',
+                uses: 1300,
+                rating: 4.8
+            },
+            {
+                id: 40,
+                name: 'Forecast Generator',
+                category: 'Data Analysis',
+                description: 'Generates forecasts and predictions based on historical data.',
+                prompt: 'Generate a forecast based on historical data:\n\nHistorical data: {{historical_data}}\nForecast period: {{forecast_period}} (next week, month, quarter, year)\nMetric: {{metric}} (sales, users, revenue, etc.)\n\nProvide:\n1. **Forecast**: Predicted values\n2. **Confidence Intervals**: Upper and lower bounds\n3. **Methodology**: How forecast was calculated\n4. **Assumptions**: Key assumptions made\n5. **Risks**: Factors that could affect forecast\n\nGenerate the forecast:',
+                tags: ['Claude', 'Forecasting', 'Predictions'],
+                icon: 'chart-line',
+                iconColor: 'violet',
+                uses: 1100,
+                rating: 4.6
+            },
+            {
+                id: 41,
+                name: 'Dashboard Insights',
+                category: 'Data Analysis',
+                description: 'Extracts key insights from dashboard data and metrics.',
+                prompt: 'Extract insights from the following dashboard data:\n\nDashboard metrics:\n{{dashboard_data}}\n\nTime period: {{time_period}}\n\nProvide:\n1. **Top Performers**: Best performing metrics\n2. **Areas of Concern**: Metrics needing attention\n3. **Trends**: Upward/downward trends\n4. **Correlations**: Relationships between metrics\n5. **Action Items**: Recommended actions\n6. **Summary**: 3-5 key takeaways\n\nExtract insights:',
+                tags: ['GPT-4', 'Dashboard', 'Insights'],
+                icon: 'tachometer-alt',
+                iconColor: 'rose',
+                uses: 2000,
+                rating: 4.9
+            },
+            {
+                id: 42,
+                name: 'Customer Segmentation',
+                category: 'Data Analysis',
+                description: 'Segments customers based on behavior, demographics, and purchase patterns.',
+                prompt: 'Segment customers based on the following data:\n\nCustomer data: {{customer_data}}\nSegmentation criteria: {{criteria}} (behavioral, demographic, value-based)\n\nProvide:\n1. **Segments**: 3-5 distinct segments\n2. **Segment Profiles**: Characteristics of each\n3. **Size**: Number of customers per segment\n4. **Value**: Revenue/LTV per segment\n5. **Recommendations**: Marketing strategies per segment\n\nCreate the segmentation:',
+                tags: ['Claude', 'Segmentation', 'Marketing'],
+                icon: 'users',
+                iconColor: 'cyan',
+                uses: 1600,
+                rating: 4.7
+            },
+            // HR (6 templates)
+            {
+                id: 43,
+                name: 'Resume Screener',
+                category: 'HR',
+                description: 'Evaluates resumes against job requirements and provides structured assessments.',
+                prompt: 'Evaluate the following resume against job requirements:\n\nResume:\n{{resume_text}}\n\nJob requirements:\n{{job_requirements}}\n\nProvide:\n1. **Overall Fit**: Score (1-10) and summary\n2. **Strengths**: Matching qualifications\n3. **Gaps**: Missing requirements\n4. **Recommendation**: Interview, Maybe, or Pass\n5. **Interview Questions**: Suggested questions based on resume\n\nEvaluate the resume:',
+                tags: ['Claude', 'HR', 'Hiring'],
+                icon: 'user-tie',
+                iconColor: 'emerald',
+                uses: 980,
+                rating: 4.7
+            },
+            {
+                id: 44,
+                name: 'Job Description Writer',
+                category: 'HR',
+                description: 'Creates comprehensive job descriptions that attract qualified candidates.',
+                prompt: 'Write a job description for:\n\nPosition: {{job_title}}\nDepartment: {{department}}\nLevel: {{level}} (entry, mid, senior)\n\nInclude:\n1. **Job Summary**: Overview of role\n2. **Responsibilities**: 5-8 key responsibilities\n3. **Requirements**: Must-haves and nice-to-haves\n4. **Benefits**: Compensation and perks\n5. **Company Culture**: Brief culture description\n6. **Application Instructions**: How to apply\n\nWrite the job description:',
+                tags: ['GPT-4', 'HR', 'Recruiting'],
+                icon: 'briefcase',
+                iconColor: 'violet',
+                uses: 1400,
+                rating: 4.8
+            },
+            {
+                id: 45,
+                name: 'Interview Question Generator',
+                category: 'HR',
+                description: 'Generates relevant interview questions based on role and requirements.',
+                prompt: 'Generate interview questions for:\n\nPosition: {{position}}\nLevel: {{level}}\nKey skills: {{key_skills}}\n\nCreate:\n1. **Behavioral Questions**: 5-7 STAR method questions\n2. **Technical Questions**: Role-specific technical questions\n3. **Culture Fit**: Company values alignment questions\n4. **Problem-Solving**: Scenario-based questions\n5. **Closing Questions**: Questions for candidate to ask\n\nGenerate the questions:',
+                tags: ['GPT-4', 'Interview', 'HR'],
+                icon: 'question-circle',
+                iconColor: 'cyan',
+                uses: 1200,
+                rating: 4.7
+            },
+            {
+                id: 46,
+                name: 'Performance Review Writer',
+                category: 'HR',
+                description: 'Creates structured performance reviews with feedback and goals.',
+                prompt: 'Write a performance review for:\n\nEmployee: {{employee_name}}\nRole: {{role}}\nReview period: {{review_period}}\n\nPerformance data:\n{{performance_data}}\n\nInclude:\n1. **Summary**: Overall performance rating\n2. **Strengths**: Key achievements and strengths\n3. **Areas for Improvement**: Development opportunities\n4. **Goals**: SMART goals for next period\n5. **Feedback**: Constructive feedback\n\nWrite the review:',
+                tags: ['Claude', 'Performance', 'HR'],
+                icon: 'clipboard-check',
+                iconColor: 'emerald',
+                uses: 1100,
+                rating: 4.6
+            },
+            {
+                id: 47,
+                name: 'Onboarding Plan Creator',
+                category: 'HR',
+                description: 'Creates comprehensive employee onboarding plans.',
+                prompt: 'Create an onboarding plan for:\n\nNew employee: {{employee_name}}\nRole: {{role}}\nDepartment: {{department}}\nStart date: {{start_date}}\n\nCreate:\n1. **Week 1**: Orientation, introductions, setup\n2. **Week 2-4**: Training, shadowing, initial projects\n3. **Month 2-3**: Independent work, check-ins\n4. **Resources**: Documentation, tools, contacts\n5. **Milestones**: Key achievements to track\n\nCreate the plan:',
+                tags: ['GPT-4', 'Onboarding', 'HR'],
+                icon: 'user-plus',
+                iconColor: 'violet',
+                uses: 900,
+                rating: 4.8
+            },
+            {
+                id: 48,
+                name: 'Exit Interview Analyzer',
+                category: 'HR',
+                description: 'Analyzes exit interview data to identify patterns and improvement areas.',
+                prompt: 'Analyze exit interview data:\n\nExit interviews: {{exit_interview_data}}\nTime period: {{time_period}}\n\nProvide:\n1. **Common Themes**: Recurring reasons for leaving\n2. **Trends**: Changes over time\n3. **Departments**: Which departments have higher turnover\n4. **Recommendations**: Actions to improve retention\n5. **Summary**: Key insights and priorities\n\nAnalyze the data:',
+                tags: ['Claude', 'Retention', 'HR'],
+                icon: 'door-open',
+                iconColor: 'rose',
+                uses: 800,
+                rating: 4.5
+            }
+        ];
+
+        // Featured template (Enterprise Customer Support Suite)
+        const featuredTemplate = {
+            name: 'Enterprise Customer Support Suite',
+            description: 'A comprehensive collection of prompts for handling customer inquiries, ticket classification, sentiment analysis, and automated responses. Includes 12 pre-configured prompts.',
+            prompts: templatesData.filter(t => t.category === 'Customer Support').map(t => t.prompt)
+        };
+
+        let currentCategory = 'all';
+        let currentSearch = '';
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function renderTemplates() {
+            const grid = document.getElementById('templatesGrid');
+            let filtered = templatesData;
+
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(t => t.category === currentCategory);
+            }
+
+            // Filter by search
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                filtered = filtered.filter(t => 
+                    t.name.toLowerCase().includes(searchLower) ||
+                    t.description.toLowerCase().includes(searchLower) ||
+                    t.tags.some(tag => tag.toLowerCase().includes(searchLower))
+                );
+            }
+
+            grid.innerHTML = filtered.map(template => `
+                <div class="template-card" data-category="${template.category}">
+                    <div class="template-header">
+                        <div class="template-icon ${template.iconColor}"><i class="fas fa-${template.icon}"></i></div>
+                        <div class="template-info">
+                            <h3 class="template-name">${template.name}</h3>
+                            <span class="template-category">${template.category}</span>
+                        </div>
+                    </div>
+                    <div class="template-body">
+                        <p class="template-desc">${template.description}</p>
+                        <div class="template-tags">
+                            ${template.tags.map(tag => `<span class="template-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="template-footer">
+                        <div class="template-stats">
+                            <span class="template-stat"><i class="fas fa-download"></i> ${(template.uses / 1000).toFixed(1)}k uses</span>
+                            <span class="template-stat"><i class="fas fa-star"></i> ${template.rating}</span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="template-action secondary" onclick="previewTemplate(${template.id})">Preview</button>
+                            <button class="template-action primary" onclick="useTemplate(${template.id})">Use</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update counts
+            updateCategoryCounts();
+        }
+
+        function updateCategoryCounts() {
+            const counts = {
+                'all': templatesData.length,
+                'Customer Support': templatesData.filter(t => t.category === 'Customer Support').length,
+                'Content': templatesData.filter(t => t.category === 'Content').length,
+                'Development': templatesData.filter(t => t.category === 'Development').length,
+                'Marketing': templatesData.filter(t => t.category === 'Marketing').length,
+                'Data Analysis': templatesData.filter(t => t.category === 'Data Analysis').length,
+                'HR': templatesData.filter(t => t.category === 'HR').length
+            };
+
+            document.querySelectorAll('.category-count').forEach(el => {
+                const category = el.closest('.category-btn')?.dataset.category || 'all';
+                el.textContent = counts[category] || 0;
+            });
+        }
+
+        function filterTemplates() {
+            currentSearch = document.getElementById('searchInput').value;
+            renderTemplates();
         }
 
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
+                currentCategory = this.dataset.category || 'all';
+                renderTemplates();
             });
         });
+
+        function previewTemplate(id) {
+            const template = templatesData.find(t => t.id === id);
+            if (!template) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.8); z-index: 10000;
+                display: flex; align-items: center; justify-content: center;
+                padding: 20px;
+            `;
+            modal.innerHTML = `
+                <div style="background: var(--surface-1); border-radius: var(--radius-lg); padding: 32px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--surface-3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div>
+                            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${template.name}</h2>
+                            <span style="font-size: 14px; color: var(--text-3);">${template.category}</span>
+                        </div>
+                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 24px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: var(--text-2); line-height: 1.6;">${template.description}</p>
+                    </div>
+                    <div style="background: var(--surface-2); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--glacier);">Prompt Template</h3>
+                        <pre style="font-family: var(--font-mono); font-size: 13px; line-height: 1.6; color: var(--text-2); white-space: pre-wrap; word-wrap: break-word; margin: 0;">${template.prompt}</pre>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="useTemplate(${template.id}); this.closest('div[style*=\"position: fixed\"]').remove();" style="flex: 1; padding: 12px 24px; background: linear-gradient(135deg, var(--glacier), var(--glacier-deep)); color: var(--surface-1); border: none; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer;">Use Template</button>
+                        <button onclick="copyPrompt(${template.id})" style="padding: 12px 24px; background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer;">Copy Prompt</button>
+                    </div>
+                </div>
+            `;
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+            document.body.appendChild(modal);
+        }
+
+        function useTemplate(id) {
+            const template = templatesData.find(t => t.id === id);
+            if (!template) return;
+
+            // Store template in sessionStorage and redirect to playground
+            sessionStorage.setItem('playgroundTemplate', JSON.stringify({
+                name: template.name,
+                prompt: template.prompt,
+                category: template.category
+            }));
+
+            window.location.href = 'playground.html';
+        }
+
+        function useFeaturedTemplate() {
+            // Use the first customer support template as featured
+            useTemplate(1);
+        }
+
+        function copyPrompt(id) {
+            const template = templatesData.find(t => t.id === id);
+            if (!template) return;
+
+            navigator.clipboard.writeText(template.prompt).then(() => {
+                showToast('Prompt copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10001;
+                padding: 14px 20px; border-radius: var(--radius-md);
+                background: ${type === 'error' ? 'var(--rose)' : type === 'success' ? 'var(--emerald)' : 'var(--surface-2)'};
+                color: var(--text-1); font-size: 14px; font-weight: 500;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Load template in playground if redirected from templates
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTemplates();
+            
+            // Check if coming from templates page with a template
+            const templateData = sessionStorage.getItem('playgroundTemplate');
+            if (templateData && window.location.pathname.includes('playground.html')) {
+                try {
+                    const template = JSON.parse(templateData);
+                    const promptInput = document.getElementById('promptInput');
+                    if (promptInput) {
+                        promptInput.value = template.prompt;
+                        showToast(`Loaded template: ${template.name}`, 'success');
+                    }
+                    sessionStorage.removeItem('playgroundTemplate');
+                } catch (e) {
+                    console.error('Error loading template:', e);
+                }
+            }
+        });
     </script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    </style>
 </body>
 </html>

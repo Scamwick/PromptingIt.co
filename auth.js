@@ -113,20 +113,35 @@
 
       if (error) throw error;
 
-      // Create profile record
-      if (data.user) {
-        await this.createProfile(data.user, metadata);
-      }
+      // Note: Profile and subscription are automatically created by database trigger
+      // (see supabase-schema.sql handle_new_user() function)
+      // No need to create profile here to avoid race conditions and duplicates
 
       return data;
     },
 
     // Create user profile in database
+    // NOTE: This function is deprecated - profile creation is handled by database trigger
+    // (see supabase-schema.sql handle_new_user() function)
+    // Kept for backward compatibility but should not be called for new signups
     async createProfile(user, metadata = {}) {
       const supabase = window.PromptingItSupabase?.getClient();
       if (!supabase) return;
 
       try {
+        // Check if profile already exists (trigger may have created it)
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        if (existingProfile) {
+          // Profile already exists (created by trigger), skip creation
+          return;
+        }
+
+        // Only create if trigger didn't run (edge case)
         const { error } = await supabase.from('profiles').insert({
           id: user.id,
           email: user.email,
@@ -136,21 +151,34 @@
           created_at: new Date().toISOString()
         });
 
-        // Create default free subscription
-        await supabase.from('subscriptions').insert({
-          user_id: user.id,
-          tier: 'free',
-          status: 'active',
-          prompts_limit: 25,
-          prompts_used: 0,
-          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days
-        });
-
         if (error && error.code !== '23505') { // Ignore duplicate key error
           console.error('Profile creation error:', error);
+          throw error;
+        }
+
+        // Check if subscription exists
+        const { data: existingSubscription } = await supabase
+          .from('subscriptions')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!existingSubscription) {
+          // Create default free subscription if trigger didn't create it
+          await supabase.from('subscriptions').insert({
+            user_id: user.id,
+            tier: 'free',
+            status: 'active',
+            prompts_limit: 25,
+            prompts_used: 0,
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days
+          });
         }
       } catch (error) {
-        console.error('Profile creation error:', error);
+        // Only log non-duplicate errors
+        if (error.code !== '23505') {
+          console.error('Profile creation error:', error);
+        }
       }
     },
 
@@ -165,6 +193,14 @@
       });
 
       if (error) throw error;
+
+      // Update local session state
+      if (data?.session) {
+        this.session = data.session;
+        this.user = data.user;
+        await this.loadUserProfile();
+      }
+
       return data;
     },
 
@@ -391,6 +427,14 @@
       const errorEl = document.getElementById(containerId);
       if (errorEl) {
         errorEl.style.display = 'none';
+      }
+    },
+
+    // Hide success message
+    hideSuccess(containerId = 'authSuccess') {
+      const successEl = document.getElementById(containerId);
+      if (successEl) {
+        successEl.style.display = 'none';
       }
     },
 

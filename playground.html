@@ -15,6 +15,9 @@
     <script src="supabase-config.js"></script>
     <script src="auth.js"></script>
     <script src="security.js"></script>
+    <script src="claude-api.js"></script>
+    <script src="gemini-api.js"></script>
+    <script src="openai-api.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -68,11 +71,18 @@
         .toolbar-title { font-size: 18px; font-weight: 600; }
         .toolbar-right { display: flex; align-items: center; gap: 12px; }
 
-        .model-selector { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); cursor: pointer; }
-        .model-selector:hover { border-color: var(--glacier); }
+        .model-selector { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); cursor: pointer; position: relative; transition: all var(--duration-fast); }
+        .model-selector:hover { border-color: var(--glacier); background: var(--surface-3); }
         .model-icon { font-size: 16px; }
-        .model-name { font-size: 14px; font-weight: 500; }
-        .model-dropdown { font-size: 12px; color: var(--text-3); }
+        .model-name { font-size: 14px; font-weight: 500; min-width: 140px; }
+        .model-dropdown { font-size: 12px; color: var(--text-3); transition: transform var(--duration-fast); }
+        .model-selector.open .model-dropdown { transform: rotate(180deg); }
+        
+        .model-dropdown-menu { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); padding: 8px; max-height: 400px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .model-selector.open .model-dropdown-menu { display: block; }
+        .model-dropdown-item { padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; color: var(--text-2); transition: all var(--duration-fast); }
+        .model-dropdown-item:hover { background: var(--surface-3); color: var(--text-1); }
+        .model-dropdown-item.active { background: rgba(103,232,249,0.15); color: var(--glacier); }
 
         .btn { padding: 10px 18px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--duration-fast); border: none; display: inline-flex; align-items: center; gap: 8px; }
         .btn-secondary { background: var(--surface-2); color: var(--text-1); border: 1px solid var(--surface-3); }
@@ -83,7 +93,7 @@
         .btn-run:hover { box-shadow: var(--glow-emerald); }
 
         /* Main Content */
-        .playground-content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+        .playground-content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; gap: 0; }
 
         /* Prompt Panel */
         .prompt-panel { display: flex; flex-direction: column; border-right: 1px solid var(--surface-3); }
@@ -95,7 +105,7 @@
         .panel-action:hover { background: var(--glacier); color: var(--surface-1); border-color: var(--glacier); }
 
         .prompt-editor { flex: 1; padding: 20px; overflow-y: auto; }
-        .prompt-textarea { width: 100%; height: 100%; min-height: 300px; padding: 16px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; resize: none; }
+        .prompt-textarea { width: 100%; height: 100%; min-height: 400px; padding: 20px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); font-family: var(--font-mono); font-size: 14px; line-height: 1.7; resize: none; transition: border-color var(--duration-fast); }
         .prompt-textarea:focus { outline: none; border-color: var(--glacier); }
         .prompt-textarea::placeholder { color: var(--text-3); }
 
@@ -121,7 +131,7 @@
         .output-placeholder i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
         .output-placeholder p { font-size: 14px; }
 
-        .output-result { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-md); padding: 20px; min-height: 200px; font-family: var(--font-mono); font-size: 14px; line-height: 1.7; color: var(--text-2); white-space: pre-wrap; }
+        .output-result { background: var(--surface-1); border: 1px solid var(--surface-3); border-radius: var(--radius-md); padding: 24px; min-height: 300px; font-family: var(--font-mono); font-size: 14px; line-height: 1.8; color: var(--text-2); white-space: pre-wrap; word-wrap: break-word; }
 
         /* Metrics */
         .metrics-bar { display: flex; gap: 24px; padding: 16px 20px; background: var(--surface-1); border-top: 1px solid var(--surface-3); }
@@ -132,8 +142,12 @@
         .metric-value.warning { color: var(--solar); }
 
         /* Model Tabs */
-        .model-tabs { display: flex; padding: 0 20px; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); overflow-x: auto; }
-        .model-tab { padding: 14px 20px; background: transparent; border: none; color: var(--text-3); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--duration-fast); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .model-tabs { display: flex; padding: 0 20px; background: var(--surface-1); border-bottom: 1px solid var(--surface-3); overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--surface-3) var(--surface-1); }
+        .model-tabs::-webkit-scrollbar { height: 6px; }
+        .model-tabs::-webkit-scrollbar-track { background: var(--surface-1); }
+        .model-tabs::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
+        .model-tabs::-webkit-scrollbar-thumb:hover { background: var(--surface-4); }
+        .model-tab { padding: 14px 20px; background: transparent; border: none; color: var(--text-3); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--duration-fast); display: flex; align-items: center; gap: 8px; white-space: nowrap; position: relative; }
         .model-tab:hover { color: var(--text-1); }
         .model-tab.active { color: var(--glacier); border-bottom-color: var(--glacier); }
         .model-tab .status { width: 6px; height: 6px; border-radius: 50%; }
@@ -177,6 +191,52 @@
         .loading.active { display: flex; }
         .spinner { width: 24px; height: 24px; border: 3px solid var(--surface-3); border-top-color: var(--glacier); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        /* Improved spacing and layout */
+        .playground-toolbar { min-height: 64px; }
+        .panel-header { min-height: 56px; }
+        .prompt-editor { padding: 24px; }
+        .output-content { padding: 24px; }
+        .variables-section { padding: 24px; }
+
+        /* Better scrollbar styling */
+        .prompt-editor::-webkit-scrollbar,
+        .output-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .prompt-editor::-webkit-scrollbar-track,
+        .output-content::-webkit-scrollbar-track {
+            background: var(--surface-1);
+        }
+        .prompt-editor::-webkit-scrollbar-thumb,
+        .output-content::-webkit-scrollbar-thumb {
+            background: var(--surface-3);
+            border-radius: 4px;
+        }
+        .prompt-editor::-webkit-scrollbar-thumb:hover,
+        .output-content::-webkit-scrollbar-thumb:hover {
+            background: var(--surface-4);
+        }
+
+        /* Improved button states */
+        .btn:active { transform: translateY(0); }
+        .btn-run:active { transform: translateY(0); }
+        .panel-action:active { transform: scale(0.95); }
+
+        /* Better focus states */
+        .prompt-textarea:focus,
+        .variable-input:focus {
+            box-shadow: 0 0 0 3px rgba(103,232,249,0.1);
+        }
     </style>
 </head>
 <body>
@@ -220,16 +280,17 @@
             <div class="playground-toolbar">
                 <div class="toolbar-left">
                     <h1 class="toolbar-title">Playground</h1>
-                    <div class="model-selector" onclick="toggleModelDropdown()">
+                    <div class="model-selector" onclick="toggleModelDropdown()" id="modelSelector">
                         <span class="model-icon"><i class="fas fa-robot"></i></span>
-                        <span class="model-name" id="selectedModel">GPT-4</span>
+                        <span class="model-name" id="selectedModel">Opus 4.5</span>
                         <span class="model-dropdown"><i class="fas fa-chevron-down"></i></span>
+                        <div class="model-dropdown-menu" id="modelDropdownMenu"></div>
                     </div>
                 </div>
                 <div class="toolbar-right">
                     <button class="btn btn-secondary" onclick="clearPlayground()"><i class="fas fa-eraser"></i> Clear</button>
-                    <button class="btn btn-secondary"><i class="fas fa-history"></i> History</button>
-                    <button class="btn btn-secondary"><i class="fas fa-save"></i> Save</button>
+                    <button class="btn btn-secondary" onclick="loadHistory()"><i class="fas fa-history"></i> History</button>
+                    <button class="btn btn-secondary" onclick="saveToCreateNew()"><i class="fas fa-save"></i> Save & Create</button>
                     <button class="btn btn-primary btn-run" onclick="runPrompt()"><i class="fas fa-play"></i> Run</button>
                 </div>
             </div>
@@ -241,8 +302,8 @@
                     <div class="panel-header">
                         <h3 class="panel-title"><i class="fas fa-keyboard"></i> System Prompt</h3>
                         <div class="panel-actions">
-                            <button class="panel-action" title="Templates"><i class="fas fa-shapes"></i></button>
-                            <button class="panel-action" title="Format"><i class="fas fa-magic"></i></button>
+                            <button class="panel-action" title="Templates" onclick="showTemplates()"><i class="fas fa-shapes"></i></button>
+                            <button class="panel-action" title="Format" onclick="formatPrompt()"><i class="fas fa-magic"></i></button>
                         </div>
                     </div>
                     <div class="prompt-editor">
@@ -287,22 +348,77 @@ Current issue: {{issue_description}}"></textarea>
                     <div class="panel-header">
                         <h3 class="panel-title"><i class="fas fa-terminal"></i> Output</h3>
                         <div class="panel-actions">
-                            <button class="panel-action" title="Copy"><i class="fas fa-copy"></i></button>
-                            <button class="panel-action" title="Compare"><i class="fas fa-columns"></i></button>
+                            <button class="panel-action" title="Copy Output" onclick="copyOutput()"><i class="fas fa-copy"></i></button>
+                            <button class="panel-action" title="Compare Models" onclick="showCompare()"><i class="fas fa-columns"></i></button>
                         </div>
                     </div>
                     <div class="model-tabs">
-                        <button class="model-tab active">
+                        <!-- Claude Models (4.5 Series - Latest) -->
+                        <button class="model-tab active" data-model="claude-4-5-opus-20250514" data-provider="claude">
                             <span class="status complete"></span>
-                            GPT-4
+                            Opus 4.5
                         </button>
-                        <button class="model-tab">
+                        <button class="model-tab" data-model="claude-4-5-sonnet-20250514" data-provider="claude">
                             <span class="status"></span>
-                            Claude 3.5
+                            Sonnet 4.5
                         </button>
-                        <button class="model-tab">
+                        <button class="model-tab" data-model="claude-4-5-haiku-20250514" data-provider="claude">
                             <span class="status"></span>
-                            Gemini Pro
+                            Haiku 4.5
+                        </button>
+                        
+                        <!-- Gemini Models (Gemini 3 Series - Latest) -->
+                        <button class="model-tab" data-model="gemini-3-fast" data-provider="gemini">
+                            <span class="status"></span>
+                            Gemini 3 Fast
+                        </button>
+                        <button class="model-tab" data-model="gemini-3-thinking" data-provider="gemini">
+                            <span class="status"></span>
+                            Gemini 3 Thinking
+                        </button>
+                        <button class="model-tab" data-model="gemini-3-pro" data-provider="gemini">
+                            <span class="status"></span>
+                            Gemini 3 Pro
+                        </button>
+                        
+                        <!-- OpenAI/ChatGPT Models (Latest) -->
+                        <button class="model-tab" data-model="gpt-5-1-instant" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-5.1 Instant
+                            <span style="font-size: 10px; color: var(--emerald); margin-left: 4px;">$</span>
+                        </button>
+                        <button class="model-tab" data-model="gpt-5-1-thinking" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-5.1 Thinking
+                        </button>
+                        <button class="model-tab" data-model="gpt-5-instant" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-5 Instant
+                            <span style="font-size: 10px; color: var(--emerald); margin-left: 4px;">$</span>
+                        </button>
+                        <button class="model-tab" data-model="gpt-5-thinking-mini" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-5 Thinking mini
+                        </button>
+                        <button class="model-tab" data-model="gpt-5-thinking" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-5 Thinking
+                        </button>
+                        <button class="model-tab" data-model="gpt-4o" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-4o
+                        </button>
+                        <button class="model-tab" data-model="gpt-4.1" data-provider="openai">
+                            <span class="status"></span>
+                            GPT-4.1
+                        </button>
+                        <button class="model-tab" data-model="o3" data-provider="openai">
+                            <span class="status"></span>
+                            o3
+                        </button>
+                        <button class="model-tab" data-model="o4-mini" data-provider="openai">
+                            <span class="status"></span>
+                            o4-mini
                         </button>
                     </div>
                     <div class="output-content">
@@ -356,10 +472,29 @@ Current issue: {{issue_description}}"></textarea>
             list.appendChild(row);
         }
 
-        function runPrompt() {
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                padding: 14px 20px; border-radius: var(--radius-md);
+                background: ${type === 'error' ? 'var(--rose)' : type === 'success' ? 'var(--emerald)' : 'var(--surface-2)'};
+                color: var(--text-1); font-size: 14px; font-weight: 500;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function runPrompt() {
             const prompt = document.getElementById('promptInput').value;
             if (!prompt.trim()) {
-                alert('Please enter a prompt');
+                showToast('Please enter a prompt', 'error');
                 return;
             }
 
@@ -369,49 +504,143 @@ Current issue: {{issue_description}}"></textarea>
             document.getElementById('loadingState').classList.add('active');
             document.getElementById('metricsBar').style.display = 'none';
 
-            // Simulate API call
-            setTimeout(() => {
+            // Replace variables in prompt
+            let processedPrompt = prompt;
+            document.querySelectorAll('.variable-row').forEach(row => {
+                const key = row.querySelector('.key').value;
+                const val = row.querySelector('.variable-input:not(.key)').value;
+                if (key && val) {
+                    processedPrompt = processedPrompt.replace(new RegExp(`{{${key}}}`, 'g'), val);
+                }
+            });
+
+            try {
+                const user = window.Auth?.getUser();
+                if (!user) {
+                    throw new Error('Please sign in to use the playground');
+                }
+
+                // Get selected model and provider
+                const activeTab = document.querySelector('.model-tab.active');
+                const selectedModel = activeTab?.dataset.model || 'claude-4-5-opus-20250514';
+                const provider = activeTab?.dataset.provider || 'claude';
+                
+                // Record start time for latency
+                const startTime = Date.now();
+
+                let response;
+                let cost;
+
+                // Call appropriate API based on provider
+                if (provider === 'gemini') {
+                    // Check if Gemini API is available
+                    if (!window.GeminiAPI || !window.GeminiAPI.isConfigured()) {
+                        throw new Error('Gemini API not configured. Please check your API key settings.');
+                    }
+
+                    // Call Gemini API
+                    response = await window.GeminiAPI.call(processedPrompt, {
+                        model: selectedModel,
+                        maxTokens: 2048,
+                        temperature: 1
+                    });
+
+                    // Calculate cost
+                    cost = window.GeminiAPI.estimateCost(
+                        response.usage.inputTokens,
+                        response.usage.outputTokens,
+                        selectedModel
+                    );
+                } else if (provider === 'openai') {
+                    // Check if OpenAI API is available
+                    if (!window.OpenAIAPI || !window.OpenAIAPI.isConfigured()) {
+                        throw new Error('OpenAI API not configured. Please check your API key settings.');
+                    }
+
+                    // Call OpenAI API
+                    response = await window.OpenAIAPI.call(processedPrompt, {
+                        model: selectedModel,
+                        maxTokens: 2048,
+                        temperature: 1
+                    });
+
+                    // Calculate cost
+                    cost = window.OpenAIAPI.estimateCost(
+                        response.usage.inputTokens,
+                        response.usage.outputTokens,
+                        selectedModel
+                    );
+                } else {
+                    // Default to Claude
+                    // Check if Claude API is available
+                    if (!window.ClaudeAPI || !window.ClaudeAPI.isConfigured()) {
+                        throw new Error('Claude API not configured. Please check your API key settings.');
+                    }
+
+                    // Call Claude API
+                    response = await window.ClaudeAPI.call(processedPrompt, {
+                        model: selectedModel,
+                        maxTokens: 4096,
+                        temperature: 1
+                    });
+
+                    // Calculate cost
+                    cost = window.ClaudeAPI.estimateCost(
+                        response.usage.inputTokens,
+                        response.usage.outputTokens,
+                        selectedModel
+                    );
+                }
+
+                // Calculate latency
+                const latency = Date.now() - startTime;
+
+                // Display response
                 document.getElementById('loadingState').classList.remove('active');
                 document.getElementById('outputResult').style.display = 'block';
+                document.getElementById('outputResult').textContent = response.content;
                 document.getElementById('metricsBar').style.display = 'flex';
 
-                // Replace variables
-                let output = prompt;
-                document.querySelectorAll('.variable-row').forEach(row => {
-                    const key = row.querySelector('.key').value;
-                    const val = row.querySelector('.variable-input:not(.key)').value;
-                    if (key && val) {
-                        output = output.replace(new RegExp(`{{${key}}}`, 'g'), val);
-                    }
-                });
-
-                // Generate mock response
-                const response = `Hello! Thank you for reaching out to our support team.
-
-I can see you're a Pro subscriber, John Smith. I'd be happy to help you with your billing question about the invoice.
-
-Here's what I can help you with:
-
-1. **View your current invoice** - I can pull up the details of your most recent invoice
-2. **Explain charges** - Break down what each line item means
-3. **Payment history** - Show your payment history and receipts
-4. **Update billing info** - Help you update your payment method
-
-Could you please let me know which specific aspect of your invoice you'd like me to help you with?
-
-If this is about a discrepancy or unexpected charge, please share the invoice number and I'll investigate right away.
-
-Best regards,
-Support Agent`;
-
-                document.getElementById('outputResult').textContent = response;
-
                 // Update metrics
-                document.getElementById('metricLatency').textContent = '847ms';
-                document.getElementById('metricTokens').textContent = '245 / 312';
-                document.getElementById('metricCost').textContent = '$0.0087';
+                document.getElementById('metricLatency').textContent = `${latency}ms`;
+                document.getElementById('metricTokens').textContent = `${response.usage.inputTokens.toLocaleString()} / ${response.usage.outputTokens.toLocaleString()}`;
+                document.getElementById('metricCost').textContent = `$${cost.totalCost.toFixed(4)}`;
                 document.getElementById('metricStatus').textContent = 'Success';
-            }, 1500);
+                document.getElementById('metricStatus').style.color = 'var(--emerald)';
+
+                // Track usage in Supabase (optional)
+                try {
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    if (supabase) {
+                        await supabase.from('activity_log').insert({
+                            user_id: user.id,
+                            activity_type: 'playground_run',
+                            metadata: {
+                                model: selectedModel,
+                                inputTokens: response.usage.inputTokens,
+                                outputTokens: response.usage.outputTokens,
+                                cost: cost.totalCost,
+                                latency: latency
+                            }
+                        });
+                    }
+                } catch (trackError) {
+                    console.warn('Failed to track usage:', trackError);
+                }
+
+            } catch (error) {
+                document.getElementById('loadingState').classList.remove('active');
+                document.getElementById('outputResult').style.display = 'block';
+                document.getElementById('outputResult').textContent = `Error: ${error.message}`;
+                document.getElementById('metricsBar').style.display = 'flex';
+                document.getElementById('metricStatus').textContent = 'Error';
+                document.getElementById('metricStatus').style.color = 'var(--rose)';
+                document.getElementById('metricLatency').textContent = 'N/A';
+                document.getElementById('metricTokens').textContent = '0 / 0';
+                document.getElementById('metricCost').textContent = '$0.00';
+                
+                console.error('Playground error:', error);
+            }
         }
 
         function clearPlayground() {
@@ -426,6 +655,22 @@ Support Agent`;
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
+                
+                // Update selected model display
+                const modelName = this.textContent.trim();
+                const selectedModelEl = document.getElementById('selectedModel');
+                if (selectedModelEl) {
+                    selectedModelEl.textContent = modelName;
+                }
+                
+                // Update status indicator
+                document.querySelectorAll('.model-tab .status').forEach(status => {
+                    status.classList.remove('complete', 'running', 'error');
+                });
+                const status = this.querySelector('.status');
+                if (status) {
+                    status.classList.add('complete');
+                }
             });
         });
 
@@ -436,10 +681,267 @@ Support Agent`;
             });
         });
 
+        // Save to Create New - Redirect to library with prompt data
+        function saveToCreateNew() {
+            const promptText = document.getElementById('promptInput')?.value.trim();
+            
+            if (!promptText) {
+                showToast('Please enter a prompt before saving', 'error');
+                return;
+            }
+
+            // Get variables
+            const variables = {};
+            document.querySelectorAll('.variable-row').forEach(row => {
+                const key = row.querySelector('.variable-input.key')?.value.trim();
+                const value = row.querySelector('.variable-input:not(.key)')?.value.trim();
+                if (key && value) {
+                    variables[key] = value;
+                }
+            });
+
+            // Store prompt data in sessionStorage
+            sessionStorage.setItem('playgroundPrompt', JSON.stringify({
+                content: promptText,
+                variables: variables,
+                timestamp: new Date().toISOString()
+            }));
+
+            // Redirect to library page (main prompt creation interface)
+            window.location.href = 'library.html';
+        }
+
+        // Toggle model dropdown
+        function toggleModelDropdown() {
+            const selector = document.getElementById('modelSelector');
+            const menu = document.getElementById('modelDropdownMenu');
+            if (!selector || !menu) return;
+            
+            selector.classList.toggle('open');
+            
+            // Populate dropdown with all available models
+            if (selector.classList.contains('open') && menu.children.length === 0) {
+                const tabs = document.querySelectorAll('.model-tab');
+                tabs.forEach(tab => {
+                    const item = document.createElement('div');
+                    item.className = 'model-dropdown-item';
+                    if (tab.classList.contains('active')) item.classList.add('active');
+                    item.textContent = tab.textContent.trim();
+                    item.onclick = () => {
+                        tab.click();
+                        selector.classList.remove('open');
+                    };
+                    menu.appendChild(item);
+                });
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const selector = document.getElementById('modelSelector');
+            if (selector && !selector.contains(e.target)) {
+                selector.classList.remove('open');
+            }
+        });
+
+        // Templates function
+        function showTemplates() {
+            const templates = [
+                { name: 'Customer Support', prompt: 'You are a helpful customer support agent. Be friendly, professional, and provide accurate information.' },
+                { name: 'Code Review', prompt: 'You are an expert code reviewer. Analyze code for bugs, performance issues, and best practices.' },
+                { name: 'Content Writer', prompt: 'You are a professional content writer. Create engaging, well-structured content that matches the target audience.' },
+                { name: 'Data Analyst', prompt: 'You are a data analyst. Analyze data, identify trends, and provide actionable insights.' }
+            ];
+            
+            const templateList = templates.map(t => 
+                `<div style="padding: 12px; margin-bottom: 8px; background: var(--surface-2); border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--surface-3); transition: all var(--duration-fast);" 
+                      onmouseover="this.style.borderColor='var(--glacier)'" 
+                      onmouseout="this.style.borderColor='var(--surface-3)'"
+                      onclick="loadTemplate('${t.prompt.replace(/'/g, "\\'")}'); document.getElementById('templateModal').style.display='none';">
+                    <div style="font-weight: 600; margin-bottom: 4px;">${t.name}</div>
+                    <div style="font-size: 12px; color: var(--text-3);">${t.prompt.substring(0, 60)}...</div>
+                 </div>`
+            ).join('');
+            
+            const modal = document.createElement('div');
+            modal.id = 'templateModal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7); z-index: 10000;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            modal.innerHTML = `
+                <div style="background: var(--surface-1); border-radius: var(--radius-lg); padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid var(--surface-3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600;">Prompt Templates</h3>
+                        <button onclick="document.getElementById('templateModal').remove()" style="background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 20px;">&times;</button>
+                    </div>
+                    ${templateList}
+                </div>
+            `;
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+            document.body.appendChild(modal);
+        }
+
+        function loadTemplate(prompt) {
+            document.getElementById('promptInput').value = prompt;
+            showToast('Template loaded', 'success');
+        }
+
+        // Format prompt function
+        function formatPrompt() {
+            const textarea = document.getElementById('promptInput');
+            let text = textarea.value;
+            
+            // Basic formatting: trim, fix spacing
+            text = text.trim();
+            text = text.replace(/\n{3,}/g, '\n\n'); // Remove excessive line breaks
+            text = text.replace(/[ \t]+/g, ' '); // Normalize spaces
+            
+            textarea.value = text;
+            showToast('Prompt formatted', 'success');
+        }
+
+        // Copy output function
+        function copyOutput() {
+            const output = document.getElementById('outputResult');
+            if (!output || output.style.display === 'none') {
+                showToast('No output to copy', 'error');
+                return;
+            }
+            
+            const text = output.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Output copied to clipboard', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        // Compare models function
+        function showCompare() {
+            showToast('Compare feature coming soon. Run the same prompt with different models to compare.', 'info');
+        }
+
+        // Load history (enhanced implementation)
+        async function loadHistory() {
+            const user = window.Auth?.getUser();
+            if (!user) {
+                showToast('Please sign in to view history', 'error');
+                return;
+            }
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) {
+                    showToast('Unable to load history', 'error');
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('activity_log')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('activity_type', 'playground_run')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    showToast('No history found', 'info');
+                    return;
+                }
+
+                // Show history in a modal
+                const historyList = data.map(item => {
+                    const metadata = item.metadata || {};
+                    const model = metadata.model || 'Unknown';
+                    const date = new Date(item.created_at).toLocaleString();
+                    return `
+                        <div style="padding: 12px; margin-bottom: 8px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--surface-3); cursor: pointer;"
+                             onclick="loadFromHistory('${item.id}')">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${model}</div>
+                            <div style="font-size: 11px; color: var(--text-3);">${date}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.7); z-index: 10000;
+                    display: flex; align-items: center; justify-content: center;
+                `;
+                modal.innerHTML = `
+                    <div style="background: var(--surface-1); border-radius: var(--radius-lg); padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid var(--surface-3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="font-size: 18px; font-weight: 600;">Playground History</h3>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 20px;">&times;</button>
+                        </div>
+                        ${historyList || '<div style="text-align: center; color: var(--text-3); padding: 40px;">No history available</div>'}
+                    </div>
+                `;
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.remove();
+                };
+                document.body.appendChild(modal);
+            } catch (error) {
+                console.error('Error loading history:', error);
+                showToast('Failed to load history', 'error');
+            }
+        }
+
+        function loadFromHistory(historyId) {
+            showToast('Loading history item...', 'info');
+            // In a full implementation, you would fetch the full prompt from the history
+            // For now, just show a message
+            showToast('Full history loading coming soon', 'info');
+        }
+
+        // Check if coming from library with create action or templates page
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            // Check for template from templates page
+            const templateData = sessionStorage.getItem('playgroundTemplate');
+            if (templateData) {
+                try {
+                    const template = JSON.parse(templateData);
+                    const promptInput = document.getElementById('promptInput');
+                    if (promptInput) {
+                        promptInput.value = template.prompt;
+                        promptInput.focus();
+                        showToast(`Loaded template: ${template.name}`, 'success');
+                    }
+                    sessionStorage.removeItem('playgroundTemplate');
+                } catch (e) {
+                    console.error('Error loading template:', e);
+                }
+            }
+            
+            if (action === 'create') {
+                // Focus on prompt input for new prompt creation
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput) {
+                    promptInput.focus();
+                    promptInput.placeholder = 'Start creating your new prompt here...';
+                }
+            }
+        });
+
         // Keyboard shortcut
         document.addEventListener('keydown', function(e) {
             if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                 runPrompt();
+            }
+            // Cmd/Ctrl + S to save
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                saveToCreateNew();
             }
         });
     </script>

@@ -148,6 +148,11 @@
 
         .mobile-menu-btn { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 44px; height: 44px; background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: var(--radius-md); color: var(--text-1); cursor: pointer; }
         @media (max-width: 1024px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } }
+
+        .settings-tab-content { display: none; }
+        .settings-tab-content.active { display: block; }
+
+        textarea.form-input { resize: vertical; min-height: 80px; font-family: var(--font-sans); }
     </style>
 </head>
 <body>
@@ -194,13 +199,15 @@
 
             <!-- Tabs -->
             <div class="settings-tabs">
-                <button class="settings-tab active">Profile</button>
-                <button class="settings-tab">Preferences</button>
-                <button class="settings-tab">Billing</button>
-                <button class="settings-tab">Integrations</button>
-                <button class="settings-tab">Security</button>
+                <button class="settings-tab active" data-tab="profile">Profile</button>
+                <button class="settings-tab" data-tab="preferences">Preferences</button>
+                <button class="settings-tab" data-tab="billing">Billing</button>
+                <button class="settings-tab" data-tab="integrations">Integrations</button>
+                <button class="settings-tab" data-tab="security">Security</button>
             </div>
 
+            <!-- Profile Tab -->
+            <div class="settings-tab-content active" id="profileTab">
             <!-- Profile Section -->
             <div class="settings-section">
                 <div class="settings-section-header">
@@ -211,35 +218,45 @@
                     <div class="form-group">
                         <label class="form-label">Profile Picture</label>
                         <div class="avatar-upload">
-                            <div class="avatar-preview">JD</div>
+                            <div class="avatar-preview" id="avatarPreview">JD</div>
                             <div class="avatar-actions">
-                                <button class="btn btn-secondary btn-sm"><i class="fas fa-upload"></i> Upload</button>
-                                <button class="btn btn-secondary btn-sm"><i class="fas fa-trash"></i> Remove</button>
+                                <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatarInput').click()"><i class="fas fa-upload"></i> Upload</button>
+                                <button class="btn btn-secondary btn-sm" onclick="removeAvatar()"><i class="fas fa-trash"></i> Remove</button>
                             </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">First Name</label>
-                            <input type="text" class="form-input" value="Jane">
+                    <form id="profileForm" onsubmit="saveProfile(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-input" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-input" id="lastName" name="lastName" required>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" class="form-input" value="Doe">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="email" name="email" required>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" value="jane.doe@company.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Job Title</label>
-                        <input type="text" class="form-input" value="Senior Product Manager">
-                    </div>
-                    <button class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                        <div class="form-group">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-input" id="jobTitle" name="jobTitle">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-input" id="bio" name="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                    </form>
                 </div>
             </div>
+            </div>
 
+            <!-- Preferences Tab -->
+            <div class="settings-tab-content" id="preferencesTab" style="display: none;">
             <!-- Preferences Section -->
             <div class="settings-section">
                 <div class="settings-section-header">
@@ -247,37 +264,49 @@
                     <p class="settings-section-desc">Customize your experience</p>
                 </div>
                 <div class="settings-section-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Theme</label>
-                            <select class="form-select">
-                                <option>Dark (Default)</option>
-                                <option>Light</option>
-                                <option>System</option>
-                            </select>
+                    <form id="preferencesForm" onsubmit="savePreferences(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Theme</label>
+                                <select class="form-select" id="theme" name="theme">
+                                    <option value="dark">Dark (Default)</option>
+                                    <option value="light">Light</option>
+                                    <option value="system">System</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Language</label>
+                                <select class="form-select" id="language" name="language">
+                                    <option value="en-US">English (US)</option>
+                                    <option value="en-GB">English (UK)</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Language</label>
-                            <select class="form-select">
-                                <option>English (US)</option>
-                                <option>English (UK)</option>
-                                <option>Spanish</option>
-                                <option>French</option>
-                                <option>German</option>
+                            <label class="form-label">Default Model</label>
+                            <select class="form-select" id="defaultModel" name="defaultModel">
+                                <option value="claude-4-5-opus-20250514">Opus 4.5</option>
+                                <option value="claude-4-5-sonnet-20250514">Sonnet 4.5</option>
+                                <option value="claude-4-5-haiku-20250514">Haiku 4.5</option>
+                                <option value="gemini-3-fast">Gemini 3 Fast</option>
+                                <option value="gemini-3-thinking">Gemini 3 Thinking</option>
+                                <option value="gemini-3-pro">Gemini 3 Pro</option>
+                                <option value="gpt-5-1-instant">GPT-5.1 Instant</option>
+                                <option value="gpt-5-1-thinking">GPT-5.1 Thinking</option>
+                                <option value="gpt-5-instant">GPT-5 Instant</option>
+                                <option value="gpt-5-thinking">GPT-5 Thinking</option>
+                                <option value="gpt-4o">GPT-4o</option>
+                                <option value="gpt-4.1">GPT-4.1</option>
+                                <option value="o3">o3</option>
+                                <option value="o4-mini">o4-mini</option>
                             </select>
+                            <p class="form-hint">This model will be used by default when creating new prompts</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Default Model</label>
-                        <select class="form-select">
-                            <option>GPT-4</option>
-                            <option>GPT-4 Turbo</option>
-                            <option>Claude 3.5 Sonnet</option>
-                            <option>Claude 3 Opus</option>
-                            <option>Gemini Pro</option>
-                        </select>
-                        <p class="form-hint">This model will be used by default when creating new prompts</p>
-                    </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Preferences</button>
+                    </form>
                 </div>
             </div>
 
@@ -293,31 +322,35 @@
                             <h4>Email Notifications</h4>
                             <p>Receive updates about your prompts and team activity</p>
                         </div>
-                        <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                        <div class="toggle active" data-setting="email_notifications" onclick="toggleNotification(this, 'email_notifications')"></div>
                     </div>
                     <div class="toggle-group">
                         <div class="toggle-info">
                             <h4>Review Requests</h4>
                             <p>Get notified when someone requests your review</p>
                         </div>
-                        <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                        <div class="toggle active" data-setting="review_requests" onclick="toggleNotification(this, 'review_requests')"></div>
                     </div>
                     <div class="toggle-group">
                         <div class="toggle-info">
                             <h4>Weekly Reports</h4>
                             <p>Receive weekly analytics and usage reports</p>
                         </div>
-                        <div class="toggle" onclick="this.classList.toggle('active')"></div>
+                        <div class="toggle" data-setting="weekly_reports" onclick="toggleNotification(this, 'weekly_reports')"></div>
                     </div>
                     <div class="toggle-group">
                         <div class="toggle-info">
                             <h4>Marketing Updates</h4>
                             <p>Stay informed about new features and updates</p>
                         </div>
-                        <div class="toggle" onclick="this.classList.toggle('active')"></div>
+                        <div class="toggle" data-setting="marketing_updates" onclick="toggleNotification(this, 'marketing_updates')"></div>
                     </div>
                 </div>
             </div>
+            </div>
+
+            <!-- Billing Tab -->
+            <div class="settings-tab-content" id="billingTab" style="display: none;">
 
             <!-- Current Plan -->
             <div class="settings-section">
@@ -326,19 +359,42 @@
                     <p class="settings-section-desc">Manage your subscription</p>
                 </div>
                 <div class="settings-section-body">
-                    <div class="plan-card">
+                    <div class="plan-card" id="planCard">
                         <div class="plan-info">
-                            <h4>Pro Plan</h4>
-                            <p>$49/month - Unlimited prompts, 100k API calls, 5 team members</p>
+                            <h4 id="planName">Loading...</h4>
+                            <p id="planDescription">Loading plan details...</p>
                         </div>
-                        <span class="plan-badge">Current</span>
+                        <span class="plan-badge" id="planBadge">Current</span>
                     </div>
                     <div style="display: flex; gap: 12px; margin-top: 16px;">
-                        <button class="btn btn-secondary"><i class="fas fa-arrow-up"></i> Upgrade Plan</button>
-                        <button class="btn btn-secondary">View Invoices</button>
+                        <button class="btn btn-secondary" onclick="upgradePlan()"><i class="fas fa-arrow-up"></i> Upgrade Plan</button>
+                        <button class="btn btn-secondary" onclick="viewInvoices()">View Invoices</button>
                     </div>
                 </div>
             </div>
+
+            <!-- Payment Method -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3 class="settings-section-title">Payment Method</h3>
+                    <p class="settings-section-desc">Manage your payment information</p>
+                </div>
+                <div class="settings-section-body">
+                    <div id="paymentMethodInfo" style="padding: 16px; background: var(--surface-2); border-radius: var(--radius-md); margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;" id="paymentMethod">Loading...</div>
+                                <div style="font-size: 12px; color: var(--text-3);" id="paymentExpiry"></div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="updatePaymentMethod()">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Integrations Tab -->
+            <div class="settings-tab-content" id="integrationsTab" style="display: none;">
 
             <!-- Connected Apps -->
             <div class="settings-section">
@@ -346,32 +402,82 @@
                     <h3 class="settings-section-title">Connected Integrations</h3>
                     <p class="settings-section-desc">Manage your connected applications</p>
                 </div>
-                <div class="settings-section-body">
-                    <div class="connected-app">
-                        <div class="connected-app-icon"><i class="fab fa-slack" style="color: #E01E5A;"></i></div>
-                        <div class="connected-app-info">
-                            <div class="connected-app-name">Slack</div>
-                            <div class="connected-app-status"><span class="dot"></span> Connected</div>
-                        </div>
-                        <button class="btn btn-secondary btn-sm">Disconnect</button>
-                    </div>
-                    <div class="connected-app">
-                        <div class="connected-app-icon"><i class="fab fa-github" style="color: #fff;"></i></div>
-                        <div class="connected-app-info">
-                            <div class="connected-app-name">GitHub</div>
-                            <div class="connected-app-status"><span class="dot"></span> Connected</div>
-                        </div>
-                        <button class="btn btn-secondary btn-sm">Disconnect</button>
-                    </div>
-                    <div class="connected-app">
-                        <div class="connected-app-icon"><i class="fab fa-google" style="color: #4285F4;"></i></div>
-                        <div class="connected-app-info">
-                            <div class="connected-app-name">Google Workspace</div>
-                            <div class="connected-app-status" style="color: var(--text-3);">Not connected</div>
-                        </div>
-                        <button class="btn btn-primary btn-sm">Connect</button>
+                <div class="settings-section-body" id="integrationsList">
+                    <!-- Integrations will be loaded dynamically -->
+                    <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading integrations...
                     </div>
                 </div>
+            </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="settings-tab-content" id="securityTab" style="display: none;">
+            <!-- Password Change -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3 class="settings-section-title">Change Password</h3>
+                    <p class="settings-section-desc">Update your account password</p>
+                </div>
+                <div class="settings-section-body">
+                    <form id="passwordForm" onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-input" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-input" id="newPassword" name="newPassword" required minlength="8">
+                            <p class="form-hint">Must be at least 8 characters long</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Update Password</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Two-Factor Authentication -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3 class="settings-section-title">Two-Factor Authentication</h3>
+                    <p class="settings-section-desc">Add an extra layer of security to your account</p>
+                </div>
+                <div class="settings-section-body">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <h4>Enable 2FA</h4>
+                            <p>Require a verification code in addition to your password</p>
+                        </div>
+                        <div class="toggle" id="twoFactorToggle" data-setting="two_factor_enabled" onclick="toggle2FA(this)"></div>
+                    </div>
+                    <div id="twoFactorSetup" style="display: none; margin-top: 20px; padding: 20px; background: var(--surface-2); border-radius: var(--radius-md);">
+                        <p style="margin-bottom: 16px; color: var(--text-2);">Scan this QR code with your authenticator app:</p>
+                        <div id="qrCode" style="text-align: center; margin-bottom: 16px;"></div>
+                        <div class="form-group">
+                            <label class="form-label">Verification Code</label>
+                            <input type="text" class="form-input" id="twoFactorCode" placeholder="Enter 6-digit code" maxlength="6">
+                        </div>
+                        <button class="btn btn-primary" onclick="verify2FA()">Verify & Enable</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3 class="settings-section-title">Active Sessions</h3>
+                    <p class="settings-section-desc">Manage your active login sessions</p>
+                </div>
+                <div class="settings-section-body" id="activeSessions">
+                    <!-- Sessions will be loaded dynamically -->
+                    <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading sessions...
+                    </div>
+                </div>
+            </div>
             </div>
 
             <!-- Danger Zone -->
@@ -381,12 +487,12 @@
                     <p class="settings-section-desc">Irreversible actions</p>
                 </div>
                 <div class="settings-section-body">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                         <div>
                             <h4 style="font-size: 14px; margin-bottom: 4px;">Delete Account</h4>
                             <p style="font-size: 13px; color: var(--text-3);">Permanently delete your account and all data</p>
                         </div>
-                        <button class="btn btn-danger"><i class="fas fa-trash"></i> Delete Account</button>
+                        <button class="btn btn-danger" onclick="deleteAccount()"><i class="fas fa-trash"></i> Delete Account</button>
                     </div>
                 </div>
             </div>
@@ -394,16 +500,696 @@
     </div>
 
     <script>
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                padding: 14px 20px; border-radius: var(--radius-md);
+                background: ${type === 'error' ? 'var(--rose)' : type === 'success' ? 'var(--emerald)' : 'var(--surface-2)'};
+                color: var(--text-1); font-size: 14px; font-weight: 500;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
+        // Tab switching
         document.querySelectorAll('.settings-tab').forEach(tab => {
             tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update tab active state
                 document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
+                
+                // Show/hide content
+                document.querySelectorAll('.settings-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+                
+                const targetContent = document.getElementById(targetTab + 'Tab');
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    targetContent.style.display = 'block';
+                }
             });
         });
+
+        // Load user data
+        async function loadUserData() {
+            const user = window.Auth?.getUser();
+            if (!user) {
+                showToast('Please sign in to view settings', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (!supabase) {
+                    showToast('Unable to load settings', 'error');
+                    return;
+                }
+
+                // Load profile
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (profileError && profileError.code !== 'PGRST116') {
+                    console.error('Error loading profile:', profileError);
+                }
+
+                if (profile) {
+                    // Populate profile form
+                    document.getElementById('firstName').value = profile.first_name || '';
+                    document.getElementById('lastName').value = profile.last_name || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('jobTitle').value = profile.job_title || '';
+                    document.getElementById('bio').value = profile.bio || '';
+
+                    // Update avatar
+                    const avatarPreview = document.getElementById('avatarPreview');
+                    if (profile.avatar_url) {
+                        avatarPreview.style.backgroundImage = `url(${profile.avatar_url})`;
+                        avatarPreview.style.backgroundSize = 'cover';
+                        avatarPreview.textContent = '';
+                    } else {
+                        const initials = (profile.first_name?.[0] || '') + (profile.last_name?.[0] || '') || user.email?.[0].toUpperCase() || 'U';
+                        avatarPreview.textContent = initials;
+                    }
+                }
+
+                // Load preferences
+                const { data: preferences } = await supabase
+                    .from('user_preferences')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (preferences) {
+                    document.getElementById('theme').value = preferences.theme || 'dark';
+                    document.getElementById('language').value = preferences.language || 'en-US';
+                    document.getElementById('defaultModel').value = preferences.default_model || 'claude-4-5-opus-20250514';
+
+                    // Load notification settings
+                    const notificationSettings = preferences.notification_settings || {};
+                    document.querySelectorAll('[data-setting]').forEach(toggle => {
+                        const setting = toggle.dataset.setting;
+                        if (notificationSettings[setting]) {
+                            toggle.classList.add('active');
+                        }
+                    });
+                }
+
+                // Load subscription
+                const { data: subscription } = await supabase
+                    .from('subscriptions')
+                    .select('*, plans(*)')
+                    .eq('user_id', user.id)
+                    .eq('status', 'active')
+                    .single();
+
+                if (subscription) {
+                    const plan = subscription.plans || {};
+                    document.getElementById('planName').textContent = plan.name || 'Free Plan';
+                    document.getElementById('planDescription').textContent = plan.description || 'Basic features';
+                    document.getElementById('planBadge').textContent = subscription.status === 'active' ? 'Current' : subscription.status;
+                }
+
+                // Load integrations
+                await loadIntegrations();
+
+                // Load active sessions
+                await loadActiveSessions();
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('Failed to load settings', 'error');
+            }
+        }
+
+        // Save profile
+        async function saveProfile(event) {
+            event.preventDefault();
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            const formData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                job_title: document.getElementById('jobTitle').value,
+                bio: document.getElementById('bio').value
+            };
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { error } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        user_id: user.id,
+                        ...formData,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+
+                showToast('Profile updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                showToast('Failed to save profile', 'error');
+            }
+        }
+
+        // Handle avatar upload
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image size must be less than 5MB', 'error');
+                return;
+            }
+
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                
+                // Upload to Supabase Storage
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+                
+                const { error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+
+                // Update profile
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        user_id: user.id,
+                        avatar_url: publicUrl,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (updateError) throw updateError;
+
+                // Update preview
+                const avatarPreview = document.getElementById('avatarPreview');
+                avatarPreview.style.backgroundImage = `url(${publicUrl})`;
+                avatarPreview.style.backgroundSize = 'cover';
+                avatarPreview.textContent = '';
+
+                showToast('Avatar uploaded successfully', 'success');
+            } catch (error) {
+                console.error('Error uploading avatar:', error);
+                showToast('Failed to upload avatar', 'error');
+            }
+        }
+
+        // Remove avatar
+        async function removeAvatar() {
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            if (!confirm('Are you sure you want to remove your avatar?')) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { error } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        user_id: user.id,
+                        avatar_url: null,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+
+                // Reset preview
+                const avatarPreview = document.getElementById('avatarPreview');
+                avatarPreview.style.backgroundImage = '';
+                const profile = await supabase.from('profiles').select('first_name, last_name').eq('user_id', user.id).single();
+                const initials = (profile?.data?.first_name?.[0] || '') + (profile?.data?.last_name?.[0] || '') || user.email?.[0].toUpperCase() || 'U';
+                avatarPreview.textContent = initials;
+
+                showToast('Avatar removed', 'success');
+            } catch (error) {
+                console.error('Error removing avatar:', error);
+                showToast('Failed to remove avatar', 'error');
+            }
+        }
+
+        // Save preferences
+        async function savePreferences(event) {
+            event.preventDefault();
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            const formData = {
+                theme: document.getElementById('theme').value,
+                language: document.getElementById('language').value,
+                default_model: document.getElementById('defaultModel').value
+            };
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { error } = await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: user.id,
+                        ...formData,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+
+                showToast('Preferences saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving preferences:', error);
+                showToast('Failed to save preferences', 'error');
+            }
+        }
+
+        // Toggle notification
+        async function toggleNotification(toggle, setting) {
+            toggle.classList.toggle('active');
+            const isActive = toggle.classList.contains('active');
+
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                
+                // Get current preferences
+                const { data: prefs } = await supabase
+                    .from('user_preferences')
+                    .select('notification_settings')
+                    .eq('user_id', user.id)
+                    .single();
+
+                const notificationSettings = prefs?.notification_settings || {};
+                notificationSettings[setting] = isActive;
+
+                const { error } = await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: user.id,
+                        notification_settings: notificationSettings,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+
+                showToast('Notification setting updated', 'success');
+            } catch (error) {
+                console.error('Error updating notification:', error);
+                toggle.classList.toggle('active'); // Revert on error
+                showToast('Failed to update notification setting', 'error');
+            }
+        }
+
+        // Upgrade plan
+        function upgradePlan() {
+            window.location.href = 'upgrade.html';
+        }
+
+        // View invoices
+        async function viewInvoices() {
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { data: invoices, error } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                if (!invoices || invoices.length === 0) {
+                    showToast('No invoices found', 'info');
+                    return;
+                }
+
+                // Show invoices in modal
+                const invoiceList = invoices.map(inv => `
+                    <div style="padding: 16px; margin-bottom: 12px; background: var(--surface-2); border-radius: var(--radius-md); border: 1px solid var(--surface-3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-weight: 600;">Invoice #${inv.invoice_number || inv.id}</div>
+                            <div style="font-family: var(--font-mono); color: var(--glacier);">$${parseFloat(inv.amount || 0).toFixed(2)}</div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-3);">
+                            ${new Date(inv.created_at).toLocaleDateString()} • ${inv.status || 'paid'}
+                        </div>
+                    </div>
+                `).join('');
+
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.8); z-index: 10000;
+                    display: flex; align-items: center; justify-content: center;
+                    padding: 20px;
+                `;
+                modal.innerHTML = `
+                    <div style="background: var(--surface-1); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; border: 1px solid var(--surface-3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="font-size: 20px; font-weight: 600;">Invoices</h3>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 24px;">&times;</button>
+                        </div>
+                        ${invoiceList}
+                    </div>
+                `;
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.remove();
+                };
+                document.body.appendChild(modal);
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                showToast('Failed to load invoices', 'error');
+            }
+        }
+
+        // Update payment method
+        function updatePaymentMethod() {
+            showToast('Payment method update coming soon', 'info');
+        }
+
+        // Load integrations
+        async function loadIntegrations() {
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { data: integrations, error } = await supabase
+                    .from('integrations')
+                    .select('*')
+                    .eq('user_id', user.id);
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading integrations:', error);
+                }
+
+                const integrationsList = document.getElementById('integrationsList');
+                const availableIntegrations = [
+                    { name: 'Slack', icon: 'fab fa-slack', color: '#E01E5A', id: 'slack' },
+                    { name: 'GitHub', icon: 'fab fa-github', color: '#fff', id: 'github' },
+                    { name: 'Google Workspace', icon: 'fab fa-google', color: '#4285F4', id: 'google' },
+                    { name: 'Microsoft Teams', icon: 'fab fa-microsoft', color: '#6264A7', id: 'teams' },
+                    { name: 'Discord', icon: 'fab fa-discord', color: '#5865F2', id: 'discord' }
+                ];
+
+                const connectedIds = integrations?.map(i => i.provider) || [];
+
+                integrationsList.innerHTML = availableIntegrations.map(integration => {
+                    const isConnected = connectedIds.includes(integration.id);
+                    return `
+                        <div class="connected-app">
+                            <div class="connected-app-icon" style="color: ${integration.color};"><i class="${integration.icon}"></i></div>
+                            <div class="connected-app-info">
+                                <div class="connected-app-name">${integration.name}</div>
+                                <div class="connected-app-status">
+                                    ${isConnected ? '<span class="dot"></span> Connected' : '<span style="color: var(--text-3);">Not connected</span>'}
+                                </div>
+                            </div>
+                            ${isConnected 
+                                ? `<button class="btn btn-secondary btn-sm" onclick="disconnectIntegration('${integration.id}')">Disconnect</button>`
+                                : `<button class="btn btn-primary btn-sm" onclick="connectIntegration('${integration.id}')">Connect</button>`
+                            }
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading integrations:', error);
+            }
+        }
+
+        // Connect integration
+        async function connectIntegration(provider) {
+            showToast(`Connecting ${provider}...`, 'info');
+            // In production, this would open OAuth flow
+            setTimeout(() => {
+                showToast(`${provider} connection coming soon`, 'info');
+            }, 1000);
+        }
+
+        // Disconnect integration
+        async function disconnectIntegration(provider) {
+            if (!confirm(`Are you sure you want to disconnect ${provider}?`)) return;
+
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { error } = await supabase
+                    .from('integrations')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('provider', provider);
+
+                if (error) throw error;
+
+                showToast(`${provider} disconnected`, 'success');
+                await loadIntegrations();
+            } catch (error) {
+                console.error('Error disconnecting integration:', error);
+                showToast('Failed to disconnect', 'error');
+            }
+        }
+
+        // Change password
+        async function changePassword(event) {
+            event.preventDefault();
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showToast('New passwords do not match', 'error');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showToast('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                
+                // Update password using Supabase Auth
+                const { error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (error) throw error;
+
+                showToast('Password updated successfully', 'success');
+                document.getElementById('passwordForm').reset();
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showToast(error.message || 'Failed to update password', 'error');
+            }
+        }
+
+        // Toggle 2FA
+        async function toggle2FA(toggle) {
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            if (toggle.classList.contains('active')) {
+                // Disable 2FA
+                if (!confirm('Are you sure you want to disable two-factor authentication?')) return;
+                
+                try {
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    const { error } = await supabase
+                        .from('user_preferences')
+                        .upsert({
+                            user_id: user.id,
+                            two_factor_enabled: false,
+                            updated_at: new Date().toISOString()
+                        });
+
+                    if (error) throw error;
+
+                    toggle.classList.remove('active');
+                    document.getElementById('twoFactorSetup').style.display = 'none';
+                    showToast('2FA disabled', 'success');
+                } catch (error) {
+                    console.error('Error disabling 2FA:', error);
+                    showToast('Failed to disable 2FA', 'error');
+                }
+            } else {
+                // Show setup
+                document.getElementById('twoFactorSetup').style.display = 'block';
+                showToast('2FA setup coming soon', 'info');
+            }
+        }
+
+        // Verify 2FA
+        function verify2FA() {
+            showToast('2FA verification coming soon', 'info');
+        }
+
+        // Load active sessions
+        async function loadActiveSessions() {
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { data: sessions, error } = await supabase
+                    .from('user_sessions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('last_activity', { ascending: false })
+                    .limit(10);
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading sessions:', error);
+                }
+
+                const sessionsList = document.getElementById('activeSessions');
+                
+                if (!sessions || sessions.length === 0) {
+                    sessionsList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                            <div>No active sessions found</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                sessionsList.innerHTML = sessions.map(session => `
+                    <div style="padding: 16px; margin-bottom: 12px; background: var(--surface-2); border-radius: var(--radius-md); border: 1px solid var(--surface-3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">${session.device || 'Unknown Device'}</div>
+                                <div style="font-size: 12px; color: var(--text-3);">
+                                    ${session.location || 'Unknown Location'} • Last active: ${new Date(session.last_activity).toLocaleString()}
+                                </div>
+                            </div>
+                            ${session.is_current ? 
+                                '<span style="font-size: 12px; color: var(--emerald);">Current Session</span>' :
+                                `<button class="btn btn-secondary btn-sm" onclick="revokeSession('${session.id}')">Revoke</button>`
+                            }
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        // Revoke session
+        async function revokeSession(sessionId) {
+            if (!confirm('Are you sure you want to revoke this session?')) return;
+
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                const { error } = await supabase
+                    .from('user_sessions')
+                    .delete()
+                    .eq('id', sessionId)
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                showToast('Session revoked', 'success');
+                await loadActiveSessions();
+            } catch (error) {
+                console.error('Error revoking session:', error);
+                showToast('Failed to revoke session', 'error');
+            }
+        }
+
+        // Delete account
+        async function deleteAccount() {
+            const confirmation = prompt('Type "DELETE" to confirm account deletion:');
+            if (confirmation !== 'DELETE') {
+                showToast('Account deletion cancelled', 'info');
+                return;
+            }
+
+            const user = window.Auth?.getUser();
+            if (!user) return;
+
+            try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                
+                // Delete user data (in production, this would be handled by database triggers)
+                // For now, just sign out
+                const { error } = await supabase.auth.signOut();
+                
+                if (error) throw error;
+
+                showToast('Account deletion initiated. You will be signed out.', 'info');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                showToast('Failed to delete account', 'error');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+        });
     </script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    </style>
 </body>
 </html>

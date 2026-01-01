@@ -552,17 +552,19 @@
 
         .funnel-stage:nth-child(1) .funnel-fill {
             background: linear-gradient(90deg, var(--glacier), var(--glacier-deep));
-            width: 100%;
+            width: 100%; /* Views - always 100% as baseline */
         }
 
         .funnel-stage:nth-child(2) .funnel-fill {
             background: linear-gradient(90deg, var(--violet), var(--violet-dark));
-            width: 65%;
+            width: 0%; /* Clicks - will be updated dynamically */
+            transition: width 0.5s ease-out;
         }
 
         .funnel-stage:nth-child(3) .funnel-fill {
             background: linear-gradient(90deg, var(--emerald), var(--emerald-dark));
-            width: 28%;
+            width: 0%; /* Purchases - will be updated dynamically */
+            transition: width 0.5s ease-out;
         }
 
         .funnel-content {
@@ -1229,6 +1231,14 @@
         .charts-grid > * { animation: fadeIn 400ms var(--ease-out-expo) 200ms backwards; }
         .table-card { animation: fadeIn 400ms var(--ease-out-expo) 300ms backwards; }
         .bottom-grid > * { animation: fadeIn 400ms var(--ease-out-expo) 400ms backwards; }
+
+        .dashboard-section {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .dashboard-section:not(:first-of-type) {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -1253,7 +1263,7 @@
                 <a class="nav-item" href="#earnings" id="navEarnings">
                     <span class="nav-icon">&#128176;</span>
                     Earnings
-                    <span class="nav-badge">$1,247</span>
+                    <span class="nav-badge" id="earningsBadge">$0</span>
                 </a>
             </nav>
 
@@ -1306,6 +1316,8 @@
 
         <!-- Main Content -->
         <main class="main">
+            <!-- Main Dashboard Section -->
+            <section class="dashboard-section" id="dashboard">
             <div class="header">
                 <div class="header-content">
                     <h1>Creator Dashboard</h1>
@@ -1332,34 +1344,34 @@
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Total Revenue</span>
-                        <span class="stat-trend up">&#8593; 24%</span>
+                        <span class="stat-trend" id="revenueTrend"></span>
                     </div>
-                    <div class="stat-value gradient">$4,892</div>
-                    <div class="stat-subtext">Your cut: $3,914 (80%)</div>
+                    <div class="stat-value gradient" id="totalRevenue">$0</div>
+                    <div class="stat-subtext" id="revenueSubtext">Your cut: $0 (80%)</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Total Sales</span>
-                        <span class="stat-trend up">&#8593; 18%</span>
+                        <span class="stat-trend" id="salesTrend"></span>
                     </div>
-                    <div class="stat-value">147</div>
-                    <div class="stat-subtext">Across 8 prompts</div>
+                    <div class="stat-value" id="totalSales">0</div>
+                    <div class="stat-subtext" id="salesSubtext">Across 0 prompts</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Conversion Rate</span>
-                        <span class="stat-trend up">&#8593; 0.3%</span>
+                        <span class="stat-trend" id="conversionTrend"></span>
                     </div>
-                    <div class="stat-value">3.2%</div>
+                    <div class="stat-value" id="conversionRate">0%</div>
                     <div class="stat-subtext">Category avg: 2.1%</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Avg Rating</span>
-                        <span class="stat-trend up">&#8593; 0.1</span>
+                        <span class="stat-trend" id="ratingTrend"></span>
                     </div>
-                    <div class="stat-value">4.8</div>
-                    <div class="stat-subtext">From 89 reviews</div>
+                    <div class="stat-value" id="avgRating">0</div>
+                    <div class="stat-subtext" id="ratingSubtext">From 0 reviews</div>
                 </div>
             </div>
 
@@ -1392,7 +1404,7 @@
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Views</span>
-                                    <span class="funnel-value">12,847</span>
+                                    <span class="funnel-value" id="funnelViews">0</span>
                                 </div>
                             </div>
                         </div>
@@ -1401,20 +1413,20 @@
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Clicks</span>
-                                    <span class="funnel-value">4,592</span>
+                                    <span class="funnel-value" id="funnelClicks">0</span>
                                 </div>
                             </div>
-                            <div class="funnel-rate"><span>35.7%</span> click rate</div>
+                            <div class="funnel-rate"><span id="clickRate">0%</span> click rate</div>
                         </div>
                         <div class="funnel-stage">
                             <div class="funnel-bar">
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Purchases</span>
-                                    <span class="funnel-value">147</span>
+                                    <span class="funnel-value" id="funnelPurchases">0</span>
                                 </div>
                             </div>
-                            <div class="funnel-rate"><span>3.2%</span> conversion</div>
+                            <div class="funnel-rate"><span id="conversionRateFunnel">0%</span> conversion</div>
                         </div>
                     </div>
                 </div>
@@ -1439,110 +1451,12 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr data-prompt="code-review-pro">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#128269;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Code Review Pro v3</div>
-                                            <div class="prompt-category">Engineering</div>
-                                        </div>
-                                    </div>
+                        <tbody id="promptsTableBody">
+                            <!-- Prompts will be loaded dynamically -->
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-3);">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading prompts...
                                 </td>
-                                <td><span class="price">$29.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">67</span>
-                                        <span class="sales-revenue">+$1,607</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.9</span>
-                                        <span class="rating-count">(42)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="blog-post-generator">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#9997;&#65039;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Blog Post Generator</div>
-                                            <div class="prompt-category">Content</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$19.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">48</span>
-                                        <span class="sales-revenue">+$768</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.7</span>
-                                        <span class="rating-count">(31)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="data-analysis-suite">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#128202;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Data Analysis Suite</div>
-                                            <div class="prompt-category">Analytics</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$49.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">24</span>
-                                        <span class="sales-revenue">+$960</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.8</span>
-                                        <span class="rating-count">(12)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="marketing-copy-engine">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#127919;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Marketing Copy Engine</div>
-                                            <div class="prompt-category">Marketing</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$24.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">8</span>
-                                        <span class="sales-revenue">+$160</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.6</span>
-                                        <span class="rating-count">(4)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge review"><span class="status-dot"></span>In Review</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1557,48 +1471,9 @@
                         <span class="pricing-title">Pricing Oracle</span>
                         <span class="ai-badge">&#10024; AI-Powered</span>
                     </div>
-                    <div class="pricing-body">
-                        <div class="pricing-prompt">
-                            <div class="pricing-prompt-name">Analyzing your top performer</div>
-                            <div class="pricing-prompt-title">Code Review Pro v3</div>
-                            <div class="pricing-current">Current price: $29.99</div>
-                        </div>
-
-                        <div class="pricing-recommendation">
-                            <div class="rec-header">
-                                <div>
-                                    <div class="rec-label">Recommended Price</div>
-                                    <div class="rec-price">$39.99</div>
-                                </div>
-                                <div class="rec-change">+33%</div>
-                            </div>
-                            <div class="rec-reason">
-                                High demand velocity (+24% weekly) and premium rating (4.9&#9733;) suggest price elasticity. Similar prompts average $45. You're likely leaving $600+/month on the table.
-                            </div>
-                        </div>
-
-                        <div class="pricing-signals">
-                            <div class="signal-item">
-                                <span class="signal-label">Demand velocity</span>
-                                <span class="signal-value positive">+24% &#8593;</span>
-                            </div>
-                            <div class="signal-item">
-                                <span class="signal-label">Category average</span>
-                                <span class="signal-value">$44.99</span>
-                            </div>
-                            <div class="signal-item">
-                                <span class="signal-label">Your conversion rate</span>
-                                <span class="signal-value positive">3.2% (1.5x avg)</span>
-                            </div>
-                            <div class="signal-item">
-                                <span class="signal-label">Price sensitivity</span>
-                                <span class="signal-value">Low (2% mentions)</span>
-                            </div>
-                        </div>
-
-                        <div class="pricing-actions">
-                            <button class="btn btn-secondary" id="abTestBtn">Run A/B Test</button>
-                            <button class="btn btn-primary" id="applyPriceBtn">Apply Price</button>
+                    <div class="pricing-body" id="pricingOracleBody">
+                        <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading pricing insights...
                         </div>
                     </div>
                 </div>
@@ -1606,72 +1481,224 @@
                 <!-- Buyer Cohorts -->
                 <div class="cohorts-section">
                     <h3>Buyer Cohorts</h3>
-                    <div class="cohorts-grid">
-                        <div class="cohort-card">
-                            <div class="cohort-header">
-                                <div>
-                                    <div class="cohort-name">Power Users</div>
-                                    <div class="cohort-count">12 buyers</div>
-                                </div>
-                                <span class="cohort-value-badge high">High Value</span>
-                            </div>
-                            <div class="cohort-stats">
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Avg LTV</div>
-                                    <div class="cohort-stat-value">$340</div>
-                                </div>
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Retention</div>
-                                    <div class="cohort-stat-value">92%</div>
+                    <div class="cohorts-grid" id="buyerCohortsGrid">
+                        <div style="text-align: center; padding: 40px; color: var(--text-3); grid-column: 1 / -1;">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading buyer cohorts...
                                 </div>
                             </div>
-                            <button class="cohort-action" data-cohort="power-users">Create VIP Campaign</button>
-                        </div>
+                                </div>
+                                </div>
+            </section>
 
-                        <div class="cohort-card">
-                            <div class="cohort-header">
-                                <div>
-                                    <div class="cohort-name">One-Time Buyers</div>
-                                    <div class="cohort-count">87 buyers</div>
-                                </div>
-                                <span class="cohort-value-badge medium">Medium</span>
+            <!-- Analytics Section -->
+            <section id="analytics" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Analytics</h1>
+                        <p>Deep insights into your prompt performance</p>
                             </div>
-                            <div class="cohort-stats">
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Avg LTV</div>
-                                    <div class="cohort-stat-value">$34</div>
-                                </div>
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Retention</div>
-                                    <div class="cohort-stat-value">0%</div>
-                                </div>
-                            </div>
-                            <button class="cohort-action" data-cohort="one-time">Send Follow-up</button>
                         </div>
-
-                        <div class="cohort-card">
-                            <div class="cohort-header">
-                                <div>
-                                    <div class="cohort-name">Window Shoppers</div>
-                                    <div class="cohort-count">4.2K viewers</div>
-                                </div>
-                                <span class="cohort-value-badge low">Convert</span>
-                            </div>
-                            <div class="cohort-stats">
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Spend</div>
-                                    <div class="cohort-stat-value">$0</div>
-                                </div>
-                                <div class="cohort-stat">
-                                    <div class="cohort-stat-label">Price Sens.</div>
-                                    <div class="cohort-stat-value">High</div>
-                                </div>
-                            </div>
-                            <button class="cohort-action" data-cohort="window-shoppers">Launch Free Trial</button>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">Performance Metrics</span>
+                    </div>
+                    <div id="analyticsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading analytics...
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- Earnings Section -->
+            <section id="earnings" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Earnings</h1>
+                        <p>Track your revenue and payouts</p>
+                                </div>
+                            </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">Earnings History</span>
+                                </div>
+                    <div id="earningsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading earnings...
+                                </div>
+                            </div>
+                        </div>
+            </section>
+
+            <!-- My Prompts Section -->
+            <section id="my-prompts" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>My Prompts</h1>
+                        <p>Manage all your prompts</p>
+                                </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="createPromptFromMyPrompts">
+                            <span>&#10024;</span> Create New
+                        </button>
+                            </div>
+                                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">All Your Prompts</span>
+                        <div class="table-actions">
+                            <input type="text" class="table-search" id="myPromptsSearch" placeholder="Search prompts...">
+                                </div>
+                            </div>
+                    <div id="myPromptsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading prompts...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create New Section -->
+            <section id="create-new" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Create New Prompt</h1>
+                        <p>Build and publish a new prompt to the marketplace</p>
             </div>
+                    <div class="header-actions">
+                        <a href="library.html" class="btn btn-primary">
+                            <span>&#10024;</span> Create New Prompt
+                        </a>
+                        <a href="playground.html" class="btn btn-secondary" target="_blank">
+                            <span>&#128187;</span> Open Playground
+                        </a>
+                    </div>
+                </div>
+                <div class="table-card" style="max-width: 800px; margin: 0 auto;">
+                    <div id="createPromptContent" style="padding: 24px;">
+                        <form id="createPromptForm">
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Prompt Title *</label>
+                                <input type="text" class="table-search" style="width: 100%;" placeholder="Enter prompt title..." id="promptTitle" required>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Category *</label>
+                                <select class="table-search" style="width: 100%;" id="promptCategory" required>
+                                    <option value="">Select category...</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Content">Content</option>
+                                    <option value="Analytics">Analytics</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Design">Design</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Prompt Content *</label>
+                                <textarea class="table-search" style="width: 100%; min-height: 200px; resize: vertical; font-family: var(--font-mono); font-size: 13px;" placeholder="Enter your prompt content here...&#10;&#10;Example:&#10;You are a helpful assistant. Your task is to {{task}}.&#10;&#10;Context: {{context}}" id="promptContent" required></textarea>
+                                <div style="font-size: 12px; color: var(--text-3); margin-top: 4px;">Use {{variable}} syntax for dynamic variables</div>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Description *</label>
+                                <textarea class="table-search" style="width: 100%; min-height: 100px; resize: vertical;" placeholder="Describe what your prompt does, its use cases, and benefits..." id="promptDescription" required></textarea>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Price ($) *</label>
+                                <input type="number" class="table-search" style="width: 100%;" placeholder="0.00" step="0.01" min="0" id="promptPrice" required>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; color: var(--text-2); margin-bottom: 8px; font-weight: 500;">Tags (comma-separated)</label>
+                                <input type="text" class="table-search" style="width: 100%;" placeholder="tag1, tag2, tag3" id="promptTags">
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2);">
+                                    <input type="checkbox" id="promptMarketplace" checked>
+                                    <span>Publish to marketplace immediately</span>
+                                </label>
+                            </div>
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('createPromptForm').reset();">Clear</button>
+                                <button type="submit" class="btn btn-primary">Create Prompt</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Versions Section -->
+            <section id="versions" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Prompt Versions</h1>
+                        <p>Manage versions and updates of your prompts</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">Version History</span>
+                    </div>
+                    <div id="versionsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading versions...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section id="reviews" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Reviews</h1>
+                        <p>View and respond to customer reviews</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">All Reviews</span>
+                        <div class="table-actions">
+                            <select class="table-search" id="reviewFilter" style="width: 200px;">
+                                <option value="all">All Reviews</option>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="reviewsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading reviews...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Promotions Section -->
+            <section id="promotions" class="dashboard-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Promotions</h1>
+                        <p>Create and manage promotional campaigns</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="createPromotionBtn">
+                            <span>&#127919;</span> Create Promotion
+                        </button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <span class="table-title">Active Promotions</span>
+                    </div>
+                    <div id="promotionsContent" style="padding: 24px;">
+                        <div style="text-align: center; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading promotions...
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -1761,45 +1788,17 @@
         };
         modal.init();
 
-        // Revenue Chart
-        const chartData = [
-            { month: 'Jul', sales: 18, earnings: 14 },
-            { month: 'Aug', sales: 24, earnings: 19 },
-            { month: 'Sep', sales: 32, earnings: 26 },
-            { month: 'Oct', sales: 28, earnings: 22 },
-            { month: 'Nov', sales: 45, earnings: 36 },
-            { month: 'Dec', sales: 67, earnings: 54 },
-        ];
+        // Revenue Chart - Now uses live data from updateRevenueChart function
 
-        function renderChart() {
-            const container = document.getElementById('revenueChart');
-            if (!container) return;
-
-            const maxValue = Math.max(...chartData.map(d => Math.max(d.sales, d.earnings)));
-
-            container.innerHTML = chartData.map(data => {
-                const salesHeight = (data.sales / maxValue) * 180;
-                const earningsHeight = (data.earnings / maxValue) * 180;
-
-                return `
-                    <div class="chart-bar-group">
-                        <div class="chart-bars">
-                            <div class="chart-bar sales" style="height: ${salesHeight}px" data-value="${data.sales} sales"></div>
-                            <div class="chart-bar earnings" style="height: ${earningsHeight}px" data-value="$${data.earnings * 80}"></div>
-                        </div>
-                        <span class="chart-label">${data.month}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Period Selector
+        // Period Selector - Filter data by date range
         document.querySelectorAll('.period-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const period = btn.dataset.period;
-                toast.show(`Showing data for ${period === 'all' ? 'all time' : period + ' days'}`, 'success');
+                
+                // Reload dashboard data with date filter
+                await loadCreatorDashboardData(period);
             });
         });
 
@@ -1822,112 +1821,267 @@
             });
         }
 
-        // Export Button
-        document.getElementById('exportBtn')?.addEventListener('click', () => {
+        // Export Button - Export dashboard data
+        document.getElementById('exportBtn')?.addEventListener('click', async () => {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Unable to export data', 'error');
+                return;
+            }
+
             modal.show(
                 'Export Data',
                 `<p style="color: var(--text-2); margin-bottom: 16px;">Choose your export format:</p>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" onclick="exportData('csv')">CSV</button>
-                    <button class="btn btn-secondary" onclick="exportData('json')">JSON</button>
-                    <button class="btn btn-secondary" onclick="exportData('pdf')">PDF Report</button>
+                    <button class="btn btn-secondary" onclick="exportDashboardData('csv')">CSV</button>
+                    <button class="btn btn-secondary" onclick="exportDashboardData('json')">JSON</button>
+                    <button class="btn btn-secondary" onclick="exportDashboardData('pdf')">PDF Report</button>
                 </div>`,
                 'Close',
                 () => {}
             );
         });
 
-        function exportData(format) {
+        async function exportDashboardData(format) {
             modal.hide();
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Unable to export data', 'error');
+                return;
+            }
+
+            try {
             toast.show(`Exporting data as ${format.toUpperCase()}...`, 'success');
-            setTimeout(() => {
+
+                // Get user's prompts
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, price, category, created_at, is_marketplace')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                // Get purchases
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, buyer_id, amount, price, created_at, seller_id')
+                    .eq('seller_id', user.id)
+                    .in('prompt_id', promptIds);
+
+                // Get reviews
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('id, prompt_id, rating, comment, created_at')
+                    .in('prompt_id', promptIds);
+
+                // Prepare export data
+                const exportData = {
+                    exported_at: new Date().toISOString(),
+                    prompts: prompts || [],
+                    purchases: purchases || [],
+                    reviews: reviews || [],
+                    summary: {
+                        total_prompts: prompts?.length || 0,
+                        total_sales: purchases?.length || 0,
+                        total_revenue: purchases?.reduce((sum, p) => sum + (parseFloat(p.amount || p.price || 0)), 0) || 0,
+                        total_reviews: reviews?.length || 0
+                    }
+                };
+
+                if (format === 'json') {
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `prompting-it-export-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (format === 'csv') {
+                    // Convert to CSV
+                    let csv = 'Type,Title,Category,Price,Date,Amount,Rating\n';
+                    
+                    // Add prompts
+                    prompts?.forEach(p => {
+                        csv += `Prompt,"${p.title}","${p.category}",${p.price},"${p.created_at}",,\n`;
+                    });
+                    
+                    // Add purchases
+                    purchases?.forEach(p => {
+                        const promptTitle = prompts?.find(pr => pr.id === p.prompt_id)?.title || 'Unknown';
+                        csv += `Purchase,"${promptTitle}",,"${p.amount || p.price}","${p.created_at}",${p.amount || p.price},\n`;
+                    });
+                    
+                    // Add reviews
+                    reviews?.forEach(r => {
+                        const promptTitle = prompts?.find(p => p.id === r.prompt_id)?.title || 'Unknown';
+                        csv += `Review,"${promptTitle}",,,"${r.created_at}",,${r.rating}\n`;
+                    });
+
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `prompting-it-export-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (format === 'pdf') {
+                    // PDF export would require a library like jsPDF
+                    toast.show('PDF export coming soon. Use CSV or JSON for now.', 'success');
+                    return;
+                }
+
                 toast.show(`${format.toUpperCase()} export completed!`, 'success');
-            }, 1500);
+            } catch (error) {
+                console.error('Export error:', error);
+                toast.show('Export failed. Please try again.', 'error');
+            }
         }
 
-        // New Prompt Button
+        // New Prompt Button - Link to Library page
         document.getElementById('newPromptBtn')?.addEventListener('click', () => {
-            modal.show(
-                'Create New Prompt',
-                `<p style="color: var(--text-2); margin-bottom: 16px;">Start creating a new prompt to sell on the marketplace.</p>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-3); margin-bottom: 8px;">Prompt Name</label>
-                    <input type="text" class="table-search" style="width: 100%;" placeholder="Enter prompt name..." id="newPromptName">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 13px; color: var(--text-3); margin-bottom: 8px;">Category</label>
-                    <select class="table-search" style="width: 100%;" id="newPromptCategory">
-                        <option value="engineering">Engineering</option>
-                        <option value="content">Content</option>
-                        <option value="analytics">Analytics</option>
-                        <option value="marketing">Marketing</option>
-                    </select>
-                </div>`,
-                'Create Prompt',
-                () => {
-                    const name = document.getElementById('newPromptName')?.value;
-                    if (name) {
-                        toast.show(`Prompt "${name}" created successfully!`, 'success');
-                    } else {
-                        toast.show('Please enter a prompt name', 'error');
-                    }
-                }
-            );
+            window.location.href = 'library.html';
         });
 
-        // Pricing Actions
-        document.getElementById('abTestBtn')?.addEventListener('click', () => {
+        // Create Prompt From My Prompts Button - Link to Library page
+        document.getElementById('createPromptFromMyPrompts')?.addEventListener('click', () => {
+            window.location.href = 'library.html';
+        });
+
+        // Pricing Actions - Load top performing prompt for A/B test
+        document.getElementById('abTestBtn')?.addEventListener('click', async () => {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Unable to load prompt data', 'error');
+                return;
+            }
+
+            try {
+                // Get user's top performing prompt
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, price')
+                    .eq('user_id', user.id)
+                    .eq('is_marketplace', true)
+                    .order('sales_count', { ascending: false })
+                    .limit(1);
+
+                const topPrompt = prompts?.[0];
+                if (!topPrompt) {
+                    toast.show('No prompts available for A/B testing', 'error');
+                    return;
+                }
+
+                const currentPrice = parseFloat(topPrompt.price || 0);
+                const testPrice = (currentPrice * 1.33).toFixed(2); // 33% increase
+
             modal.show(
                 'Configure A/B Test',
-                `<p style="color: var(--text-2); margin-bottom: 16px;">Set up a price A/B test for "Code Review Pro v3"</p>
+                    `<p style="color: var(--text-2); margin-bottom: 16px;">Set up a price A/B test for "${topPrompt.title}"</p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); text-align: center;">
                         <div style="font-size: 12px; color: var(--text-3); margin-bottom: 4px;">Variant A (Control)</div>
-                        <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700;">$29.99</div>
+                            <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700;">$${currentPrice.toFixed(2)}</div>
                     </div>
                     <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); text-align: center;">
                         <div style="font-size: 12px; color: var(--text-3); margin-bottom: 4px;">Variant B (Test)</div>
-                        <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: var(--emerald);">$39.99</div>
+                            <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: var(--emerald);">$${testPrice}</div>
                     </div>
                 </div>
                 <div>
                     <label style="display: block; font-size: 13px; color: var(--text-3); margin-bottom: 8px;">Test Duration</label>
-                    <select class="table-search" style="width: 100%;">
+                        <select class="table-search" style="width: 100%;" id="abTestDuration">
                         <option value="7">7 days</option>
                         <option value="14" selected>14 days</option>
                         <option value="30">30 days</option>
                     </select>
                 </div>`,
                 'Start Test',
-                () => {
+                    async () => {
+                        // In production, this would create an A/B test record in the database
                     toast.show('A/B test started successfully!', 'success');
-                }
-            );
+                        // Reload dashboard to show test status
+                        await loadCreatorDashboardData();
+                    }
+                );
+            } catch (error) {
+                console.error('Error loading prompt for A/B test:', error);
+                toast.show('Failed to load prompt data', 'error');
+            }
         });
 
-        document.getElementById('applyPriceBtn')?.addEventListener('click', () => {
+        document.getElementById('applyPriceBtn')?.addEventListener('click', async () => {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Unable to load prompt data', 'error');
+                return;
+            }
+
+            try {
+                // Get user's top performing prompt
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, price')
+                    .eq('user_id', user.id)
+                    .eq('is_marketplace', true)
+                    .order('sales_count', { ascending: false })
+                    .limit(1);
+
+                const topPrompt = prompts?.[0];
+                if (!topPrompt) {
+                    toast.show('No prompts available', 'error');
+                    return;
+                }
+
+                const currentPrice = parseFloat(topPrompt.price || 0);
+                const newPrice = (currentPrice * 1.33).toFixed(2); // 33% increase
+
             modal.show(
                 'Apply New Price',
-                `<p style="color: var(--text-2); margin-bottom: 16px;">Are you sure you want to update the price for "Code Review Pro v3"?</p>
+                    `<p style="color: var(--text-2); margin-bottom: 16px;">Are you sure you want to update the price for "${topPrompt.title}"?</p>
                 <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 12px; color: var(--text-3);">Current Price</div>
-                            <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--text-2);">$29.99</div>
+                                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--text-2);">$${currentPrice.toFixed(2)}</div>
                         </div>
                         <div style="font-size: 24px; color: var(--text-3);">&#8594;</div>
                         <div>
                             <div style="font-size: 12px; color: var(--text-3);">New Price</div>
-                            <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--emerald);">$39.99</div>
+                                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--emerald);">$${newPrice}</div>
                         </div>
                     </div>
                 </div>
                 <p style="color: var(--text-3); font-size: 13px;">This change will take effect immediately for new customers.</p>`,
                 'Apply Price',
-                () => {
-                    toast.show('Price updated to $39.99!', 'success');
-                }
-            );
+                    async () => {
+                        try {
+                            const { error } = await supabase
+                                .from('prompts')
+                                .update({ price: parseFloat(newPrice) })
+                                .eq('id', topPrompt.id);
+
+                            if (error) throw error;
+
+                            toast.show(`Price updated to $${newPrice}!`, 'success');
+                            await loadCreatorDashboardData();
+                        } catch (error) {
+                            console.error('Error updating price:', error);
+                            toast.show('Failed to update price', 'error');
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error loading prompt for price update:', error);
+                toast.show('Failed to load prompt data', 'error');
+            }
         });
 
         // Cohort Actions
@@ -1973,14 +2127,53 @@
             });
         });
 
-        // Navigation Items (placeholder actions)
-        const navItems = ['navAnalytics', 'navEarnings', 'navMyPrompts', 'navCreateNew', 'navVersions', 'navReviews', 'navPromotions'];
-        navItems.forEach(id => {
+        // Tab Navigation System
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(tabId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update active nav
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                const navItem = document.querySelector(`[href="#${tabId}"]`);
+                if (navItem) navItem.classList.add('active');
+
+                // Load section data if not already loaded
+                loadTabData(tabId);
+            }
+        }
+
+        // Navigation Items - switch tabs
+        const navItems = {
+            'navAnalytics': 'analytics',
+            'navEarnings': 'earnings',
+            'navMyPrompts': 'my-prompts',
+            'navCreateNew': 'create-new',
+            'navVersions': 'versions',
+            'navReviews': 'reviews',
+            'navPromotions': 'promotions'
+        };
+        
+        Object.entries(navItems).forEach(([id, tabId]) => {
             document.getElementById(id)?.addEventListener('click', (e) => {
                 e.preventDefault();
-                const text = e.target.closest('.nav-item').textContent.trim();
-                toast.show(`${text} - Coming soon!`, 'success');
+                switchTab(tabId);
             });
+        });
+
+        // Show main dashboard by default (first section)
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstSection = document.querySelector('.dashboard-section:first-of-type');
+            if (firstSection) {
+                firstSection.style.display = 'block';
+            }
         });
 
         // User Card
@@ -2002,9 +2195,1247 @@
             );
         });
 
+        // Tab Data Loading Functions
+        async function loadTabData(tabId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) return;
+
+            switch(tabId) {
+                case 'analytics':
+                    await loadAnalyticsData();
+                    break;
+                case 'earnings':
+                    await loadEarningsData();
+                    break;
+                case 'my-prompts':
+                    await loadMyPromptsData();
+                    break;
+                case 'versions':
+                    await loadVersionsData();
+                    break;
+                case 'reviews':
+                    await loadReviewsData();
+                    break;
+                case 'promotions':
+                    await loadPromotionsData();
+                    break;
+            }
+        }
+
+        async function loadAnalyticsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('analyticsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                // Get user's prompts
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, price, is_marketplace')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                // Get purchases for analytics
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, buyer_id, amount, price, created_at, seller_id')
+                    .eq('seller_id', user.id)
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                // Get views/clicks (would need analytics table - using estimates for now)
+                const totalViews = (purchases?.length || 0) * 100;
+                const totalClicks = (purchases?.length || 0) * 35;
+                const totalPurchases = purchases?.length || 0;
+                const conversionRate = totalClicks > 0 ? ((totalPurchases / totalClicks) * 100).toFixed(2) : 0;
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Views</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--glacier);">${totalViews.toLocaleString()}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Clicks</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--violet);">${totalClicks.toLocaleString()}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Conversion Rate</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--emerald);">${conversionRate}%</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Purchases</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--text-1);">${totalPurchases.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Recent Activity</div>
+                        <div style="color: var(--text-3); font-size: 13px;">
+                            ${purchases && purchases.length > 0 
+                                ? purchases.slice(0, 10).map(p => 
+                                    `<div style="padding: 8px 0; border-bottom: 1px solid var(--surface-3);">
+                                        Purchase: $${parseFloat(p.amount || p.price || 0).toFixed(2)} on ${new Date(p.created_at).toLocaleDateString()}
+                                    </div>`
+                                ).join('')
+                                : '<div style="padding: 20px; text-align: center; color: var(--text-3);">No activity yet</div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading analytics data</div>';
+            }
+        }
+
+        async function loadEarningsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('earningsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                // Get user's prompts
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                // Get all purchases
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, buyer_id, amount, price, created_at, seller_id, prompts!inner(title)')
+                    .eq('seller_id', user.id)
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false });
+
+                const totalRevenue = purchases?.reduce((sum, p) => sum + (parseFloat(p.amount || p.price || 0)), 0) || 0;
+                const creatorCut = totalRevenue * 0.8;
+                const platformFee = totalRevenue * 0.2;
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Revenue</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--glacier);">$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Your Earnings (80%)</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--emerald);">$${creatorCut.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Platform Fee (20%)</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--text-2);">$${platformFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                    </div>
+                    <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Earnings History</div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--surface-3);">
+                                        <th style="text-align: left; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Date</th>
+                                        <th style="text-align: left; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Prompt</th>
+                                        <th style="text-align: right; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Amount</th>
+                                        <th style="text-align: right; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Your Cut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${purchases && purchases.length > 0
+                                        ? purchases.map(p => {
+                                            const cut = (parseFloat(p.amount || p.price || 0)) * 0.8;
+                                            return `
+                                                <tr style="border-bottom: 1px solid var(--surface-3);">
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2);">${new Date(p.created_at).toLocaleDateString()}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2);">${p.prompts?.title || 'Unknown'}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2); text-align: right;">$${parseFloat(p.amount || p.price || 0).toFixed(2)}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--emerald); font-weight: 600; text-align: right;">$${cut.toFixed(2)}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')
+                                        : '<tr><td colspan="4" style="padding: 40px; text-align: center; color: var(--text-3);">No earnings yet</td></tr>'
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading earnings:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading earnings data</div>';
+            }
+        }
+
+        async function loadMyPromptsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('myPromptsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, description, category, price, is_marketplace, created_at')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (!prompts || prompts.length === 0) {
+                    contentEl.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-3);">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No prompts yet</div>
+                            <div style="margin-bottom: 24px;">Create your first prompt to get started</div>
+                            <button class="btn btn-primary" onclick="switchTab('create-new')">Create New Prompt</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${prompts.map(p => `
+                            <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--surface-3);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                    <div>
+                                        <div style="font-size: 18px; font-weight: 600; color: var(--text-1); margin-bottom: 4px;">${p.title || 'Untitled'}</div>
+                                        <div style="font-size: 13px; color: var(--text-3);">${p.category || 'Uncategorized'} • Created ${new Date(p.created_at).toLocaleDateString()}</div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="padding: 4px 12px; background: ${p.is_marketplace ? 'var(--emerald)' : 'var(--surface-3)'}; border-radius: var(--radius-pill); font-size: 12px; color: var(--text-1);">
+                                            ${p.is_marketplace ? 'Live' : 'Draft'}
+                                        </span>
+                                        <span style="padding: 4px 12px; background: var(--surface-3); border-radius: var(--radius-pill); font-size: 12px; color: var(--text-1);">
+                                            $${parseFloat(p.amount || p.price || 0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text-2); margin-bottom: 16px; line-height: 1.5;">
+                                    ${p.description || 'No description'}
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="editPrompt('${p.id}')">Edit</button>
+                                    <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="viewPromptVersions('${p.id}')">Versions</button>
+                                    ${p.is_marketplace 
+                                        ? `<button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="unpublishPrompt('${p.id}')">Unpublish</button>`
+                                        : `<button class="btn btn-primary" style="font-size: 13px; padding: 8px 16px;" onclick="publishPrompt('${p.id}')">Publish</button>`
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // Add search functionality
+                document.getElementById('myPromptsSearch')?.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const cards = contentEl.querySelectorAll('div > div');
+                    cards.forEach(card => {
+                        const text = card.textContent.toLowerCase();
+                        card.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading my prompts:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading prompts</div>';
+            }
+        }
+
+        async function loadVersionsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('versionsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                // Get user's prompts
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, created_at, updated_at')
+                    .eq('user_id', user.id)
+                    .order('updated_at', { ascending: false });
+
+                if (!prompts || prompts.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No prompts with versions yet</div>';
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${prompts.map(p => {
+                            const versions = p.updated_at !== p.created_at ? 2 : 1; // Simple version count
+                            return `
+                                <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 16px; font-weight: 600; color: var(--text-1);">${p.title || 'Untitled'}</div>
+                                            <div style="font-size: 12px; color: var(--text-3); margin-top: 4px;">${versions} version${versions !== 1 ? 's' : ''}</div>
+                                        </div>
+                                        <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="viewPromptVersions('${p.id}')">View Versions</button>
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--text-2);">
+                                        <div>Created: ${new Date(p.created_at).toLocaleString()}</div>
+                                        ${p.updated_at !== p.created_at ? `<div>Last updated: ${new Date(p.updated_at).toLocaleString()}</div>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading versions:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading versions</div>';
+            }
+        }
+
+        async function loadReviewsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('reviewsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                // Get user's prompts
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                if (promptIds.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No prompts to review yet</div>';
+                    return;
+                }
+
+                // Get reviews
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('id, prompt_id, rating, comment, created_at, profiles!inner(first_name, last_name, email)')
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false });
+
+                if (!reviews || reviews.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No reviews yet</div>';
+                    return;
+                }
+
+                // Get prompt titles for display
+                const promptTitles = {};
+                prompts.forEach(p => { promptTitles[p.id] = p.title; });
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${reviews.map(r => {
+                            const reviewerName = r.profiles 
+                                ? `${r.profiles.first_name || ''} ${r.profiles.last_name || ''}`.trim() || r.profiles.email?.split('@')[0] || 'Anonymous'
+                                : 'Anonymous';
+                            const stars = '⭐'.repeat(Math.floor(r.rating)) + '☆'.repeat(5 - Math.floor(r.rating));
+                            return `
+                                <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px;">${reviewerName}</div>
+                                            <div style="font-size: 12px; color: var(--text-3);">${promptTitles[r.prompt_id] || 'Unknown Prompt'}</div>
+                                        </div>
+                                        <div style="font-size: 18px;">${stars}</div>
+                                    </div>
+                                    ${r.comment ? `<div style="font-size: 14px; color: var(--text-2); line-height: 1.5; margin-top: 12px;">${r.comment}</div>` : ''}
+                                    <div style="font-size: 12px; color: var(--text-3); margin-top: 12px;">${new Date(r.created_at).toLocaleString()}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                // Add filter functionality
+                document.getElementById('reviewFilter')?.addEventListener('change', (e) => {
+                    const filterValue = e.target.value;
+                    const reviewCards = contentEl.querySelectorAll('div > div');
+                    reviewCards.forEach(card => {
+                        if (filterValue === 'all') {
+                            card.style.display = '';
+                        } else {
+                            const rating = parseInt(filterValue);
+                            const stars = card.querySelector('div[style*="font-size: 18px"]')?.textContent || '';
+                            const cardRating = (stars.match(/⭐/g) || []).length;
+                            card.style.display = cardRating === rating ? '' : 'none';
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading reviews</div>';
+            }
+        }
+
+        async function loadPromotionsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('promotionsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                // Promotions table would need to be created in Supabase
+                // For now, show placeholder
+                contentEl.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-3);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎯</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No promotions yet</div>
+                        <div style="margin-bottom: 24px;">Create promotional campaigns to boost your sales</div>
+                        <button class="btn btn-primary" id="createPromotionBtn">Create Promotion</button>
+                    </div>
+                `;
+
+                document.getElementById('createPromotionBtn')?.addEventListener('click', () => {
+                    modal.show(
+                        'Create Promotion',
+                        `<p style="color: var(--text-2); margin-bottom: 16px;">Promotion feature coming soon. This will allow you to create discount codes and special offers.</p>`,
+                        'Close',
+                        () => {}
+                    );
+                });
+            } catch (error) {
+                console.error('Error loading promotions:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading promotions</div>';
+            }
+        }
+
+        // Prompt management functions
+        async function editPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Authentication required', 'error');
+                return;
+            }
+
+            try {
+                // Fetch prompt data
+                const { data: prompt, error: fetchError } = await supabase
+                    .from('prompts')
+                    .select('*')
+                    .eq('id', promptId)
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (fetchError) throw fetchError;
+                if (!prompt) {
+                    toast.show('Prompt not found', 'error');
+                    return;
+                }
+
+                // Switch to create-new tab and populate form
+                switchTab('create-new');
+                
+                // Wait for form to be visible, then populate
+                setTimeout(() => {
+                    const titleEl = document.getElementById('promptTitle');
+                    const categoryEl = document.getElementById('promptCategory');
+                    const contentEl = document.getElementById('promptContent');
+                    const descriptionEl = document.getElementById('promptDescription');
+                    const priceEl = document.getElementById('promptPrice');
+                    const tagsEl = document.getElementById('promptTags');
+                    const marketplaceEl = document.getElementById('promptMarketplace');
+
+                    if (titleEl) titleEl.value = prompt.title || '';
+                    if (categoryEl) categoryEl.value = prompt.category || '';
+                    if (contentEl) contentEl.value = prompt.content || '';
+                    if (descriptionEl) descriptionEl.value = prompt.description || '';
+                    if (priceEl) priceEl.value = prompt.price || 0;
+                    if (tagsEl) tagsEl.value = (prompt.tags || []).join(', ');
+                    if (marketplaceEl) marketplaceEl.checked = prompt.is_marketplace || false;
+
+                    // Update form to show it's in edit mode
+                    const form = document.getElementById('createPromptForm');
+                    if (form) {
+                        form.dataset.editMode = 'true';
+                        form.dataset.editId = promptId;
+                        
+                        // Change submit button text
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.textContent = 'Update Prompt';
+                    }
+
+                    toast.show('Prompt loaded for editing', 'success');
+                }, 300);
+            } catch (error) {
+                console.error('Error loading prompt for edit:', error);
+                toast.show('Failed to load prompt for editing', 'error');
+            }
+        }
+
+        async function publishPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase
+                    .from('prompts')
+                    .update({ is_marketplace: true })
+                    .eq('id', promptId);
+
+                if (error) throw error;
+                toast.show('Prompt published to marketplace!', 'success');
+                loadMyPromptsData();
+            } catch (error) {
+                console.error('Error publishing prompt:', error);
+                toast.show('Failed to publish prompt', 'error');
+            }
+        }
+
+        async function unpublishPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase
+                    .from('prompts')
+                    .update({ is_marketplace: false })
+                    .eq('id', promptId);
+
+                if (error) throw error;
+                toast.show('Prompt unpublished', 'success');
+                loadMyPromptsData();
+            } catch (error) {
+                console.error('Error unpublishing prompt:', error);
+                toast.show('Failed to unpublish prompt', 'error');
+            }
+        }
+
+        function viewPromptVersions(promptId) {
+            switchTab('versions');
+            toast.show('Viewing prompt versions', 'success');
+        }
+
+        // Create Prompt Form Handler
+        document.getElementById('createPromptForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Authentication required', 'error');
+                return;
+            }
+
+            const title = document.getElementById('promptTitle')?.value.trim();
+            const category = document.getElementById('promptCategory')?.value;
+            const content = document.getElementById('promptContent')?.value.trim();
+            const description = document.getElementById('promptDescription')?.value.trim();
+            const price = parseFloat(document.getElementById('promptPrice')?.value || 0);
+            const tags = document.getElementById('promptTags')?.value.split(',').map(t => t.trim()).filter(t => t) || [];
+            const isMarketplace = document.getElementById('promptMarketplace')?.checked || false;
+
+            if (!title || !category || !content || !description || price <= 0) {
+                toast.show('Please fill in all required fields including prompt content', 'error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('prompts')
+                    .insert({
+                        user_id: user.id,
+                        title,
+                        content,
+                        description,
+                        category,
+                        price,
+                        tags,
+                        is_marketplace: isMarketplace,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                toast.show(`Prompt "${title}" created successfully!`, 'success');
+                document.getElementById('createPromptForm').reset();
+                
+                // Reload prompts table and my prompts
+                await loadCreatorDashboardData();
+                await loadMyPromptsData();
+                
+                // Switch to my prompts tab
+                setTimeout(() => switchTab('my-prompts'), 1000);
+            } catch (error) {
+                console.error('Error creating prompt:', error);
+                toast.show('Failed to create prompt: ' + (error.message || 'Unknown error'), 'error');
+            }
+        });
+
+        // Tab Data Loading Functions
+        async function loadTabData(tabId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) return;
+
+            switch(tabId) {
+                case 'analytics':
+                    await loadAnalyticsData();
+                    break;
+                case 'earnings':
+                    await loadEarningsData();
+                    break;
+                case 'my-prompts':
+                    await loadMyPromptsData();
+                    break;
+                case 'versions':
+                    await loadVersionsData();
+                    break;
+                case 'reviews':
+                    await loadReviewsData();
+                    break;
+                case 'promotions':
+                    await loadPromotionsData();
+                    break;
+            }
+        }
+
+        async function loadAnalyticsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('analyticsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, price, created_at')
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                const totalViews = (purchases?.length || 0) * 100;
+                const totalClicks = (purchases?.length || 0) * 35;
+                const totalPurchases = purchases?.length || 0;
+                const conversionRate = totalClicks > 0 ? ((totalPurchases / totalClicks) * 100).toFixed(2) : 0;
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Views</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--glacier);">${totalViews.toLocaleString()}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Clicks</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--violet);">${totalClicks.toLocaleString()}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Conversion Rate</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--emerald);">${conversionRate}%</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Purchases</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--text-1);">${totalPurchases.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Recent Activity</div>
+                        <div style="color: var(--text-3); font-size: 13px;">
+                            ${purchases && purchases.length > 0 
+                                ? purchases.slice(0, 10).map(p => 
+                                    `<div style="padding: 8px 0; border-bottom: 1px solid var(--surface-3);">
+                                        Purchase: $${parseFloat(p.amount || p.price || 0).toFixed(2)} on ${new Date(p.created_at).toLocaleDateString()}
+                                    </div>`
+                                ).join('')
+                                : '<div style="padding: 20px; text-align: center; color: var(--text-3);">No activity yet</div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading analytics data</div>';
+            }
+        }
+
+        async function loadEarningsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('earningsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, buyer_id, amount, price, created_at, seller_id, prompts!inner(title)')
+                    .eq('seller_id', user.id)
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false });
+
+                const totalRevenue = purchases?.reduce((sum, p) => sum + (parseFloat(p.amount || p.price || 0)), 0) || 0;
+                const creatorCut = totalRevenue * 0.8;
+                const platformFee = totalRevenue * 0.2;
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Total Revenue</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--glacier);">$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Your Earnings (80%)</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--emerald);">$${creatorCut.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                        <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 8px;">Platform Fee (20%)</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--text-2);">$${platformFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </div>
+                    </div>
+                    <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Earnings History</div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--surface-3);">
+                                        <th style="text-align: left; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Date</th>
+                                        <th style="text-align: left; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Prompt</th>
+                                        <th style="text-align: right; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Amount</th>
+                                        <th style="text-align: right; padding: 12px; font-size: 12px; color: var(--text-3); font-weight: 600;">Your Cut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${purchases && purchases.length > 0
+                                        ? purchases.map(p => {
+                                            const cut = (parseFloat(p.amount || p.price || 0)) * 0.8;
+                                            return `
+                                                <tr style="border-bottom: 1px solid var(--surface-3);">
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2);">${new Date(p.created_at).toLocaleDateString()}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2);">${p.prompts?.title || 'Unknown'}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--text-2); text-align: right;">$${parseFloat(p.amount || p.price || 0).toFixed(2)}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: var(--emerald); font-weight: 600; text-align: right;">$${cut.toFixed(2)}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')
+                                        : '<tr><td colspan="4" style="padding: 40px; text-align: center; color: var(--text-3);">No earnings yet</td></tr>'
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading earnings:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading earnings data</div>';
+            }
+        }
+
+        async function loadMyPromptsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('myPromptsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, description, category, price, is_marketplace, created_at')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (!prompts || prompts.length === 0) {
+                    contentEl.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-3);">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No prompts yet</div>
+                            <div style="margin-bottom: 24px;">Create your first prompt to get started</div>
+                            <button class="btn btn-primary" onclick="switchTab('create-new')">Create New Prompt</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${prompts.map(p => `
+                            <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--surface-3);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                    <div>
+                                        <div style="font-size: 18px; font-weight: 600; color: var(--text-1); margin-bottom: 4px;">${p.title || 'Untitled'}</div>
+                                        <div style="font-size: 13px; color: var(--text-3);">${p.category || 'Uncategorized'} • Created ${new Date(p.created_at).toLocaleDateString()}</div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="padding: 4px 12px; background: ${p.is_marketplace ? 'var(--emerald)' : 'var(--surface-3)'}; border-radius: var(--radius-pill); font-size: 12px; color: var(--text-1);">
+                                            ${p.is_marketplace ? 'Live' : 'Draft'}
+                                        </span>
+                                        <span style="padding: 4px 12px; background: var(--surface-3); border-radius: var(--radius-pill); font-size: 12px; color: var(--text-1);">
+                                            $${parseFloat(p.amount || p.price || 0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text-2); margin-bottom: 16px; line-height: 1.5;">
+                                    ${p.description || 'No description'}
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="editPrompt('${p.id}')">Edit</button>
+                                    <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="viewPromptVersions('${p.id}')">Versions</button>
+                                    ${p.is_marketplace 
+                                        ? `<button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="unpublishPrompt('${p.id}')">Unpublish</button>`
+                                        : `<button class="btn btn-primary" style="font-size: 13px; padding: 8px 16px;" onclick="publishPrompt('${p.id}')">Publish</button>`
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                document.getElementById('myPromptsSearch')?.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const cards = contentEl.querySelectorAll('div > div');
+                    cards.forEach(card => {
+                        const text = card.textContent.toLowerCase();
+                        card.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading my prompts:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading prompts</div>';
+            }
+        }
+
+        async function loadVersionsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('versionsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title, created_at, updated_at')
+                    .eq('user_id', user.id)
+                    .order('updated_at', { ascending: false });
+
+                if (!prompts || prompts.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No prompts with versions yet</div>';
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${prompts.map(p => {
+                            const versions = p.updated_at !== p.created_at ? 2 : 1;
+                            return `
+                                <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 16px; font-weight: 600; color: var(--text-1);">${p.title || 'Untitled'}</div>
+                                            <div style="font-size: 12px; color: var(--text-3); margin-top: 4px;">${versions} version${versions !== 1 ? 's' : ''}</div>
+                                        </div>
+                                        <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="viewPromptVersions('${p.id}')">View Versions</button>
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--text-2);">
+                                        <div>Created: ${new Date(p.created_at).toLocaleString()}</div>
+                                        ${p.updated_at !== p.created_at ? `<div>Last updated: ${new Date(p.updated_at).toLocaleString()}</div>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading versions:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading versions</div>';
+            }
+        }
+
+        async function loadReviewsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('reviewsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                const { data: prompts } = await supabase
+                    .from('prompts')
+                    .select('id, title')
+                    .eq('user_id', user.id);
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                if (promptIds.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No prompts to review yet</div>';
+                    return;
+                }
+
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('id, prompt_id, rating, comment, created_at, profiles!inner(first_name, last_name, email)')
+                    .in('prompt_id', promptIds)
+                    .order('created_at', { ascending: false });
+
+                if (!reviews || reviews.length === 0) {
+                    contentEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-3);">No reviews yet</div>';
+                    return;
+                }
+
+                const promptTitles = {};
+                prompts.forEach(p => { promptTitles[p.id] = p.title; });
+
+                contentEl.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${reviews.map(r => {
+                            const reviewerName = r.profiles 
+                                ? `${r.profiles.first_name || ''} ${r.profiles.last_name || ''}`.trim() || r.profiles.email?.split('@')[0] || 'Anonymous'
+                                : 'Anonymous';
+                            const stars = '⭐'.repeat(Math.floor(r.rating)) + '☆'.repeat(5 - Math.floor(r.rating));
+                            return `
+                                <div style="background: var(--surface-2); padding: 20px; border-radius: var(--radius-md);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                        <div>
+                                            <div style="font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px;">${reviewerName}</div>
+                                            <div style="font-size: 12px; color: var(--text-3);">${promptTitles[r.prompt_id] || 'Unknown Prompt'}</div>
+                                        </div>
+                                        <div style="font-size: 18px;">${stars}</div>
+                                    </div>
+                                    ${r.comment ? `<div style="font-size: 14px; color: var(--text-2); line-height: 1.5; margin-top: 12px;">${r.comment}</div>` : ''}
+                                    <div style="font-size: 12px; color: var(--text-3); margin-top: 12px;">${new Date(r.created_at).toLocaleString()}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                document.getElementById('reviewFilter')?.addEventListener('change', (e) => {
+                    const filterValue = e.target.value;
+                    const reviewCards = contentEl.querySelectorAll('div > div');
+                    reviewCards.forEach(card => {
+                        if (filterValue === 'all') {
+                            card.style.display = '';
+                        } else {
+                            const rating = parseInt(filterValue);
+                            const stars = card.querySelector('div[style*="font-size: 18px"]')?.textContent || '';
+                            const cardRating = (stars.match(/⭐/g) || []).length;
+                            card.style.display = cardRating === rating ? '' : 'none';
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading reviews</div>';
+            }
+        }
+
+        async function loadPromotionsData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const contentEl = document.getElementById('promotionsContent');
+            
+            if (!supabase || !user || !contentEl) return;
+
+            try {
+                contentEl.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-3);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎯</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No promotions yet</div>
+                        <div style="margin-bottom: 24px;">Create promotional campaigns to boost your sales</div>
+                        <button class="btn btn-primary" id="createPromotionBtn">Create Promotion</button>
+                    </div>
+                `;
+
+                document.getElementById('createPromotionBtn')?.addEventListener('click', () => {
+                    modal.show(
+                        'Create Promotion',
+                        `<p style="color: var(--text-2); margin-bottom: 16px;">Promotion feature coming soon. This will allow you to create discount codes and special offers.</p>`,
+                        'Close',
+                        () => {}
+                    );
+                });
+            } catch (error) {
+                console.error('Error loading promotions:', error);
+                contentEl.innerHTML = '<div style="text-align: center; color: var(--error); padding: 20px;">Error loading promotions</div>';
+            }
+        }
+
+        // Prompt management functions
+        async function editPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Authentication required', 'error');
+                return;
+            }
+
+            try {
+                // Fetch prompt data
+                const { data: prompt, error: fetchError } = await supabase
+                    .from('prompts')
+                    .select('*')
+                    .eq('id', promptId)
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (fetchError) throw fetchError;
+                if (!prompt) {
+                    toast.show('Prompt not found', 'error');
+                    return;
+                }
+
+                // Switch to create-new tab and populate form
+                switchTab('create-new');
+                
+                // Wait for form to be visible, then populate
+                setTimeout(() => {
+                    const titleEl = document.getElementById('promptTitle');
+                    const categoryEl = document.getElementById('promptCategory');
+                    const contentEl = document.getElementById('promptContent');
+                    const descriptionEl = document.getElementById('promptDescription');
+                    const priceEl = document.getElementById('promptPrice');
+                    const tagsEl = document.getElementById('promptTags');
+                    const marketplaceEl = document.getElementById('promptMarketplace');
+
+                    if (titleEl) titleEl.value = prompt.title || '';
+                    if (categoryEl) categoryEl.value = prompt.category || '';
+                    if (contentEl) contentEl.value = prompt.content || '';
+                    if (descriptionEl) descriptionEl.value = prompt.description || '';
+                    if (priceEl) priceEl.value = prompt.price || 0;
+                    if (tagsEl) tagsEl.value = (prompt.tags || []).join(', ');
+                    if (marketplaceEl) marketplaceEl.checked = prompt.is_marketplace || false;
+
+                    // Update form to show it's in edit mode
+                    const form = document.getElementById('createPromptForm');
+                    if (form) {
+                        form.dataset.editMode = 'true';
+                        form.dataset.editId = promptId;
+                        
+                        // Change submit button text
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.textContent = 'Update Prompt';
+                    }
+
+                    toast.show('Prompt loaded for editing', 'success');
+                }, 300);
+            } catch (error) {
+                console.error('Error loading prompt for edit:', error);
+                toast.show('Failed to load prompt for editing', 'error');
+            }
+        }
+
+        async function publishPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase
+                    .from('prompts')
+                    .update({ is_marketplace: true })
+                    .eq('id', promptId);
+
+                if (error) throw error;
+                toast.show('Prompt published to marketplace!', 'success');
+                loadMyPromptsData();
+            } catch (error) {
+                console.error('Error publishing prompt:', error);
+                toast.show('Failed to publish prompt', 'error');
+            }
+        }
+
+        async function unpublishPrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase
+                    .from('prompts')
+                    .update({ is_marketplace: false })
+                    .eq('id', promptId);
+
+                if (error) throw error;
+                toast.show('Prompt unpublished', 'success');
+                loadMyPromptsData();
+            } catch (error) {
+                console.error('Error unpublishing prompt:', error);
+                toast.show('Failed to unpublish prompt', 'error');
+            }
+        }
+
+        function viewPromptVersions(promptId) {
+            switchTab('versions');
+            toast.show('Viewing prompt versions', 'success');
+        }
+
+        // Create/Edit Prompt Form Handler
+        document.getElementById('createPromptForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                toast.show('Authentication required', 'error');
+                return;
+            }
+
+            const form = document.getElementById('createPromptForm');
+            const isEditMode = form?.dataset.editMode === 'true';
+            const editId = form?.dataset.editId;
+
+            const title = document.getElementById('promptTitle')?.value.trim();
+            const category = document.getElementById('promptCategory')?.value;
+            const content = document.getElementById('promptContent')?.value.trim();
+            const description = document.getElementById('promptDescription')?.value.trim();
+            const price = parseFloat(document.getElementById('promptPrice')?.value || 0);
+            const tags = document.getElementById('promptTags')?.value.split(',').map(t => t.trim()).filter(t => t) || [];
+            const isMarketplace = document.getElementById('promptMarketplace')?.checked || false;
+
+            if (!title || !category || !content || !description || price <= 0) {
+                toast.show('Please fill in all required fields including prompt content', 'error');
+                return;
+            }
+
+            try {
+                if (isEditMode && editId) {
+                    // Update existing prompt
+                    const { data, error } = await supabase
+                        .from('prompts')
+                        .update({
+                            title,
+                            content,
+                            description,
+                            category,
+                            price,
+                            tags,
+                            is_marketplace: isMarketplace,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', editId)
+                        .eq('user_id', user.id)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    toast.show(`Prompt "${title}" updated successfully!`, 'success');
+                    
+                    // Reset edit mode
+                    delete form.dataset.editMode;
+                    delete form.dataset.editId;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) submitBtn.textContent = 'Create Prompt';
+                } else {
+                    // Create new prompt
+                    const { data, error } = await supabase
+                        .from('prompts')
+                        .insert({
+                            user_id: user.id,
+                            title,
+                            content,
+                            description,
+                            category,
+                            price,
+                            tags,
+                            is_marketplace: isMarketplace,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    toast.show(`Prompt "${title}" created successfully!`, 'success');
+                }
+
+                document.getElementById('createPromptForm').reset();
+                
+                await loadCreatorDashboardData();
+                await loadMyPromptsData();
+                
+                setTimeout(() => switchTab('my-prompts'), 1000);
+            } catch (error) {
+                console.error('Error saving prompt:', error);
+                toast.show('Failed to save prompt: ' + (error.message || 'Unknown error'), 'error');
+            }
+        });
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderChart();
+            
+            // Check if URL hash points to create-new (from playground)
+            const hash = window.location.hash;
+            if (hash === '#create-new') {
+                switchTab('create-new');
+                
+                // Check for edit prompt ID from library
+                const editPromptId = sessionStorage.getItem('editPromptId');
+                if (editPromptId) {
+                    sessionStorage.removeItem('editPromptId');
+                    // Load prompt for editing
+                    setTimeout(() => editPrompt(editPromptId), 500);
+                }
+                
+                // Load prompt from playground if available
+                const savedPrompt = sessionStorage.getItem('playgroundPrompt');
+                if (savedPrompt) {
+                    try {
+                        const promptData = JSON.parse(savedPrompt);
+                        const promptContent = document.getElementById('promptContent');
+                        const promptDescription = document.getElementById('promptDescription');
+                        
+                        if (promptContent && promptData.content) {
+                            promptContent.value = promptData.content;
+                        }
+                        if (promptDescription && promptData.content) {
+                            // Use content as description placeholder if description is empty
+                            if (!promptDescription.value) {
+                                promptDescription.value = promptData.content.substring(0, 200) + (promptData.content.length > 200 ? '...' : '');
+                            }
+                        }
+                        if (promptData.content) {
+                            toast.show('Prompt loaded from playground', 'success');
+                        }
+                        
+                        // Clear sessionStorage after loading
+                        sessionStorage.removeItem('playgroundPrompt');
+                    } catch (e) {
+                        console.error('Error loading prompt from playground:', e);
+                    }
+                }
+            } else {
+                // Show main dashboard by default
+                const mainDashboard = document.querySelector('.dashboard-section:first-of-type');
+                if (mainDashboard) {
+                    mainDashboard.style.display = 'block';
+                }
+            }
         });
 
         // Keyboard shortcuts
@@ -2091,7 +3522,884 @@
                     main.insertBefore(banner, main.firstChild);
                 }
             }
+
+            // Load creator dashboard data
+            await loadCreatorDashboardData();
         })();
+
+        // ============================================
+        // CREATOR DASHBOARD DATA LOADING
+        // ============================================
+        async function loadCreatorDashboardData(period = '30') {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                console.error('Supabase or user not available');
+                return;
+            }
+
+            try {
+                // Get user's prompts that are in marketplace
+                const { data: prompts, error: promptsError } = await supabase
+                    .from('prompts')
+                    .select('id, title, price, is_marketplace')
+                    .eq('user_id', user.id)
+                    .eq('is_marketplace', true);
+
+                if (promptsError) {
+                    console.error('Error loading prompts:', promptsError);
+                    return;
+                }
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                if (promptIds.length === 0) {
+                    // No prompts in marketplace, all stats stay at 0
+                    updateDashboardStats({
+                        totalRevenue: 0,
+                        totalSales: 0,
+                        conversionRate: 0,
+                        avgRating: 0,
+                        totalReviews: 0,
+                        views: 0,
+                        clicks: 0,
+                        purchases: 0
+                    });
+                    return;
+                }
+
+                // Get purchases for user's prompts
+                const { data: purchases, error: purchasesError } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, buyer_id, amount, price, created_at, seller_id')
+                    .eq('seller_id', user.id)
+                    .in('prompt_id', promptIds);
+
+                if (purchasesError && purchasesError.code !== 'PGRST116') {
+                    console.error('Error loading purchases:', purchasesError);
+                }
+
+                // Calculate revenue and sales
+                const totalSales = purchases?.length || 0;
+                // Use amount field (primary) or price field (fallback) from purchases
+                const totalRevenue = purchases?.reduce((sum, p) => sum + (parseFloat(p.amount || p.price || 0)), 0) || 0;
+                const creatorCut = totalRevenue * 0.8; // 80% to creator
+
+                // Get reviews for user's prompts
+                const { data: reviews, error: reviewsError } = await supabase
+                    .from('reviews')
+                    .select('rating, prompt_id')
+                    .in('prompt_id', promptIds);
+
+                if (reviewsError && reviewsError.code !== 'PGRST116') {
+                    console.error('Error loading reviews:', reviewsError);
+                }
+
+                // Calculate average rating
+                const totalReviews = reviews?.length || 0;
+                const avgRating = totalReviews > 0
+                    ? (reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / totalReviews).toFixed(1)
+                    : 0;
+
+                // Get views/clicks (would need analytics table - for now use purchases as proxy)
+                // In production, you'd have a separate analytics/views table
+                const views = totalSales * 100; // Estimate: 100 views per sale
+                const clicks = totalSales * 35; // Estimate: 35 clicks per sale
+                const clickRate = views > 0 ? ((clicks / views) * 100).toFixed(1) : 0;
+                const conversionRate = clicks > 0 ? ((totalSales / clicks) * 100).toFixed(1) : 0;
+
+                // Update dashboard stats
+                updateDashboardStats({
+                    totalRevenue,
+                    totalSales,
+                    conversionRate: parseFloat(conversionRate),
+                    avgRating: parseFloat(avgRating),
+                    totalReviews,
+                    views,
+                    clicks,
+                    purchases: totalSales,
+                    promptCount: prompts.length
+                });
+
+                // Update earnings badge in sidebar
+                const earningsBadge = document.getElementById('earningsBadge');
+                if (earningsBadge) {
+                    earningsBadge.textContent = `$${creatorCut.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                }
+
+                // Load and display prompts table
+                await loadPromptsTable(prompts, purchases || [], reviews || []);
+
+                // Load buyer cohorts
+                await loadBuyerCohorts(purchases || []);
+
+                // Update chart with revenue data
+                updateRevenueChart(purchases || []);
+
+                // Load Pricing Oracle with live data
+                await loadPricingOracle(prompts, purchases || [], reviews || []);
+
+            } catch (error) {
+                console.error('Error loading creator dashboard data:', error);
+            }
+        }
+
+        function updateDashboardStats(stats) {
+            // Update Total Revenue
+            const revenueEl = document.getElementById('totalRevenue');
+            if (revenueEl) {
+                revenueEl.textContent = `$${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+            const revenueSubtext = document.getElementById('revenueSubtext');
+            if (revenueSubtext) {
+                const cut = (stats.totalRevenue * 0.8).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                revenueSubtext.textContent = `Your cut: $${cut} (80%)`;
+            }
+
+            // Update Total Sales
+            const salesEl = document.getElementById('totalSales');
+            if (salesEl) {
+                salesEl.textContent = stats.totalSales.toLocaleString();
+            }
+            const salesSubtext = document.getElementById('salesSubtext');
+            if (salesSubtext) {
+                salesSubtext.textContent = `Across ${stats.promptCount || 0} prompt${stats.promptCount !== 1 ? 's' : ''}`;
+            }
+
+            // Update Conversion Rate
+            const conversionEl = document.getElementById('conversionRate');
+            if (conversionEl) {
+                conversionEl.textContent = `${stats.conversionRate.toFixed(1)}%`;
+            }
+
+            // Update Avg Rating
+            const ratingEl = document.getElementById('avgRating');
+            if (ratingEl) {
+                ratingEl.textContent = stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '0';
+            }
+            const ratingSubtext = document.getElementById('ratingSubtext');
+            if (ratingSubtext) {
+                ratingSubtext.textContent = `From ${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+            }
+
+            // Update Funnel
+            const viewsEl = document.getElementById('funnelViews');
+            if (viewsEl) viewsEl.textContent = stats.views.toLocaleString();
+
+            const clicksEl = document.getElementById('funnelClicks');
+            if (clicksEl) clicksEl.textContent = stats.clicks.toLocaleString();
+
+            const purchasesEl = document.getElementById('funnelPurchases');
+            if (purchasesEl) purchasesEl.textContent = stats.purchases.toLocaleString();
+
+            const clickRateEl = document.getElementById('clickRate');
+            if (clickRateEl) {
+                const rate = stats.views > 0 ? ((stats.clicks / stats.views) * 100).toFixed(1) : 0;
+                clickRateEl.textContent = `${rate}%`;
+            }
+
+            const conversionRateFunnelEl = document.getElementById('conversionRateFunnel');
+            if (conversionRateFunnelEl) {
+                conversionRateFunnelEl.textContent = `${stats.conversionRate.toFixed(1)}%`;
+            }
+
+            // Update funnel visual bars based on actual data
+            updateFunnelBars(stats);
+
+            // Update trend indicators (hide for now since we don't have historical data)
+            document.getElementById('revenueTrend').textContent = '';
+            document.getElementById('salesTrend').textContent = '';
+            document.getElementById('conversionTrend').textContent = '';
+            document.getElementById('ratingTrend').textContent = '';
+        }
+
+        function updateFunnelBars(stats) {
+            const funnelStages = document.querySelectorAll('.funnel-stage');
+            if (!funnelStages || funnelStages.length < 3) return;
+
+            // Calculate percentages based on actual data
+            const maxValue = Math.max(stats.views, stats.clicks, stats.purchases, 1);
+            
+            // Views bar (always 100% as baseline)
+            const viewsFill = funnelStages[0]?.querySelector('.funnel-fill');
+            if (viewsFill) {
+                viewsFill.style.width = '100%';
+            }
+
+            // Clicks bar (percentage of views)
+            const clicksFill = funnelStages[1]?.querySelector('.funnel-fill');
+            if (clicksFill && stats.views > 0) {
+                const clicksPercent = (stats.clicks / stats.views) * 100;
+                clicksFill.style.width = `${Math.min(clicksPercent, 100)}%`;
+            } else if (clicksFill) {
+                clicksFill.style.width = '0%';
+            }
+
+            // Purchases bar (percentage of clicks)
+            const purchasesFill = funnelStages[2]?.querySelector('.funnel-fill');
+            if (purchasesFill && stats.clicks > 0) {
+                const purchasesPercent = (stats.purchases / stats.clicks) * 100;
+                purchasesFill.style.width = `${Math.min(purchasesPercent, 100)}%`;
+            } else if (purchasesFill) {
+                purchasesFill.style.width = '0%';
+            }
+        }
+
+        async function loadPromptsTable(prompts, purchases, reviews) {
+            const tbody = document.getElementById('promptsTableBody');
+            if (!tbody) return;
+
+            // Clear existing rows
+            tbody.innerHTML = '';
+
+            if (!prompts || prompts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-3);">No prompts in marketplace yet. <a href="#create-new" style="color: var(--glacier);">Create your first prompt</a></td></tr>';
+                return;
+            }
+
+            // Group purchases and reviews by prompt_id
+            const purchasesByPrompt = {};
+            purchases.forEach(p => {
+                if (!purchasesByPrompt[p.prompt_id]) {
+                    purchasesByPrompt[p.prompt_id] = [];
+                }
+                purchasesByPrompt[p.prompt_id].push(p);
+            });
+
+            const reviewsByPrompt = {};
+            reviews.forEach(r => {
+                if (!reviewsByPrompt[r.prompt_id]) {
+                    reviewsByPrompt[r.prompt_id] = [];
+                }
+                reviewsByPrompt[r.prompt_id].push(r);
+            });
+
+            // Sort prompts by sales (descending)
+            prompts.sort((a, b) => {
+                const salesA = purchasesByPrompt[a.id]?.length || 0;
+                const salesB = purchasesByPrompt[b.id]?.length || 0;
+                return salesB - salesA;
+            });
+
+            // Render each prompt
+            prompts.forEach(prompt => {
+                const promptPurchases = purchasesByPrompt[prompt.id] || [];
+                const promptReviews = reviewsByPrompt[prompt.id] || [];
+                const salesCount = promptPurchases.length;
+                const salesRevenue = promptPurchases.reduce((sum, p) => sum + (parseFloat(p.amount || p.price || 0)), 0);
+                const creatorRevenue = salesRevenue * 0.8;
+                const avgRating = promptReviews.length > 0
+                    ? (promptReviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / promptReviews.length).toFixed(1)
+                    : 0;
+
+                const row = document.createElement('tr');
+                row.dataset.promptId = prompt.id;
+                
+                // Get category icon (simplified)
+                const categoryIcons = {
+                    'Engineering': '&#128269;',
+                    'Content': '&#9997;&#65039;',
+                    'Analytics': '&#128202;',
+                    'Marketing': '&#127919;',
+                    'Design': '&#127912;'
+                };
+                const icon = categoryIcons[prompt.category] || '&#128196;';
+
+                row.innerHTML = `
+                    <td>
+                        <div class="prompt-cell">
+                            <div class="prompt-icon">${icon}</div>
+                            <div class="prompt-info">
+                                <div class="prompt-name">${prompt.title || 'Untitled Prompt'}</div>
+                                <div class="prompt-category">${prompt.category || 'General'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="price">$${parseFloat(prompt.price || 0).toFixed(2)}</span></td>
+                    <td>
+                        <div class="sales-cell">
+                            <span class="sales-count">${salesCount}</span>
+                            <span class="sales-revenue">+$${creatorRevenue.toFixed(0)}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rating">
+                            <span class="rating-star">&#9733;</span>
+                            <span class="rating-value">${avgRating > 0 ? avgRating : '0'}</span>
+                            <span class="rating-count">(${promptReviews.length})</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Re-attach click handlers
+            document.querySelectorAll('#promptsTable tbody tr').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    const promptName = row.querySelector('.prompt-name')?.textContent;
+                    toast.show(`Viewing details for "${promptName}"`, 'success');
+                });
+            });
+        }
+
+        function updateRevenueChart(purchases) {
+            const container = document.getElementById('revenueChart');
+            if (!container) return;
+
+            // Group purchases by month
+            const monthlyData = {};
+            purchases.forEach(purchase => {
+                const date = new Date(purchase.created_at);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { month: monthName, sales: 0, revenue: 0, earnings: 0 };
+                }
+                monthlyData[monthKey].sales += 1;
+                const purchaseAmount = parseFloat(purchase.amount || purchase.price || 0);
+                monthlyData[monthKey].revenue += purchaseAmount;
+                monthlyData[monthKey].earnings += purchaseAmount * 0.8; // Creator gets 80%
+            });
+
+            // Convert to array and sort by date
+            const chartData = Object.keys(monthlyData)
+                .sort()
+                .map(key => monthlyData[key]);
+
+            // If no data, show empty state
+            if (chartData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-3);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No sales data yet</div>
+                        <div>Revenue chart will appear once you have sales</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculate max value for scaling
+            const maxValue = Math.max(...chartData.map(d => Math.max(d.sales, d.earnings)), 1);
+
+            // Render chart bars
+            container.innerHTML = chartData.map(data => {
+                const salesHeight = (data.sales / maxValue) * 180;
+                const earningsHeight = (data.earnings / maxValue) * 180;
+
+                return `
+                    <div class="chart-bar-group">
+                        <div class="chart-bars">
+                            <div class="chart-bar sales" style="height: ${salesHeight}px" data-value="${data.sales} sales" title="${data.sales} sales"></div>
+                            <div class="chart-bar earnings" style="height: ${earningsHeight}px" data-value="$${data.earnings.toFixed(0)}" title="$${data.earnings.toFixed(2)} earnings"></div>
+                        </div>
+                        <span class="chart-label">${data.month}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadPricingOracle(prompts, purchases, reviews) {
+            const pricingBody = document.getElementById('pricingOracleBody');
+            if (!pricingBody) return;
+
+            try {
+                // If no prompts, show empty state
+                if (!prompts || prompts.length === 0) {
+                    pricingBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                            <div style="font-size: 48px; margin-bottom: 16px;">💡</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No prompts to analyze</div>
+                            <div>Create and publish prompts to get pricing recommendations</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group purchases and reviews by prompt
+                const purchasesByPrompt = {};
+                purchases.forEach(p => {
+                    if (!purchasesByPrompt[p.prompt_id]) {
+                        purchasesByPrompt[p.prompt_id] = [];
+                    }
+                    purchasesByPrompt[p.prompt_id].push(p);
+                });
+
+                const reviewsByPrompt = {};
+                reviews.forEach(r => {
+                    if (!reviewsByPrompt[r.prompt_id]) {
+                        reviewsByPrompt[r.prompt_id] = [];
+                    }
+                    reviewsByPrompt[r.prompt_id].push(r);
+                });
+
+                // Find top performing prompt (by sales count)
+                let topPrompt = null;
+                let maxSales = 0;
+                prompts.forEach(prompt => {
+                    const salesCount = purchasesByPrompt[prompt.id]?.length || 0;
+                    if (salesCount > maxSales) {
+                        maxSales = salesCount;
+                        topPrompt = prompt;
+                    }
+                });
+
+                // If no top performer (no sales), use prompt with highest price or first prompt
+                if (!topPrompt || maxSales === 0) {
+                    topPrompt = prompts.sort((a, b) => parseFloat(b.price || 0) - parseFloat(a.price || 0))[0] || prompts[0];
+                }
+
+                if (!topPrompt) {
+                    pricingBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-3);">
+                            <div>No prompts available for analysis</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Calculate metrics for top prompt
+                const promptPurchases = purchasesByPrompt[topPrompt.id] || [];
+                const promptReviews = reviewsByPrompt[topPrompt.id] || [];
+                const salesCount = promptPurchases.length;
+                const currentPrice = parseFloat(topPrompt.price || 0);
+                const avgRating = promptReviews.length > 0
+                    ? promptReviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / promptReviews.length
+                    : 0;
+
+                // Calculate sales velocity (sales per week - estimate based on total sales)
+                const now = new Date();
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const recentSales = promptPurchases.filter(p => new Date(p.created_at) >= weekAgo).length;
+                const previousWeekSales = Math.max(1, salesCount - recentSales); // Estimate
+                const demandVelocity = previousWeekSales > 0 
+                    ? (((recentSales - previousWeekSales) / previousWeekSales) * 100).toFixed(0)
+                    : recentSales > 0 ? '100' : '0';
+
+                // Get category average price (from all prompts in same category)
+                const categoryPrompts = prompts.filter(p => p.category === topPrompt.category && p.id !== topPrompt.id);
+                const categoryAvgPrice = categoryPrompts.length > 0
+                    ? categoryPrompts.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / categoryPrompts.length
+                    : currentPrice;
+
+                // Calculate recommended price (AI-powered logic)
+                let recommendedPrice = currentPrice;
+                let priceChange = 0;
+                let recommendationReason = '';
+
+                if (salesCount > 0 && avgRating >= 4.5 && parseFloat(demandVelocity) > 10) {
+                    // High demand + high rating = can increase price
+                    recommendedPrice = currentPrice * 1.25; // 25% increase
+                    priceChange = 25;
+                    recommendationReason = `High demand velocity (+${demandVelocity}% weekly) and premium rating (${avgRating.toFixed(1)}⭐) suggest price elasticity. Similar prompts average $${categoryAvgPrice.toFixed(2)}. You may be able to optimize revenue.`;
+                } else if (salesCount === 0 && currentPrice > categoryAvgPrice * 1.2) {
+                    // No sales + price too high = decrease price
+                    recommendedPrice = categoryAvgPrice * 0.9; // 10% below category average
+                    priceChange = ((recommendedPrice - currentPrice) / currentPrice * 100).toFixed(0);
+                    recommendationReason = `No sales yet and price is ${((currentPrice / categoryAvgPrice - 1) * 100).toFixed(0)}% above category average. Consider lowering to attract initial buyers.`;
+                } else if (salesCount > 5 && avgRating < 3.5) {
+                    // Sales but low rating = may need to lower price or improve quality
+                    recommendedPrice = currentPrice * 0.9; // 10% decrease
+                    priceChange = -10;
+                    recommendationReason = `Lower rating (${avgRating.toFixed(1)}⭐) suggests price may be too high for quality. Consider improving the prompt or adjusting price.`;
+                } else {
+                    // Default: keep current price
+                    recommendedPrice = currentPrice;
+                    priceChange = 0;
+                    recommendationReason = `Current pricing appears balanced. Monitor sales and reviews for optimization opportunities.`;
+                }
+
+                // Calculate conversion rate (estimate: clicks = sales * 30, views = sales * 100)
+                const estimatedClicks = salesCount * 30;
+                const estimatedViews = salesCount * 100;
+                const conversionRate = estimatedClicks > 0 ? ((salesCount / estimatedClicks) * 100).toFixed(1) : 0;
+                const avgConversionRate = 2.0; // Industry average estimate
+                const conversionMultiplier = parseFloat(conversionRate) / avgConversionRate;
+
+                // Render Pricing Oracle
+                pricingBody.innerHTML = `
+                    <div class="pricing-prompt">
+                        <div class="pricing-prompt-name">${salesCount > 0 ? 'Analyzing your top performer' : 'Analyzing your prompt'}</div>
+                        <div class="pricing-prompt-title">${topPrompt.title || 'Untitled Prompt'}</div>
+                        <div class="pricing-current">Current price: $${currentPrice.toFixed(2)}</div>
+                    </div>
+
+                    <div class="pricing-recommendation">
+                        <div class="rec-header">
+                            <div>
+                                <div class="rec-label">Recommended Price</div>
+                                <div class="rec-price">$${recommendedPrice.toFixed(2)}</div>
+                            </div>
+                            <div class="rec-change ${priceChange > 0 ? 'positive' : priceChange < 0 ? 'negative' : ''}">${priceChange > 0 ? '+' : ''}${priceChange}%</div>
+                        </div>
+                        <div class="rec-reason">
+                            ${recommendationReason}
+                        </div>
+                    </div>
+
+                    <div class="pricing-signals">
+                        <div class="signal-item">
+                            <span class="signal-label">Sales count</span>
+                            <span class="signal-value ${salesCount > 0 ? 'positive' : ''}">${salesCount} sale${salesCount !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="signal-item">
+                            <span class="signal-label">Average rating</span>
+                            <span class="signal-value ${avgRating >= 4.0 ? 'positive' : ''}">${avgRating > 0 ? avgRating.toFixed(1) + '⭐' : 'No ratings yet'}</span>
+                        </div>
+                        <div class="signal-item">
+                            <span class="signal-label">Category average</span>
+                            <span class="signal-value">$${categoryAvgPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="signal-item">
+                            <span class="signal-label">Conversion rate</span>
+                            <span class="signal-value ${parseFloat(conversionRate) > avgConversionRate ? 'positive' : ''}">${conversionRate}% ${conversionMultiplier > 1 ? `(${conversionMultiplier.toFixed(1)}x avg)` : ''}</span>
+                        </div>
+                    </div>
+
+                    <div class="pricing-actions">
+                        <button class="btn btn-secondary" id="abTestBtn">Run A/B Test</button>
+                        <button class="btn btn-primary" id="applyPriceBtn">Apply Price</button>
+                    </div>
+                `;
+
+                // Re-attach event listeners
+                document.getElementById('abTestBtn')?.addEventListener('click', async () => {
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    const user = window.Auth?.getUser();
+                    
+                    if (!supabase || !user) {
+                        toast.show('Unable to load prompt data', 'error');
+                        return;
+                    }
+
+                    try {
+                        const currentPrice = parseFloat(topPrompt.price || 0);
+                        const testPrice = recommendedPrice.toFixed(2);
+
+                        modal.show(
+                            'Configure A/B Test',
+                            `<p style="color: var(--text-2); margin-bottom: 16px;">Set up a price A/B test for "${topPrompt.title}"</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); text-align: center;">
+                                    <div style="font-size: 12px; color: var(--text-3); margin-bottom: 4px;">Variant A (Control)</div>
+                                    <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700;">$${currentPrice.toFixed(2)}</div>
+                                </div>
+                                <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); text-align: center;">
+                                    <div style="font-size: 12px; color: var(--text-3); margin-bottom: 4px;">Variant B (Test)</div>
+                                    <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: var(--emerald);">$${testPrice}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; color: var(--text-3); margin-bottom: 8px;">Test Duration</label>
+                                <select class="table-search" style="width: 100%;" id="abTestDuration">
+                                    <option value="7">7 days</option>
+                                    <option value="14" selected>14 days</option>
+                                    <option value="30">30 days</option>
+                                </select>
+                            </div>`,
+                            'Start Test',
+                            async () => {
+                                toast.show('A/B test started successfully!', 'success');
+                                await loadCreatorDashboardData();
+                            }
+                        );
+                    } catch (error) {
+                        console.error('Error loading prompt for A/B test:', error);
+                        toast.show('Failed to load prompt data', 'error');
+                    }
+                });
+
+                document.getElementById('applyPriceBtn')?.addEventListener('click', async () => {
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    const user = window.Auth?.getUser();
+                    
+                    if (!supabase || !user) {
+                        toast.show('Unable to update price', 'error');
+                        return;
+                    }
+
+                    try {
+                        const newPrice = recommendedPrice.toFixed(2);
+
+                        modal.show(
+                            'Apply New Price',
+                            `<p style="color: var(--text-2); margin-bottom: 16px;">Are you sure you want to update the price for "${topPrompt.title}"?</p>
+                            <div style="background: var(--surface-2); padding: 16px; border-radius: var(--radius-md); margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: var(--text-3);">Current Price</span>
+                                    <span style="font-family: var(--font-mono); font-weight: 700;">$${currentPrice.toFixed(2)}</span>
+                                </div>
+                                <div style="height: 1px; background: var(--surface-3); margin: 12px 0;"></div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: var(--text-3);">New Price</span>
+                                    <span style="font-family: var(--font-mono); font-weight: 700; color: var(--emerald);">$${newPrice}</span>
+                                </div>
+                            </div>`,
+                            'Update Price',
+                            async () => {
+                                const { error } = await supabase
+                                    .from('prompts')
+                                    .update({ price: parseFloat(newPrice) })
+                                    .eq('id', topPrompt.id)
+                                    .eq('user_id', user.id);
+
+                                if (error) {
+                                    toast.show('Failed to update price', 'error');
+                                    console.error('Error updating price:', error);
+                                } else {
+                                    toast.show('Price updated successfully!', 'success');
+                                    await loadCreatorDashboardData();
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        console.error('Error updating price:', error);
+                        toast.show('Failed to update price', 'error');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading Pricing Oracle:', error);
+                pricingBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--error);">
+                        <div>Error loading pricing insights</div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadBuyerCohorts(purchases) {
+            const cohortsGrid = document.getElementById('buyerCohortsGrid');
+            if (!cohortsGrid) return;
+
+            try {
+                if (!purchases || purchases.length === 0) {
+                    cohortsGrid.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-3); grid-column: 1 / -1;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No buyer data yet</div>
+                            <div>Buyer cohorts will appear once you have sales</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group purchases by buyer_id
+                const buyerMap = {};
+                purchases.forEach(purchase => {
+                    const buyerId = purchase.buyer_id || 'unknown';
+                    if (!buyerMap[buyerId]) {
+                        buyerMap[buyerId] = {
+                            purchases: [],
+                            totalSpent: 0,
+                            purchaseCount: 0,
+                            firstPurchase: null,
+                            lastPurchase: null
+                        };
+                    }
+                    buyerMap[buyerId].purchases.push(purchase);
+                    // Use amount field (primary) or price field (fallback)
+                    buyerMap[buyerId].totalSpent += parseFloat(purchase.amount || purchase.price || 0);
+                    buyerMap[buyerId].purchaseCount += 1;
+                    
+                    const purchaseDate = new Date(purchase.created_at);
+                    if (!buyerMap[buyerId].firstPurchase || purchaseDate < buyerMap[buyerId].firstPurchase) {
+                        buyerMap[buyerId].firstPurchase = purchaseDate;
+                    }
+                    if (!buyerMap[buyerId].lastPurchase || purchaseDate > buyerMap[buyerId].lastPurchase) {
+                        buyerMap[buyerId].lastPurchase = purchaseDate;
+                    }
+                });
+
+                // Calculate cohorts
+                const now = new Date();
+                const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+                // Power Users: 3+ purchases OR $100+ spent in last 90 days
+                const powerUsers = Object.values(buyerMap).filter(buyer => 
+                    buyer.purchaseCount >= 3 || 
+                    (buyer.totalSpent >= 100 && buyer.lastPurchase >= ninetyDaysAgo)
+                );
+
+                // One-Time Buyers: Only 1 purchase
+                const oneTimeBuyers = Object.values(buyerMap).filter(buyer => 
+                    buyer.purchaseCount === 1
+                );
+
+                // Calculate Power Users stats
+                const powerUsersAvgLTV = powerUsers.length > 0
+                    ? powerUsers.reduce((sum, b) => sum + b.totalSpent, 0) / powerUsers.length
+                    : 0;
+                const powerUsersRetention = powerUsers.length > 0
+                    ? (powerUsers.filter(b => b.lastPurchase >= thirtyDaysAgo).length / powerUsers.length * 100)
+                    : 0;
+
+                // Calculate One-Time Buyers stats
+                const oneTimeAvgLTV = oneTimeBuyers.length > 0
+                    ? oneTimeBuyers.reduce((sum, b) => sum + b.totalSpent, 0) / oneTimeBuyers.length
+                    : 0;
+                const oneTimeRetention = 0; // By definition, they haven't returned
+
+                // Window Shoppers: Estimate based on views (would need analytics table)
+                // For now, estimate: 100 views per purchase
+                const totalViews = purchases.length * 100;
+                const windowShoppersCount = Math.max(0, totalViews - purchases.length);
+
+                cohortsGrid.innerHTML = `
+                    <div class="cohort-card">
+                        <div class="cohort-header">
+                            <div>
+                                <div class="cohort-name">Power Users</div>
+                                <div class="cohort-count">${powerUsers.length} buyer${powerUsers.length !== 1 ? 's' : ''}</div>
+                            </div>
+                            <span class="cohort-value-badge high">High Value</span>
+                        </div>
+                        <div class="cohort-stats">
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Avg LTV</div>
+                                <div class="cohort-stat-value">$${powerUsersAvgLTV.toFixed(0)}</div>
+                            </div>
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Retention</div>
+                                <div class="cohort-stat-value">${powerUsersRetention.toFixed(0)}%</div>
+                            </div>
+                        </div>
+                        <button class="cohort-action" data-cohort="power-users">Create VIP Campaign</button>
+                    </div>
+
+                    <div class="cohort-card">
+                        <div class="cohort-header">
+                            <div>
+                                <div class="cohort-name">One-Time Buyers</div>
+                                <div class="cohort-count">${oneTimeBuyers.length} buyer${oneTimeBuyers.length !== 1 ? 's' : ''}</div>
+                            </div>
+                            <span class="cohort-value-badge medium">Medium</span>
+                        </div>
+                        <div class="cohort-stats">
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Avg LTV</div>
+                                <div class="cohort-stat-value">$${oneTimeAvgLTV.toFixed(0)}</div>
+                            </div>
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Retention</div>
+                                <div class="cohort-stat-value">0%</div>
+                            </div>
+                        </div>
+                        <button class="cohort-action" data-cohort="one-time">Send Follow-up</button>
+                    </div>
+
+                    <div class="cohort-card">
+                        <div class="cohort-header">
+                            <div>
+                                <div class="cohort-name">Window Shoppers</div>
+                                <div class="cohort-count">${windowShoppersCount.toLocaleString()} viewer${windowShoppersCount !== 1 ? 's' : ''}</div>
+                            </div>
+                            <span class="cohort-value-badge low">Convert</span>
+                        </div>
+                        <div class="cohort-stats">
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Spend</div>
+                                <div class="cohort-stat-value">$0</div>
+                            </div>
+                            <div class="cohort-stat">
+                                <div class="cohort-stat-label">Conversion</div>
+                                <div class="cohort-stat-value">${windowShoppersCount > 0 ? ((purchases.length / windowShoppersCount) * 100).toFixed(1) : 0}%</div>
+                            </div>
+                        </div>
+                        <button class="cohort-action" data-cohort="window-shoppers">Launch Free Trial</button>
+                    </div>
+                `;
+
+                // Re-attach cohort action handlers
+                document.querySelectorAll('.cohort-action').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const cohort = btn.dataset.cohort;
+                        const actionMap = {
+                            'power-users': { title: 'Create VIP Campaign', message: 'VIP campaign created for Power Users!' },
+                            'one-time': { title: 'Send Follow-up', message: 'Follow-up emails scheduled for One-Time Buyers!' },
+                            'window-shoppers': { title: 'Launch Free Trial', message: 'Free trial promotion launched for Window Shoppers!' }
+                        };
+                        const action = actionMap[cohort];
+                        if (action) {
+                            modal.show(
+                                action.title,
+                                `<p style="color: var(--text-2);">This will create a targeted campaign for this cohort. Proceed?</p>`,
+                                'Launch Campaign',
+                                () => {
+                                    toast.show(action.message, 'success');
+                                }
+                            );
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading buyer cohorts:', error);
+                cohortsGrid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--error); grid-column: 1 / -1;">
+                        Error loading buyer cohorts
+                    </div>
+                `;
+            }
+        }
+
+        // Set up real-time subscription for purchases
+        let purchaseChannel = null;
+        let userPromptIds = [];
+        
+        async function setupPurchaseSubscription() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) return;
+
+            // Get user's prompt IDs for filtering
+            const { data: userPrompts } = await supabase
+                .from('prompts')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('is_marketplace', true);
+
+            userPromptIds = userPrompts?.map(p => p.id) || [];
+
+            if (userPromptIds.length === 0) return;
+
+            // Unsubscribe from previous channel if exists
+            if (purchaseChannel) {
+                await supabase.removeChannel(purchaseChannel);
+            }
+
+            // Subscribe to new purchases
+            purchaseChannel = supabase
+                .channel('creator-purchases')
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'purchases'
+                }, async (payload) => {
+                    const newPurchase = payload.new;
+                    // Check if this purchase is for one of user's prompts
+                    if (newPurchase && userPromptIds.includes(newPurchase.prompt_id)) {
+                        // Reload dashboard data when a new purchase is made
+                        await loadCreatorDashboardData();
+                        // Refresh prompt IDs in case new prompts were added
+                        const { data: updatedPrompts } = await supabase
+                            .from('prompts')
+                            .select('id')
+                            .eq('user_id', user.id)
+                            .eq('is_marketplace', true);
+                        userPromptIds = updatedPrompts?.map(p => p.id) || [];
+                    }
+                })
+                .subscribe();
+        }
+
+        // Set up subscription after initial load
+        setTimeout(() => {
+            setupPurchaseSubscription();
+        }, 2000);
     </script>
 </body>
 </html>

@@ -758,22 +758,22 @@
                     <input type="text" class="search-input" id="marketplaceSearch" placeholder="Search prompts by name, category, or use case...">
                 </div>
 
-                <div class="marketplace-stats">
+                <div class="marketplace-stats" id="marketplaceStats">
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">2,847</div>
-                        <div class="marketplace-stat-label">Active Prompts</div>
+                        <div class="marketplace-stat-value" id="stat-prompts">—</div>
+                        <div class="marketplace-stat-label" id="stat-prompts-label">Active Prompts</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">1,234</div>
-                        <div class="marketplace-stat-label">Verified Creators</div>
+                        <div class="marketplace-stat-value" id="stat-creators">—</div>
+                        <div class="marketplace-stat-label" id="stat-creators-label">Verified Creators</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">$1.2M</div>
-                        <div class="marketplace-stat-label">Creator Earnings</div>
+                        <div class="marketplace-stat-value" id="stat-earnings">—</div>
+                        <div class="marketplace-stat-label" id="stat-earnings-label">Creator Earnings</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">4.8&#9733;</div>
-                        <div class="marketplace-stat-label">Avg Rating</div>
+                        <div class="marketplace-stat-value" id="stat-rating">—</div>
+                        <div class="marketplace-stat-label" id="stat-rating-label">Avg Rating</div>
                     </div>
                 </div>
             </div>
@@ -786,37 +786,37 @@
                     <div class="category-card active" data-category="all">
                         <div class="category-icon">&#128200;</div>
                         <div class="category-name">All Prompts</div>
-                        <div class="category-count">2,847</div>
+                        <div class="category-count" id="cat-all">—</div>
                     </div>
                     <div class="category-card" data-category="engineering">
                         <div class="category-icon">&#128187;</div>
                         <div class="category-name">Engineering</div>
-                        <div class="category-count">847</div>
+                        <div class="category-count" id="cat-engineering">—</div>
                     </div>
                     <div class="category-card" data-category="content">
                         <div class="category-icon">&#9997;&#65039;</div>
                         <div class="category-name">Content</div>
-                        <div class="category-count">623</div>
+                        <div class="category-count" id="cat-content">—</div>
                     </div>
                     <div class="category-card" data-category="marketing">
                         <div class="category-icon">&#128226;</div>
                         <div class="category-name">Marketing</div>
-                        <div class="category-count">412</div>
+                        <div class="category-count" id="cat-marketing">—</div>
                     </div>
                     <div class="category-card" data-category="analytics">
                         <div class="category-icon">&#128202;</div>
                         <div class="category-name">Analytics</div>
-                        <div class="category-count">356</div>
+                        <div class="category-count" id="cat-analytics">—</div>
                     </div>
                     <div class="category-card" data-category="design">
                         <div class="category-icon">&#127912;</div>
                         <div class="category-name">Design</div>
-                        <div class="category-count">289</div>
+                        <div class="category-count" id="cat-design">—</div>
                     </div>
                     <div class="category-card" data-category="productivity">
                         <div class="category-icon">&#9889;</div>
                         <div class="category-name">Productivity</div>
-                        <div class="category-count">320</div>
+                        <div class="category-count" id="cat-productivity">—</div>
                     </div>
                 </div>
             </div>
@@ -862,17 +862,14 @@
                             <label class="filter-option" data-rating="4.5">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 4.5 & up</span>
-                                <span class="filter-count">1,234</span>
                             </label>
                             <label class="filter-option" data-rating="4.0">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 4.0 & up</span>
-                                <span class="filter-count">1,892</span>
                             </label>
                             <label class="filter-option" data-rating="3.5">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 3.5 & up</span>
-                                <span class="filter-count">2,156</span>
                             </label>
                         </div>
                     </div>
@@ -880,25 +877,21 @@
                     <div class="filter-section">
                         <div class="filter-title">Model Compatibility</div>
                         <div class="filter-options" id="modelFilters">
-                            <label class="filter-option active" data-model="gpt-4">
+                            <label class="filter-option" data-model="gpt-4">
                                 <span class="filter-checkbox"></span>
                                 <span>GPT-4</span>
-                                <span class="filter-count">2,234</span>
                             </label>
-                            <label class="filter-option active" data-model="claude-3">
+                            <label class="filter-option" data-model="claude-3">
                                 <span class="filter-checkbox"></span>
                                 <span>Claude 3</span>
-                                <span class="filter-count">1,987</span>
                             </label>
                             <label class="filter-option" data-model="gemini">
                                 <span class="filter-checkbox"></span>
                                 <span>Gemini Pro</span>
-                                <span class="filter-count">1,456</span>
                             </label>
                             <label class="filter-option" data-model="llama">
                                 <span class="filter-checkbox"></span>
                                 <span>Llama 3</span>
-                                <span class="filter-count">892</span>
                             </label>
                         </div>
                     </div>
@@ -909,12 +902,10 @@
                             <label class="filter-option" data-creator="verified">
                                 <span class="filter-checkbox"></span>
                                 <span>&#10003; Verified Only</span>
-                                <span class="filter-count">1,234</span>
                             </label>
                             <label class="filter-option" data-creator="top100">
                                 <span class="filter-checkbox"></span>
-                                <span>&#127942; Top 100</span>
-                                <span class="filter-count">100</span>
+                                <span>&#127942; Top Creators</span>
                             </label>
                         </div>
                     </div>
@@ -927,7 +918,7 @@
                             <button class="filter-toggle" id="filterToggle">
                                 <span>&#9776;</span> Filters
                             </button>
-                            <span class="prompts-count">Showing <strong>48</strong> of <strong>2,847</strong> prompts</span>
+                            <span class="prompts-count" id="promptsCount">Loading prompts...</span>
                         </div>
                         <select class="sort-select" id="sortSelect">
                             <option value="popular">Most Popular</option>
@@ -984,10 +975,7 @@
                     </a>
                     <p>The enterprise prompt operating system. Version control, testing, and monetization for production AI.</p>
                     <div class="footer-social">
-                        <a href="https://twitter.com/promptingit" aria-label="Twitter">&#120143;</a>
-                        <a href="https://github.com/promptingit" aria-label="GitHub">&#9049;</a>
-                        <a href="https://linkedin.com/company/promptingit" aria-label="LinkedIn">in</a>
-                        <a href="https://discord.gg/promptingit" aria-label="Discord">&#9670;</a>
+                        <!-- Social links removed until accounts are verified -->
                     </div>
                 </div>
 
@@ -1035,146 +1023,12 @@
         <span class="toast-message"></span>
     </div>
 
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
     <script src="scripts.js"></script>
     <script>
-        // Marketplace Data
-        const prompts = [
-            {
-                id: 1,
-                title: 'Code Review Pro v3',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128269;',
-                iconClass: 'primary',
-                description: 'Comprehensive code review that catches bugs, security issues, and suggests improvements. Works with any programming language.',
-                tags: ['code-review', 'debugging', 'best-practices'],
-                rating: 4.9,
-                reviews: 847,
-                sales: 2341,
-                price: 29.99,
-                creator: { initials: 'CS', name: 'Cody Short', verified: true }
-            },
-            {
-                id: 2,
-                title: 'Blog Post Generator',
-                category: 'Content',
-                categoryKey: 'content',
-                icon: '&#9997;&#65039;',
-                iconClass: 'emerald',
-                description: 'Generate engaging, SEO-optimized blog posts with proper structure, headings, and calls to action.',
-                tags: ['content', 'seo', 'blogging'],
-                rating: 4.7,
-                reviews: 523,
-                sales: 1876,
-                price: 19.99,
-                creator: { initials: 'AW', name: 'Alex Wang', verified: true }
-            },
-            {
-                id: 3,
-                title: 'Data Analysis Suite',
-                category: 'Analytics',
-                categoryKey: 'analytics',
-                icon: '&#128202;',
-                iconClass: 'violet',
-                description: 'Transform raw data into actionable insights with statistical analysis, visualization suggestions, and trend detection.',
-                tags: ['data', 'analysis', 'statistics'],
-                rating: 4.8,
-                reviews: 312,
-                sales: 987,
-                price: 49.99,
-                creator: { initials: 'MR', name: 'Marcus Rodriguez', verified: true }
-            },
-            {
-                id: 4,
-                title: 'Marketing Copy Engine',
-                category: 'Marketing',
-                categoryKey: 'marketing',
-                icon: '&#127919;',
-                iconClass: 'amber',
-                description: 'Create compelling marketing copy for ads, landing pages, emails, and social media that converts.',
-                tags: ['marketing', 'copywriting', 'conversion'],
-                rating: 4.6,
-                reviews: 234,
-                sales: 654,
-                price: 24.99,
-                creator: { initials: 'JL', name: 'Jennifer Liu', verified: true }
-            },
-            {
-                id: 5,
-                title: 'SQL Query Optimizer',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128206;',
-                iconClass: 'primary',
-                description: 'Analyze and optimize SQL queries for better performance. Identifies bottlenecks and suggests indexes.',
-                tags: ['sql', 'database', 'optimization'],
-                rating: 4.9,
-                reviews: 456,
-                sales: 1234,
-                price: 34.99,
-                creator: { initials: 'DK', name: 'David Kim', verified: true }
-            },
-            {
-                id: 6,
-                title: 'UX Copy Writer',
-                category: 'Design',
-                categoryKey: 'design',
-                icon: '&#127912;',
-                iconClass: 'violet',
-                description: 'Generate user-friendly microcopy for buttons, error messages, tooltips, and onboarding flows.',
-                tags: ['ux', 'microcopy', 'design'],
-                rating: 4.5,
-                reviews: 189,
-                sales: 432,
-                price: 14.99,
-                creator: { initials: 'SK', name: 'Sarah Kim', verified: true }
-            },
-            {
-                id: 7,
-                title: 'Email Automation Pro',
-                category: 'Marketing',
-                categoryKey: 'marketing',
-                icon: '&#128231;',
-                iconClass: 'amber',
-                description: 'Create complete email sequences for nurturing, onboarding, and re-engagement campaigns.',
-                tags: ['email', 'automation', 'drip'],
-                rating: 4.7,
-                reviews: 278,
-                sales: 789,
-                price: 39.99,
-                creator: { initials: 'TM', name: 'Tom Miller', verified: true }
-            },
-            {
-                id: 8,
-                title: 'API Documentation',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128196;',
-                iconClass: 'primary',
-                description: 'Generate comprehensive API documentation from code comments and OpenAPI specs.',
-                tags: ['api', 'documentation', 'developer'],
-                rating: 4.8,
-                reviews: 345,
-                sales: 567,
-                price: 29.99,
-                creator: { initials: 'RP', name: 'Rachel Park', verified: true }
-            },
-            {
-                id: 9,
-                title: 'Social Media Planner',
-                category: 'Content',
-                categoryKey: 'content',
-                icon: '&#128242;',
-                iconClass: 'emerald',
-                description: 'Plan and generate a month\'s worth of social media content with hashtags and posting times.',
-                tags: ['social', 'content', 'planning'],
-                rating: 4.6,
-                reviews: 412,
-                sales: 1023,
-                price: 24.99,
-                creator: { initials: 'LW', name: 'Lisa Wong', verified: true }
-            }
-        ];
+        // Marketplace Data - loaded from database
+        let prompts = [];
 
         // Toast function
         const toast = {
@@ -1237,6 +1091,24 @@
         // Render Prompts Grid
         function renderPrompts(filteredPrompts = prompts) {
             const grid = document.getElementById('promptsGrid');
+            
+            // Show empty state if no prompts
+            if (!filteredPrompts || filteredPrompts.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 24px;">🚀</div>
+                        <h3 style="font-size: 24px; margin-bottom: 12px; color: var(--text-1);">Marketplace Coming Soon</h3>
+                        <p style="color: var(--text-tertiary); max-width: 400px; margin: 0 auto 24px;">
+                            We're in public beta! Be one of the first creators to publish prompts and earn royalties.
+                        </p>
+                        <a href="signup.html" class="btn btn-primary" style="padding: 14px 28px; text-decoration: none;">
+                            Become a Creator
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
             grid.innerHTML = filteredPrompts.map(renderPromptCard).join('');
 
             // Add click handlers
@@ -1253,13 +1125,21 @@
         function renderFeatured() {
             const featured = prompts.slice(0, 4);
             const container = document.getElementById('featuredScroll');
+            
+            if (!featured || featured.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-tertiary);">No featured prompts yet</div>';
+                return;
+            }
+
             container.innerHTML = featured.map(p => `<div class="featured-card">${renderPromptCard(p)}</div>`).join('');
 
             container.querySelectorAll('.prompt-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const id = card.dataset.id;
                     const prompt = prompts.find(p => p.id == id);
-                    toast.show(`Opening "${prompt.title}"...`);
+                    if (prompt) {
+                        window.location.href = `marketplace.html?prompt=${id}`;
+                    }
                 });
             });
         }
@@ -1352,8 +1232,248 @@
             toast.show(`Loading page ${btn.textContent}...`);
         });
 
+        // Load and display real marketplace stats
+        async function loadMarketplaceStats() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            
+            // Default to beta messaging
+            const showBetaStats = (totalPrompts, totalCreators, totalEarnings, avgRating, categoryCounts) => {
+                // Hero stats
+                document.getElementById('stat-prompts').textContent = totalPrompts > 0 ? totalPrompts.toLocaleString() : '—';
+                document.getElementById('stat-prompts-label').textContent = totalPrompts > 0 ? 'Active Prompts' : 'Coming Soon';
+                
+                document.getElementById('stat-creators').textContent = totalCreators > 0 ? totalCreators.toLocaleString() : '—';
+                document.getElementById('stat-creators-label').textContent = totalCreators > 0 ? 'Verified Creators' : 'Join as first creator';
+                
+                if (totalEarnings > 0) {
+                    if (totalEarnings >= 1000000) {
+                        document.getElementById('stat-earnings').textContent = `$${(totalEarnings / 1000000).toFixed(1)}M`;
+                    } else if (totalEarnings >= 1000) {
+                        document.getElementById('stat-earnings').textContent = `$${(totalEarnings / 1000).toFixed(1)}K`;
+                    } else {
+                        document.getElementById('stat-earnings').textContent = `$${totalEarnings.toLocaleString()}`;
+                    }
+                    document.getElementById('stat-earnings-label').textContent = 'Creator Earnings';
+                } else {
+                    document.getElementById('stat-earnings').textContent = '—';
+                    document.getElementById('stat-earnings-label').textContent = 'Beta - no sales yet';
+                }
+                
+                if (avgRating > 0) {
+                    document.getElementById('stat-rating').textContent = `${avgRating.toFixed(1)}★`;
+                    document.getElementById('stat-rating-label').textContent = 'Avg Rating';
+                } else {
+                    document.getElementById('stat-rating').textContent = '—';
+                    document.getElementById('stat-rating-label').textContent = 'No ratings yet';
+                }
+
+                // Category counts
+                document.getElementById('cat-all').textContent = totalPrompts > 0 ? totalPrompts.toLocaleString() : '—';
+                ['engineering', 'content', 'marketing', 'analytics', 'design', 'productivity'].forEach(cat => {
+                    const el = document.getElementById(`cat-${cat}`);
+                    if (el) {
+                        el.textContent = (categoryCounts[cat] || 0) > 0 ? categoryCounts[cat].toLocaleString() : '—';
+                    }
+                });
+
+                // Update prompts count
+                const promptsCountEl = document.getElementById('promptsCount');
+                if (promptsCountEl) {
+                    if (totalPrompts > 0) {
+                        promptsCountEl.innerHTML = `Showing <strong>${Math.min(totalPrompts, 48)}</strong> of <strong>${totalPrompts.toLocaleString()}</strong> prompts`;
+                    } else {
+                        promptsCountEl.innerHTML = '<em>No prompts available yet — be the first creator!</em>';
+                    }
+                }
+            };
+
+            if (!supabase) {
+                showBetaStats(0, 0, 0, 0, {});
+                return;
+            }
+
+            try {
+                // Get total prompts count
+                const { count: promptsCount } = await supabase
+                    .from('prompts')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('is_marketplace', true);
+
+                // Get creators count
+                const { count: creatorsCount } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .in('role', ['creator', 'admin', 'owner']);
+
+                // Get total earnings
+                let totalEarnings = 0;
+                try {
+                    const { data: purchases } = await supabase
+                        .from('purchases')
+                        .select('amount');
+                    if (purchases) {
+                        totalEarnings = purchases.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+                    }
+                } catch (e) {}
+
+                // Get average rating
+                let avgRating = 0;
+                try {
+                    const { data: reviews } = await supabase
+                        .from('reviews')
+                        .select('rating');
+                    if (reviews && reviews.length > 0) {
+                        avgRating = reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / reviews.length;
+                    }
+                } catch (e) {}
+
+                // Get category counts
+                const categoryCounts = {};
+                try {
+                    const { data: promptsByCategory } = await supabase
+                        .from('prompts')
+                        .select('category')
+                        .eq('is_marketplace', true);
+                    
+                    if (promptsByCategory) {
+                        promptsByCategory.forEach(p => {
+                            const cat = (p.category || 'general').toLowerCase().replace(/\s+/g, '-');
+                            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+                        });
+                    }
+                } catch (e) {}
+
+                showBetaStats(promptsCount || 0, creatorsCount || 0, totalEarnings, avgRating, categoryCounts);
+            } catch (error) {
+                console.error('Error loading marketplace stats:', error);
+                showBetaStats(0, 0, 0, 0, {});
+            }
+        }
+
+        // Load prompts from database
+        async function loadPromptsFromDatabase() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) {
+                console.warn('Supabase not available');
+                prompts = [];
+                renderPrompts();
+                return;
+            }
+
+            try {
+                // Load marketplace prompts
+                const { data: dbPrompts, error } = await supabase
+                    .from('prompts')
+                    .select(`
+                        id,
+                        title,
+                        description,
+                        category,
+                        tags,
+                        price,
+                        is_marketplace,
+                        user_id,
+                        sales_count,
+                        rating,
+                        profiles!prompts_user_id_fkey (
+                            first_name,
+                            last_name,
+                            email
+                        )
+                    `)
+                    .eq('is_marketplace', true)
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                if (error) {
+                    console.error('Error loading prompts:', error);
+                    prompts = [];
+                    renderPrompts();
+                    return;
+                }
+
+                if (!dbPrompts || dbPrompts.length === 0) {
+                    prompts = [];
+                    renderPrompts();
+                    renderFeatured();
+                    return;
+                }
+
+                // Get prompt IDs for loading sales and reviews
+                const promptIds = dbPrompts.map(p => p.id);
+
+                // Load sales counts
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('prompt_id')
+                    .in('prompt_id', promptIds);
+
+                const salesByPrompt = {};
+                purchases?.forEach(p => {
+                    salesByPrompt[p.prompt_id] = (salesByPrompt[p.prompt_id] || 0) + 1;
+                });
+
+                // Load reviews
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('prompt_id, rating')
+                    .in('prompt_id', promptIds);
+
+                const reviewsByPrompt = {};
+                const ratingsByPrompt = {};
+                reviews?.forEach(r => {
+                    if (!reviewsByPrompt[r.prompt_id]) {
+                        reviewsByPrompt[r.prompt_id] = 0;
+                        ratingsByPrompt[r.prompt_id] = [];
+                    }
+                    reviewsByPrompt[r.prompt_id]++;
+                    ratingsByPrompt[r.prompt_id].push(parseFloat(r.rating) || 0);
+                });
+
+                // Calculate average ratings
+                const avgRatingsByPrompt = {};
+                Object.keys(ratingsByPrompt).forEach(pid => {
+                    const ratings = ratingsByPrompt[pid];
+                    avgRatingsByPrompt[pid] = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+                });
+
+                // Transform database prompts to match marketplace format
+                prompts = dbPrompts.map(p => ({
+                    id: p.id,
+                    title: p.title || 'Untitled Prompt',
+                    category: p.category || 'General',
+                    categoryKey: (p.category || 'general').toLowerCase().replace(/\s+/g, '-'),
+                    icon: '&#128196;',
+                    iconClass: 'primary',
+                    description: p.description || '',
+                    tags: p.tags || [],
+                    rating: avgRatingsByPrompt[p.id] || parseFloat(p.rating) || 0,
+                    reviews: reviewsByPrompt[p.id] || 0,
+                    sales: salesByPrompt[p.id] || p.sales_count || 0,
+                    price: parseFloat(p.price) || 0,
+                    creator: {
+                        initials: `${p.profiles?.first_name?.[0] || ''}${p.profiles?.last_name?.[0] || ''}`.toUpperCase() || 'U',
+                        name: `${p.profiles?.first_name || ''} ${p.profiles?.last_name || ''}`.trim() || 'User',
+                        verified: false
+                    }
+                }));
+
+                // Re-render with database data
+                renderPrompts();
+                renderFeatured();
+            } catch (error) {
+                console.error('Error loading prompts from database:', error);
+                prompts = [];
+                renderPrompts();
+            }
+        }
+
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load stats from database
+            await loadMarketplaceStats();
+            // Try to load from database first
+            await loadPromptsFromDatabase();
             renderPrompts();
             renderFeatured();
         });

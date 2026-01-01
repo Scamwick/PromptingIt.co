@@ -348,10 +348,355 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON public.subscriptions(stat
 CREATE INDEX IF NOT EXISTS idx_prompts_user ON public.prompts(user_id);
 CREATE INDEX IF NOT EXISTS idx_prompts_public ON public.prompts(is_public) WHERE is_public = TRUE;
 CREATE INDEX IF NOT EXISTS idx_prompts_marketplace ON public.prompts(is_marketplace) WHERE is_marketplace = TRUE;
+CREATE INDEX IF NOT EXISTS idx_prompts_category ON public.prompts(category);
 CREATE INDEX IF NOT EXISTS idx_purchases_buyer ON public.purchases(buyer_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_seller ON public.purchases(seller_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_prompt ON public.purchases(prompt_id);
 CREATE INDEX IF NOT EXISTS idx_activity_user ON public.activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON public.activity_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_reviews_prompt ON public.reviews(prompt_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_user ON public.reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_payouts_user ON public.payouts(user_id);
+CREATE INDEX IF NOT EXISTS idx_payouts_status ON public.payouts(status);
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON public.newsletter_subscribers(email);
+
+-- ============================================
+-- ADDITIONAL FUNCTIONS
+-- ============================================
+
+-- Function to update prompt rating when a review is added
+CREATE OR REPLACE FUNCTION public.update_prompt_rating()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.prompts
+    SET rating = (
+        SELECT ROUND(AVG(rating)::numeric, 1)
+        FROM public.reviews
+        WHERE prompt_id = COALESCE(NEW.prompt_id, OLD.prompt_id)
+    ),
+    updated_at = NOW()
+    WHERE id = COALESCE(NEW.prompt_id, OLD.prompt_id);
+    
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to update rating on review change
+DROP TRIGGER IF EXISTS on_review_change ON public.reviews;
+CREATE TRIGGER on_review_change
+    AFTER INSERT OR UPDATE OR DELETE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION public.update_prompt_rating();
+
+-- Function to record a purchase and update sales count
+CREATE OR REPLACE FUNCTION public.record_purchase(
+    p_buyer_id UUID,
+    p_prompt_id UUID,
+    p_amount DECIMAL,
+    p_stripe_payment_id TEXT DEFAULT NULL
+)
+RETURNS UUID AS $$
+DECLARE
+    v_seller_id UUID;
+    v_platform_fee DECIMAL;
+    v_seller_revenue DECIMAL;
+    v_purchase_id UUID;
+BEGIN
+    -- Get seller from prompt
+    SELECT user_id INTO v_seller_id FROM public.prompts WHERE id = p_prompt_id;
+    
+    -- Calculate fees (20% platform fee, 80% to seller)
+    v_platform_fee := ROUND(p_amount * 0.20, 2);
+    v_seller_revenue := p_amount - v_platform_fee;
+    
+    -- Create purchase record
+    INSERT INTO public.purchases (
+        buyer_id, seller_id, prompt_id, amount, 
+        platform_fee, seller_revenue, stripe_payment_id, status
+    ) VALUES (
+        p_buyer_id, v_seller_id, p_prompt_id, p_amount,
+        v_platform_fee, v_seller_revenue, p_stripe_payment_id, 'completed'
+    ) RETURNING id INTO v_purchase_id;
+    
+    -- Update prompt sales count
+    UPDATE public.prompts
+    SET sales_count = sales_count + 1, updated_at = NOW()
+    WHERE id = p_prompt_id;
+    
+    -- Update creator earnings
+    INSERT INTO public.creator_earnings (user_id, total_earnings, pending_payout, last_sale_at)
+    VALUES (v_seller_id, v_seller_revenue, v_seller_revenue, NOW())
+    ON CONFLICT (user_id) DO UPDATE SET
+        total_earnings = creator_earnings.total_earnings + v_seller_revenue,
+        pending_payout = creator_earnings.pending_payout + v_seller_revenue,
+        last_sale_at = NOW(),
+        updated_at = NOW();
+    
+    RETURN v_purchase_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to process a payout
+CREATE OR REPLACE FUNCTION public.process_payout(
+    p_payout_id UUID,
+    p_stripe_transfer_id TEXT DEFAULT NULL,
+    p_status TEXT DEFAULT 'completed'
+)
+RETURNS VOID AS $$
+DECLARE
+    v_user_id UUID;
+    v_amount DECIMAL;
+BEGIN
+    -- Get payout details
+    SELECT user_id, amount INTO v_user_id, v_amount
+    FROM public.payouts WHERE id = p_payout_id;
+    
+    -- Update payout status
+    UPDATE public.payouts
+    SET status = p_status,
+        stripe_transfer_id = p_stripe_transfer_id,
+        processed_at = NOW(),
+        updated_at = NOW()
+    WHERE id = p_payout_id;
+    
+    -- If completed, update creator earnings
+    IF p_status = 'completed' THEN
+        UPDATE public.creator_earnings
+        SET pending_payout = pending_payout - v_amount,
+            total_paid_out = total_paid_out + v_amount,
+            updated_at = NOW()
+        WHERE user_id = v_user_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to check if user has purchased a prompt
+CREATE OR REPLACE FUNCTION public.has_purchased(p_user_id UUID, p_prompt_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.purchases
+        WHERE buyer_id = p_user_id 
+        AND prompt_id = p_prompt_id 
+        AND status = 'completed'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
+-- REVIEWS TABLE
+-- Stores prompt reviews and ratings
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    prompt_id UUID REFERENCES public.prompts(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    title TEXT,
+    content TEXT,
+    is_verified_purchase BOOLEAN DEFAULT FALSE,
+    helpful_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(prompt_id, user_id) -- One review per user per prompt
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+-- Reviews policies
+CREATE POLICY "Anyone can view reviews"
+    ON public.reviews FOR SELECT
+    USING (TRUE);
+
+CREATE POLICY "Users can create reviews for prompts they purchased"
+    ON public.reviews FOR INSERT
+    WITH CHECK (
+        auth.uid() = user_id AND
+        EXISTS (
+            SELECT 1 FROM public.purchases
+            WHERE buyer_id = auth.uid() AND prompt_id = reviews.prompt_id
+        )
+    );
+
+CREATE POLICY "Users can update their own reviews"
+    ON public.reviews FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own reviews"
+    ON public.reviews FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- ============================================
+-- PAYOUTS TABLE
+-- Stores creator payout requests and history
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.payouts (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    amount DECIMAL(10, 2) NOT NULL,
+    currency TEXT DEFAULT 'USD',
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
+    stripe_transfer_id TEXT,
+    stripe_payout_id TEXT,
+    payout_method TEXT DEFAULT 'stripe' CHECK (payout_method IN ('stripe', 'paypal', 'bank_transfer')),
+    notes TEXT,
+    processed_at TIMESTAMPTZ,
+    processed_by UUID REFERENCES auth.users(id),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
+
+-- Payouts policies
+CREATE POLICY "Users can view their own payouts"
+    ON public.payouts FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can request payouts"
+    ON public.payouts FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all payouts"
+    ON public.payouts FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+CREATE POLICY "Admins can update payouts"
+    ON public.payouts FOR UPDATE
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+-- ============================================
+-- NEWSLETTER_SUBSCRIBERS TABLE
+-- Stores newsletter subscriptions
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    first_name TEXT,
+    source TEXT DEFAULT 'landing_page',
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'unsubscribed', 'bounced')),
+    subscribed_at TIMESTAMPTZ DEFAULT NOW(),
+    unsubscribed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+-- Newsletter policies - anyone can subscribe, only admins can view all
+CREATE POLICY "Anyone can subscribe to newsletter"
+    ON public.newsletter_subscribers FOR INSERT
+    WITH CHECK (TRUE);
+
+CREATE POLICY "Admins can view all subscribers"
+    ON public.newsletter_subscribers FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+CREATE POLICY "Admins can manage subscribers"
+    ON public.newsletter_subscribers FOR ALL
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+-- ============================================
+-- CREATOR_EARNINGS TABLE
+-- Tracks accumulated creator earnings
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.creator_earnings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+    total_earnings DECIMAL(10, 2) DEFAULT 0,
+    pending_payout DECIMAL(10, 2) DEFAULT 0,
+    total_paid_out DECIMAL(10, 2) DEFAULT 0,
+    last_sale_at TIMESTAMPTZ,
+    stripe_connect_id TEXT,
+    stripe_onboarding_complete BOOLEAN DEFAULT FALSE,
+    payout_threshold DECIMAL(10, 2) DEFAULT 50.00,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.creator_earnings ENABLE ROW LEVEL SECURITY;
+
+-- Creator earnings policies
+CREATE POLICY "Users can view their own earnings"
+    ON public.creator_earnings FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own earnings settings"
+    ON public.creator_earnings FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all earnings"
+    ON public.creator_earnings FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+-- ============================================
+-- SETTINGS TABLE
+-- Stores system-wide settings (owner credentials, etc.)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.settings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    key TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    description TEXT,
+    is_encrypted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+-- Settings policies - Only admins/owners can view/modify
+CREATE POLICY "Admins can view settings"
+    ON public.settings FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+CREATE POLICY "Admins can manage settings"
+    ON public.settings FOR ALL
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+-- SECURITY NOTE: Owner credentials should be set via SQL after initial setup:
+-- INSERT INTO public.settings (key, value, description) VALUES 
+--   ('owner_email', 'your-owner-email@example.com', 'Owner account email'),
+--   ('owner_password', 'your-secure-password', 'Owner account password')
+-- ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- ============================================
 -- SAMPLE DATA (for testing)

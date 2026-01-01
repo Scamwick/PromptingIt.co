@@ -896,222 +896,11 @@
 
                 <!-- Prompts Grid -->
                 <div class="prompts-panel">
-                    <div class="prompts-grid">
-                        <!-- Prompt Card 1 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot active"></span>
-                                        Customer Ticket Analyzer
-                                    </div>
-                                    <span class="prompt-version">v2.4.1</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Analyzes customer support tickets to categorize issues, extract sentiment, and suggest appropriate responses based on historical data.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 2h ago</span>
-                                <span><i class="fas fa-user"></i> John D.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">GPT-4</span>
-                                <span class="prompt-tag model">Claude</span>
-                                <span class="prompt-tag category">Support</span>
-                                <span class="prompt-tag status">Production</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 12.4k runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 24 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
+                    <div class="prompts-grid" id="promptsGrid">
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-3);">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading prompts...
                         </div>
-
-                        <!-- Prompt Card 2 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot active"></span>
-                                        Blog Post Generator
-                                    </div>
-                                    <span class="prompt-version">v3.1.0</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Creates SEO-optimized blog posts with proper structure, engaging headlines, and relevant keywords for content marketing.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 1d ago</span>
-                                <span><i class="fas fa-user"></i> Sarah M.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">Claude</span>
-                                <span class="prompt-tag category">Content</span>
-                                <span class="prompt-tag status">Production</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 8.7k runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 31 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prompt Card 3 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot draft"></span>
-                                        Code Review Assistant
-                                    </div>
-                                    <span class="prompt-version">v1.2.0-beta</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Reviews code changes for best practices, security vulnerabilities, and suggests improvements with explanations.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 4h ago</span>
-                                <span><i class="fas fa-user"></i> Mike T.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">GPT-4</span>
-                                <span class="prompt-tag category">Development</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 2.1k runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 12 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prompt Card 4 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot active"></span>
-                                        Email Composer
-                                    </div>
-                                    <span class="prompt-version">v2.0.3</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Generates professional email responses and drafts based on context, tone preferences, and communication style guidelines.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 6h ago</span>
-                                <span><i class="fas fa-user"></i> Lisa K.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">GPT-4</span>
-                                <span class="prompt-tag model">Claude</span>
-                                <span class="prompt-tag category">Communication</span>
-                                <span class="prompt-tag status">Production</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 15.2k runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 20 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prompt Card 5 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot active"></span>
-                                        Data Insights Generator
-                                    </div>
-                                    <span class="prompt-version">v1.8.2</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Analyzes datasets and generates actionable insights, visualizations recommendations, and executive summaries.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 3d ago</span>
-                                <span><i class="fas fa-user"></i> Alex R.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">GPT-4</span>
-                                <span class="prompt-tag category">Analytics</span>
-                                <span class="prompt-tag status">Production</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 5.4k runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 18 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prompt Card 6 -->
-                        <div class="prompt-card">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot draft"></span>
-                                        Meeting Summarizer
-                                    </div>
-                                    <span class="prompt-version">v0.9.1-alpha</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                Transcribes and summarizes meeting recordings, extracts action items, and generates follow-up task lists.
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated 1w ago</span>
-                                <span><i class="fas fa-user"></i> Emily C.</span>
-                            </div>
-                            <div class="prompt-tags">
-                                <span class="prompt-tag model">Claude</span>
-                                <span class="prompt-tag category">Productivity</span>
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-play"></i> 890 runs</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> 9 versions</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Prompt cards will be loaded here dynamically -->
                     </div>
                 </div>
             </div>
@@ -1124,8 +913,191 @@
     </div>
 
     <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
+        // Load prompts from database on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPrompts();
+        });
+
+        // Load prompts from database
+        async function loadPrompts() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            const grid = document.getElementById('promptsGrid');
+            
+            if (!supabase || !user || !grid) {
+                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-3);">Please log in to view your prompts</div>';
+                return;
+            }
+
+            try {
+                const { data: prompts, error } = await supabase
+                    .from('prompts')
+                    .select('id, title, description, category, tags, version, is_marketplace, created_at, updated_at, sales_count')
+                    .eq('user_id', user.id)
+                    .order('updated_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!prompts || prompts.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-3);">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                            <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No prompts yet</div>
+                            <div style="margin-bottom: 24px;">Create your first prompt to get started</div>
+                            <a href="playground.html?action=create" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <span>&#10024;</span> Create New Prompt
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Get version counts (simplified - would need prompt_versions table for accurate count)
+                const versionCounts = {};
+                prompts.forEach(p => {
+                    versionCounts[p.id] = p.updated_at !== p.created_at ? 2 : 1;
+                });
+
+                grid.innerHTML = prompts.map(p => {
+                    const isActive = p.is_marketplace;
+                    const timeAgo = getTimeAgo(new Date(p.updated_at));
+                    
+                    return `
+                        <div class="prompt-card" data-prompt-id="${p.id}">
+                            <div class="prompt-card-header">
+                                <div>
+                                    <div class="prompt-title">
+                                        <span class="status-dot ${isActive ? 'active' : 'draft'}"></span>
+                                        ${escapeHtml(p.title || 'Untitled')}
+                                    </div>
+                                    <span class="prompt-version">${p.version || 'v1.0.0'}</span>
+                                </div>
+                            </div>
+                            <p class="prompt-description">
+                                ${escapeHtml(p.description || 'No description')}
+                            </p>
+                            <div class="prompt-meta">
+                                <span><i class="fas fa-clock"></i> Updated ${timeAgo}</span>
+                                <span><i class="fas fa-tag"></i> ${p.category || 'Uncategorized'}</span>
+                            </div>
+                            <div class="prompt-tags">
+                                ${(p.tags || []).slice(0, 3).map(tag => `<span class="prompt-tag category">${escapeHtml(tag)}</span>`).join('')}
+                                ${isActive ? '<span class="prompt-tag status">Live</span>' : '<span class="prompt-tag status">Draft</span>'}
+                            </div>
+                            <div class="prompt-footer">
+                                <div class="prompt-stats">
+                                    <span class="prompt-stat"><i class="fas fa-shopping-cart"></i> ${p.sales_count || 0} sales</span>
+                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> ${versionCounts[p.id] || 1} version${versionCounts[p.id] !== 1 ? 's' : ''}</span>
+                                </div>
+                                <div class="prompt-actions">
+                                    <button class="prompt-action" title="Edit" onclick="editLibraryPrompt('${p.id}')"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="prompt-action" title="Duplicate" onclick="duplicatePrompt('${p.id}')"><i class="fas fa-copy"></i></button>
+                                    <button class="prompt-action" title="More" onclick="showPromptMenu('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Update folder counts with real data
+                updateFolderCounts(prompts);
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--error);">Error loading prompts. Please try again.</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        function updateFolderCounts(prompts) {
+            // Update folder counts based on categories
+            const categoryCounts = {};
+            prompts.forEach(p => {
+                const cat = p.category || 'Other';
+                categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+            });
+
+            document.querySelectorAll('.folder-item').forEach(item => {
+                const text = item.textContent.trim();
+                // Simple matching - could be improved
+                Object.keys(categoryCounts).forEach(cat => {
+                    if (text.toLowerCase().includes(cat.toLowerCase())) {
+                        const countEl = item.querySelector('.folder-count');
+                        if (countEl) countEl.textContent = categoryCounts[cat];
+                    }
+                });
+            });
+        }
+
+        function editLibraryPrompt(promptId) {
+            window.location.href = `creator-dashboard.html#create-new`;
+            // Store prompt ID for editing
+            sessionStorage.setItem('editPromptId', promptId);
+        }
+
+        async function duplicatePrompt(promptId) {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                alert('Authentication required');
+                return;
+            }
+
+            try {
+                const { data: prompt, error } = await supabase
+                    .from('prompts')
+                    .select('*')
+                    .eq('id', promptId)
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error) throw error;
+
+                const { error: insertError } = await supabase
+                    .from('prompts')
+                    .insert({
+                        user_id: user.id,
+                        title: `${prompt.title} (Copy)`,
+                        content: prompt.content,
+                        description: prompt.description,
+                        category: prompt.category,
+                        tags: prompt.tags,
+                        price: prompt.price,
+                        is_marketplace: false, // Duplicates start as drafts
+                        version: '1.0.0'
+                    });
+
+                if (insertError) throw insertError;
+
+                alert('Prompt duplicated successfully!');
+                await loadPrompts();
+            } catch (error) {
+                console.error('Error duplicating prompt:', error);
+                alert('Failed to duplicate prompt');
+            }
+        }
+
+        function showPromptMenu(promptId) {
+            // Show context menu for prompt actions
+            alert('Menu: View, Delete, Share options coming soon');
         }
 
         // Filter buttons
@@ -1133,6 +1105,11 @@
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
+                // Filter prompts by status
+                const status = this.dataset.status;
+                if (status) {
+                    filterPromptsByStatus(status);
+                }
             });
         });
 
@@ -1149,23 +1126,41 @@
             item.addEventListener('click', function() {
                 document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
+                // Filter by category if folder name matches
+                const folderName = this.textContent.trim().toLowerCase();
+                filterPromptsByCategory(folderName);
             });
         });
 
-        // Search functionality
-        const searchInput = document.querySelector('.search-input');
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            document.querySelectorAll('.prompt-card').forEach(card => {
-                const title = card.querySelector('.prompt-title').textContent.toLowerCase();
-                const desc = card.querySelector('.prompt-description').textContent.toLowerCase();
-                if (title.includes(query) || desc.includes(query)) {
-                    card.style.display = 'block';
+        function filterPromptsByStatus(status) {
+            const cards = document.querySelectorAll('.prompt-card');
+            cards.forEach(card => {
+                const isActive = card.querySelector('.status-dot.active');
+                if (status === 'all') {
+                    card.style.display = '';
+                } else if (status === 'active' && isActive) {
+                    card.style.display = '';
+                } else if (status === 'draft' && !isActive) {
+                    card.style.display = '';
                 } else {
                     card.style.display = 'none';
                 }
             });
-        });
+        }
+
+        function filterPromptsByCategory(category) {
+            const cards = document.querySelectorAll('.prompt-card');
+            cards.forEach(card => {
+                const meta = card.querySelector('.prompt-meta');
+                if (meta && meta.textContent.toLowerCase().includes(category)) {
+                    card.style.display = '';
+                } else if (category === 'all' || category.includes('archive')) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
     </script>
 </body>
 </html>

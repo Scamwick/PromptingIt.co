@@ -1,71 +1,49 @@
-# Environment and secrets
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-.env*.local
-*.pem
-*.key
-secrets/
-credentials/
+# Security - Sensitive Files
+# Never commit these files to version control
 
-# API keys and tokens
-api-keys.json
-tokens.json
-*.secret
+# API Keys and Credentials
+**/api-keys.txt
+**/credentials.txt
+**/secrets.txt
+**/.env
+**/.env.local
+**/.env.production
 
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# Documentation with Sensitive Info
+OWNER_SIGNUP.md
+LOGIN_TROUBLESHOOTING.md
+TEST_RESULTS.md
+LOGIN_TEST_RESULTS.md
+SIGNUP_FIXES_APPLIED.md
+SIGNUP_READY.md
+
+# Security Audit Reports (may contain sensitive info)
+SECURITY_AUDIT_REPORT.md
+
+# Database dumps
+*.sql.backup
+*.dump
+
+# Logs (may contain sensitive data)
+*.log
+logs/
+
+# OS Files
 .DS_Store
 Thumbs.db
 
-# Node.js
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if using Node.js)
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.yarn-integrity
+package-lock.json
+yarn.lock
 
 # Build outputs
 dist/
 build/
-out/
-*.min.js
-*.min.css
-
-# Logs
-logs/
-*.log
-
-# Testing
-coverage/
-.nyc_output/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-
-# Backup files
-*.backup
-*.bkp
+*.min.js.map
