@@ -1129,104 +1129,354 @@
         </main>
 
         <!-- Floating Action Button -->
-        <button class="fab" title="Create New Prompt">
+        <button class="fab" title="Create New Prompt" onclick="openNewPromptModal()">
             <i class="fas fa-plus"></i>
         </button>
+
+        <!-- New Prompt Modal -->
+        <div class="modal" id="newPromptModal">
+            <div class="modal-backdrop" onclick="closeModal('newPromptModal')"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create New Prompt</h2>
+                    <button class="modal-close" onclick="closeModal('newPromptModal')">&times;</button>
+                </div>
+                <form id="newPromptForm" onsubmit="createPrompt(event)">
+                    <div class="form-group">
+                        <label for="promptTitle">Prompt Name *</label>
+                        <input type="text" id="promptTitle" required placeholder="e.g., Customer Support Bot">
+                    </div>
+                    <div class="form-group">
+                        <label for="promptDescription">Description</label>
+                        <textarea id="promptDescription" rows="2" placeholder="What does this prompt do?"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="promptModel">AI Model</label>
+                            <select id="promptModel">
+                                <option value="GPT-4">GPT-4</option>
+                                <option value="GPT-4-Turbo">GPT-4 Turbo</option>
+                                <option value="Claude">Claude</option>
+                                <option value="Claude-3">Claude 3</option>
+                                <option value="Gemini">Gemini</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptCategory">Category</label>
+                            <select id="promptCategory">
+                                <option value="General">General</option>
+                                <option value="Support">Customer Support</option>
+                                <option value="Content">Content Generation</option>
+                                <option value="Development">Development</option>
+                                <option value="Analytics">Data Analytics</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptContent">Prompt Content *</label>
+                        <textarea id="promptContent" required placeholder="Enter your prompt template here..." rows="5"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newPromptModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Prompt</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div class="modal" id="importModal">
+            <div class="modal-backdrop" onclick="closeModal('importModal')"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Import Prompts</h2>
+                    <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
+                </div>
+                <div class="import-content">
+                    <div class="drop-zone" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop JSON file here</p>
+                        <span>or</span>
+                        <label class="btn btn-secondary" style="cursor:pointer;">
+                            Browse Files
+                            <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleFileImport(event)">
+                        </label>
+                    </div>
+                    <div class="import-info">
+                        <p><strong>Supported:</strong> JSON export from PromptingIt</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Folder Modal -->
+        <div class="modal" id="addFolderModal">
+            <div class="modal-backdrop" onclick="closeModal('addFolderModal')"></div>
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h2>Create New Folder</h2>
+                    <button class="modal-close" onclick="closeModal('addFolderModal')">&times;</button>
+                </div>
+                <form id="addFolderForm" onsubmit="createFolder(event)">
+                    <div class="form-group">
+                        <label for="folderName">Folder Name *</label>
+                        <input type="text" id="folderName" required placeholder="e.g., Customer Support">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addFolderModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Folder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Prompt Context Menu -->
+        <div class="context-menu" id="promptContextMenu">
+            <button onclick="contextMenuAction('open')"><i class="fas fa-external-link-alt"></i> Open in Playground</button>
+            <button onclick="contextMenuAction('edit')"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button onclick="contextMenuAction('duplicate')"><i class="fas fa-copy"></i> Duplicate</button>
+            <button onclick="contextMenuAction('favorite')"><i class="fas fa-star"></i> Toggle Favorite</button>
+            <div class="context-divider"></div>
+            <button onclick="contextMenuAction('export')"><i class="fas fa-download"></i> Export</button>
+            <button onclick="contextMenuAction('archive')" class="text-warning"><i class="fas fa-archive"></i> Archive</button>
+            <button onclick="contextMenuAction('delete')" class="text-danger"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
     </div>
 
     <script>
-        // Load prompts from database on page load
+        // ============================================
+        // LIBRARY STATE & STORAGE
+        // ============================================
+        const STORAGE_KEYS = {
+            PROMPTS: 'promptingit_prompts',
+            FOLDERS: 'promptingit_folders',
+            FAVORITES: 'promptingit_favorites'
+        };
+
+        const libraryState = {
+            currentFilter: 'all',
+            currentFolder: 'all',
+            currentView: 'grid',
+            searchQuery: '',
+            prompts: [],
+            folders: [],
+            favorites: [],
+            selectedPromptId: null,
+            user: null
+        };
+
+        // Storage helpers
+        function saveToStorage(key, data) {
+            try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { console.error(e); }
+        }
+        function loadFromStorage(key, defaultValue = []) {
+            try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : defaultValue; } catch (e) { return defaultValue; }
+        }
+        function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadPrompts();
+            await initLibrary();
+            setupEventListeners();
         });
 
-        // Load prompts from database
+        async function initLibrary() {
+            // Load from localStorage first (instant)
+            libraryState.favorites = loadFromStorage(STORAGE_KEYS.FAVORITES, []);
+            libraryState.folders = loadFromStorage(STORAGE_KEYS.FOLDERS, getDefaultFolders());
+            
+            // Try to get user
+            if (window.Auth) {
+                await window.Auth.init?.();
+                libraryState.user = window.Auth.getUser?.();
+            }
+            
+            // Show user-friendly name for demo
+            if (!libraryState.user) {
+                libraryState.user = { email: 'demo@promptingit.co', user_metadata: { full_name: 'Demo User' } };
+            }
+            updateUserDisplay();
+            
+            // Load prompts (try Supabase, fallback to localStorage)
+            await loadPrompts();
+            updateStats();
+        }
+
+        function updateUserDisplay() {
+            const userCard = document.querySelector('.user-card');
+            if (!userCard || !libraryState.user) return;
+            const name = libraryState.user.user_metadata?.full_name || libraryState.user.email?.split('@')[0] || 'User';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            const tier = window.Auth?.getSubscriptionTier?.() || 'free';
+            userCard.innerHTML = `
+                <div class="user-avatar">${initials}</div>
+                <div class="user-info">
+                    <div class="user-name">${escapeHtml(name)}</div>
+                    <div class="user-tier"><i class="fas fa-crown"></i> ${tier === 'pro' ? 'Pro Plan' : tier === 'enterprise' ? 'Enterprise' : 'Free Plan'}</div>
+                </div>
+            `;
+        }
+
+        // Load prompts from database or localStorage
         async function loadPrompts() {
             const supabase = window.PromptingItSupabase?.getClient();
-            const user = window.Auth?.getUser();
+            const user = window.Auth?.getUser?.();
             const grid = document.getElementById('promptsGrid');
+            if (!grid) return;
+
+            // Try Supabase first
+            if (supabase && user) {
+                try {
+                    const { data: prompts, error } = await supabase
+                        .from('prompts')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .order('updated_at', { ascending: false });
+                    
+                    if (!error && prompts) {
+                        libraryState.prompts = prompts.map(p => ({
+                            ...p,
+                            status: p.is_marketplace ? 'active' : 'draft',
+                            run_count: p.sales_count || 0,
+                            version_count: 1
+                        }));
+                        saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+                        renderPrompts();
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Supabase error:', e);
+                }
+            }
             
-            if (!supabase || !user || !grid) {
-                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-3);">Please log in to view your prompts</div>';
+            // Fallback to localStorage or mock data
+            const stored = loadFromStorage(STORAGE_KEYS.PROMPTS);
+            libraryState.prompts = stored.length ? stored : getMockPrompts();
+            if (!stored.length) saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+            renderPrompts();
+        }
+
+        function getMockPrompts() {
+            return [
+                { id: generateId(), title: 'Customer Ticket Analyzer', description: 'Analyzes support tickets to categorize issues and suggest responses.', content: 'Analyze: {{ticket}}', version: 'v2.4.1', status: 'active', model: 'GPT-4', category: 'Support', tags: ['GPT-4', 'Claude'], run_count: 12400, version_count: 24, updated_at: new Date(Date.now() - 2*60*60*1000).toISOString(), created_by: 'You' },
+                { id: generateId(), title: 'Blog Post Generator', description: 'Creates SEO-optimized blog posts with structure and keywords.', content: 'Write blog about: {{topic}}', version: 'v3.1.0', status: 'active', model: 'Claude', category: 'Content', tags: ['Claude'], run_count: 8700, version_count: 31, updated_at: new Date(Date.now() - 24*60*60*1000).toISOString(), created_by: 'You' },
+                { id: generateId(), title: 'Code Review Assistant', description: 'Reviews code for best practices and security issues.', content: 'Review: ```{{code}}```', version: 'v1.2.0-beta', status: 'draft', model: 'GPT-4', category: 'Development', tags: ['GPT-4'], run_count: 2100, version_count: 12, updated_at: new Date(Date.now() - 4*60*60*1000).toISOString(), created_by: 'You' },
+                { id: generateId(), title: 'Email Composer', description: 'Generates professional emails based on context and tone.', content: 'Write email: {{context}}', version: 'v2.0.3', status: 'active', model: 'GPT-4', category: 'Communication', tags: ['GPT-4', 'Claude'], run_count: 15200, version_count: 20, updated_at: new Date(Date.now() - 6*60*60*1000).toISOString(), created_by: 'You' },
+                { id: generateId(), title: 'Data Insights Generator', description: 'Analyzes datasets and generates actionable insights.', content: 'Analyze data: {{data}}', version: 'v1.8.2', status: 'active', model: 'GPT-4', category: 'Analytics', tags: ['GPT-4'], run_count: 5400, version_count: 18, updated_at: new Date(Date.now() - 3*24*60*60*1000).toISOString(), created_by: 'You' },
+                { id: generateId(), title: 'Meeting Summarizer', description: 'Summarizes meetings and extracts action items.', content: 'Summarize: {{transcript}}', version: 'v0.9.1-alpha', status: 'draft', model: 'Claude', category: 'Productivity', tags: ['Claude'], run_count: 890, version_count: 9, updated_at: new Date(Date.now() - 7*24*60*60*1000).toISOString(), created_by: 'You' }
+            ];
+        }
+
+        function getDefaultFolders() {
+            return [
+                { id: 'customer-support', name: 'Customer Support' },
+                { id: 'content-generation', name: 'Content Generation' },
+                { id: 'code-assistant', name: 'Code Assistant' },
+                { id: 'data-analysis', name: 'Data Analysis' },
+                { id: 'marketing', name: 'Marketing' },
+                { id: 'sales', name: 'Sales' }
+            ];
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function renderPrompts() {
+            const grid = document.getElementById('promptsGrid');
+            if (!grid) return;
+
+            const filtered = getFilteredPrompts();
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                        <div class="empty-title">No prompts found</div>
+                        <div class="empty-desc">${libraryState.searchQuery ? 'Try a different search' : 'Create your first prompt'}</div>
+                        <button class="btn btn-primary" onclick="openNewPromptModal()"><i class="fas fa-plus"></i> Create Prompt</button>
+                    </div>
+                `;
                 return;
             }
 
-            try {
-                const { data: prompts, error } = await supabase
-                    .from('prompts')
-                    .select('id, title, description, category, tags, version, is_marketplace, created_at, updated_at, sales_count')
-                    .eq('user_id', user.id)
-                    .order('updated_at', { ascending: false });
-
-                if (error) throw error;
-
-                if (!prompts || prompts.length === 0) {
-                    grid.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-3);">
-                            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
-                            <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--text-2);">No prompts yet</div>
-                            <div style="margin-bottom: 24px;">Create your first prompt to get started</div>
-                            <a href="playground.html?action=create" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-                                <span>&#10024;</span> Create New Prompt
-                            </a>
+            grid.innerHTML = filtered.map(p => {
+                const timeAgo = formatTimeAgo(p.updated_at);
+                const isFav = libraryState.favorites.includes(p.id);
+                return `
+                    <div class="prompt-card" data-id="${p.id}" onclick="openPrompt('${p.id}')">
+                        <div class="prompt-card-header">
+                            <div>
+                                <div class="prompt-title">
+                                    <span class="status-dot ${p.status || 'draft'}"></span>
+                                    ${escapeHtml(p.title)}
+                                    ${isFav ? '<i class="fas fa-star" style="color:var(--solar);font-size:12px;"></i>' : ''}
+                                </div>
+                                <span class="prompt-version">${p.version || 'v1.0.0'}</span>
+                            </div>
                         </div>
-                    `;
-                    return;
+                        <p class="prompt-description">${escapeHtml(p.description || 'No description')}</p>
+                        <div class="prompt-meta">
+                            <span><i class="fas fa-clock"></i> ${timeAgo}</span>
+                            <span><i class="fas fa-tag"></i> ${p.category || 'General'}</span>
+                        </div>
+                        <div class="prompt-tags">
+                            ${(p.tags || []).slice(0, 2).map(t => `<span class="prompt-tag model">${escapeHtml(t)}</span>`).join('')}
+                            ${p.status === 'active' ? '<span class="prompt-tag status">Production</span>' : ''}
+                        </div>
+                        <div class="prompt-footer">
+                            <div class="prompt-stats">
+                                <span class="prompt-stat"><i class="fas fa-play"></i> ${formatNumber(p.run_count || 0)} runs</span>
+                                <span class="prompt-stat"><i class="fas fa-code-branch"></i> ${p.version_count || 1} versions</span>
+                            </div>
+                            <div class="prompt-actions" onclick="event.stopPropagation()">
+                                <button class="prompt-action" title="Edit" onclick="editPrompt('${p.id}')"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="prompt-action" title="Duplicate" onclick="duplicatePromptAction('${p.id}')"><i class="fas fa-copy"></i></button>
+                                <button class="prompt-action" title="More" onclick="showPromptMenu('${p.id}', event)"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update view mode
+            if (libraryState.currentView === 'list') grid.classList.add('list-view');
+            else grid.classList.remove('list-view');
+        }
+
+        function getFilteredPrompts() {
+            return libraryState.prompts.filter(p => {
+                if (libraryState.currentFilter !== 'archived' && p.status === 'archived') return false;
+                if (libraryState.currentFilter === 'active' && p.status !== 'active') return false;
+                if (libraryState.currentFilter === 'draft' && p.status !== 'draft') return false;
+                if (libraryState.currentFilter === 'archived' && p.status !== 'archived') return false;
+                if (libraryState.searchQuery) {
+                    const q = libraryState.searchQuery.toLowerCase();
+                    if (!(p.title||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q) && !(p.tags||[]).join(' ').toLowerCase().includes(q)) return false;
                 }
+                if (libraryState.currentFolder === 'favorites' && !libraryState.favorites.includes(p.id)) return false;
+                return true;
+            });
+        }
 
-                // Get version counts (simplified - would need prompt_versions table for accurate count)
-                const versionCounts = {};
-                prompts.forEach(p => {
-                    versionCounts[p.id] = p.updated_at !== p.created_at ? 2 : 1;
-                });
-
-                grid.innerHTML = prompts.map(p => {
-                    const isActive = p.is_marketplace;
-                    const timeAgo = getTimeAgo(new Date(p.updated_at));
-                    
-                    return `
-                        <div class="prompt-card" data-prompt-id="${p.id}">
-                            <div class="prompt-card-header">
-                                <div>
-                                    <div class="prompt-title">
-                                        <span class="status-dot ${isActive ? 'active' : 'draft'}"></span>
-                                        ${escapeHtml(p.title || 'Untitled')}
-                                    </div>
-                                    <span class="prompt-version">${p.version || 'v1.0.0'}</span>
-                                </div>
-                            </div>
-                            <p class="prompt-description">
-                                ${escapeHtml(p.description || 'No description')}
-                            </p>
-                            <div class="prompt-meta">
-                                <span><i class="fas fa-clock"></i> Updated ${timeAgo}</span>
-                                <span><i class="fas fa-tag"></i> ${p.category || 'Uncategorized'}</span>
-                            </div>
-                            <div class="prompt-tags">
-                                ${(p.tags || []).slice(0, 3).map(tag => `<span class="prompt-tag category">${escapeHtml(tag)}</span>`).join('')}
-                                ${isActive ? '<span class="prompt-tag status">Live</span>' : '<span class="prompt-tag status">Draft</span>'}
-                            </div>
-                            <div class="prompt-footer">
-                                <div class="prompt-stats">
-                                    <span class="prompt-stat"><i class="fas fa-shopping-cart"></i> ${p.sales_count || 0} sales</span>
-                                    <span class="prompt-stat"><i class="fas fa-code-branch"></i> ${versionCounts[p.id] || 1} version${versionCounts[p.id] !== 1 ? 's' : ''}</span>
-                                </div>
-                                <div class="prompt-actions">
-                                    <button class="prompt-action" title="Edit" onclick="editLibraryPrompt('${p.id}')"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="prompt-action" title="Duplicate" onclick="duplicatePrompt('${p.id}')"><i class="fas fa-copy"></i></button>
-                                    <button class="prompt-action" title="More" onclick="showPromptMenu('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Update folder counts with real data
-                updateFolderCounts(prompts);
-            } catch (error) {
-                console.error('Error loading prompts:', error);
-                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--error);">Error loading prompts. Please try again.</div>';
-            }
+        function updateStats() {
+            const all = libraryState.prompts.filter(p => p.status !== 'archived');
+            const active = libraryState.prompts.filter(p => p.status === 'active');
+            const drafts = libraryState.prompts.filter(p => p.status === 'draft');
+            const versions = libraryState.prompts.reduce((s, p) => s + (p.version_count || 1), 0);
+            const stats = document.querySelectorAll('.quick-stat-value');
+            if (stats[0]) stats[0].textContent = all.length;
+            if (stats[1]) stats[1].textContent = active.length;
+            if (stats[2]) stats[2].textContent = drafts.length;
+            if (stats[3]) stats[3].textContent = formatNumber(versions);
+            // Update nav badge
+            const badge = document.querySelector('.nav-badge');
+            if (badge) badge.textContent = all.length;
         }
 
         function escapeHtml(text) {
