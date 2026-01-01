@@ -148,13 +148,15 @@
           document.getElementById('signupForm').addEventListener('submit', async function(e) {
                   e.preventDefault();
                   const btn = this.querySelector('button[type="submit"]');
-                  const name = document.getElementById('name').value.trim();
+                  const firstName = document.getElementById('firstName').value.trim();
+                  const lastName = document.getElementById('lastName').value.trim();
                   const email = document.getElementById('email').value.trim();
                   const password = document.getElementById('password').value;
+                  const name = `${firstName} ${lastName}`.trim();
 
                   // Client-side validation (supplement to server-side, not replacement)
                   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!name || !email || !password) {
+                  if (!firstName || !lastName || !email || !password) {
                       showError('Please fill in all fields');
                       return;
                   }
