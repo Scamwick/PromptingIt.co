@@ -302,7 +302,7 @@
       'creator-dashboard.html',
       'analytics.html',
       'api-console.html',
-      'library.html',
+      // 'library.html', // Allows demo mode with localStorage data
       'workspace.html',
       'templates.html',
       'workflows.html',

@@ -1479,159 +1479,269 @@
             if (badge) badge.textContent = all.length;
         }
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function formatTimeAgo(d) { if (!d) return ''; const s = Math.floor((Date.now() - new Date(d)) / 1000); if (s < 60) return 'Just now'; if (s < 3600) return Math.floor(s/60)+'m ago'; if (s < 86400) return Math.floor(s/3600)+'h ago'; if (s < 604800) return Math.floor(s/86400)+'d ago'; return Math.floor(s/604800)+'w ago'; }
+        function formatNumber(n) { if (n >= 1000000) return (n/1000000).toFixed(1)+'M'; if (n >= 1000) return (n/1000).toFixed(1)+'k'; return n.toString(); }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${escapeHtml(message)}</span><button class="toast-close" onclick="this.parentElement.remove()">&times;</button>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        function getTimeAgo(date) {
-            const now = new Date();
-            const diff = now - date;
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(diff / 3600000);
-            const days = Math.floor(diff / 86400000);
+        // ============================================
+        // MODAL HANDLERS
+        // ============================================
+        function openModal(id) { document.getElementById(id)?.classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { document.getElementById(id)?.classList.remove('open'); document.body.style.overflow = ''; }
+        function openNewPromptModal() { document.getElementById('newPromptForm')?.reset(); openModal('newPromptModal'); }
+        function openImportModal() { openModal('importModal'); }
+        function openAddFolderModal() { document.getElementById('addFolderForm')?.reset(); openModal('addFolderModal'); }
+
+        // ============================================
+        // CRUD OPERATIONS
+        // ============================================
+        async function createPrompt(event) {
+            event.preventDefault();
+            const title = document.getElementById('promptTitle').value.trim();
+            const description = document.getElementById('promptDescription').value.trim();
+            const model = document.getElementById('promptModel').value;
+            const category = document.getElementById('promptCategory').value;
+            const content = document.getElementById('promptContent').value.trim();
+            if (!title || !content) { showToast('Fill required fields', 'error'); return; }
             
-            if (minutes < 60) return `${minutes}m ago`;
-            if (hours < 24) return `${hours}h ago`;
-            if (days < 7) return `${days}d ago`;
-            return date.toLocaleDateString();
+            const newPrompt = { id: generateId(), title, description, content, model, category, tags: [model], version: 'v1.0.0', status: 'draft', run_count: 0, version_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), created_by: 'You' };
+            
+            // Try Supabase
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser?.();
+            if (supabase && user) {
+                try { await supabase.from('prompts').insert({ ...newPrompt, user_id: user.id }); } catch (e) { console.warn(e); }
+            }
+            
+            libraryState.prompts.unshift(newPrompt);
+            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+            closeModal('newPromptModal');
+            renderPrompts();
+            updateStats();
+            showToast('Prompt created!', 'success');
         }
 
-        function updateFolderCounts(prompts) {
-            // Update folder counts based on categories
-            const categoryCounts = {};
-            prompts.forEach(p => {
-                const cat = p.category || 'Other';
-                categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-            });
+        async function createFolder(event) {
+            event.preventDefault();
+            const name = document.getElementById('folderName').value.trim();
+            if (!name) { showToast('Enter folder name', 'error'); return; }
+            const folder = { id: name.toLowerCase().replace(/\s+/g, '-'), name };
+            libraryState.folders.push(folder);
+            saveToStorage(STORAGE_KEYS.FOLDERS, libraryState.folders);
+            closeModal('addFolderModal');
+            showToast('Folder created!', 'success');
+            // Add to DOM
+            const tree = document.querySelector('.folder-tree');
+            const li = document.createElement('li');
+            li.className = 'folder-item';
+            li.innerHTML = `<i class="fas fa-folder"></i>${escapeHtml(name)}<span class="folder-count">0</span>`;
+            li.onclick = () => { document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active')); li.classList.add('active'); libraryState.currentFolder = folder.id; renderPrompts(); };
+            const archive = Array.from(tree.children).find(el => el.textContent.includes('Archived'));
+            archive ? tree.insertBefore(li, archive) : tree.appendChild(li);
+        }
 
-            document.querySelectorAll('.folder-item').forEach(item => {
-                const text = item.textContent.trim();
-                // Simple matching - could be improved
-                Object.keys(categoryCounts).forEach(cat => {
-                    if (text.toLowerCase().includes(cat.toLowerCase())) {
-                        const countEl = item.querySelector('.folder-count');
-                        if (countEl) countEl.textContent = categoryCounts[cat];
-                    }
+        function duplicatePromptAction(id) {
+            const p = libraryState.prompts.find(x => x.id === id);
+            if (!p) return;
+            const dup = { ...p, id: generateId(), title: p.title + ' (Copy)', status: 'draft', version: 'v1.0.0', run_count: 0, version_count: 1, updated_at: new Date().toISOString() };
+            libraryState.prompts.unshift(dup);
+            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+            renderPrompts();
+            updateStats();
+            showToast('Duplicated: ' + p.title, 'success');
+        }
+
+        function deletePrompt(id) {
+            const p = libraryState.prompts.find(x => x.id === id);
+            if (!p || !confirm(`Delete "${p.title}"?`)) return;
+            libraryState.prompts = libraryState.prompts.filter(x => x.id !== id);
+            libraryState.favorites = libraryState.favorites.filter(x => x !== id);
+            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+            saveToStorage(STORAGE_KEYS.FAVORITES, libraryState.favorites);
+            renderPrompts();
+            updateStats();
+            hideContextMenu();
+            showToast('Prompt deleted', 'success');
+        }
+
+        function archivePrompt(id) {
+            const p = libraryState.prompts.find(x => x.id === id);
+            if (!p) return;
+            p.status = p.status === 'archived' ? 'draft' : 'archived';
+            p.updated_at = new Date().toISOString();
+            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+            renderPrompts();
+            updateStats();
+            hideContextMenu();
+            showToast(p.status === 'archived' ? 'Archived' : 'Restored', 'success');
+        }
+
+        function toggleFavorite(id) {
+            const i = libraryState.favorites.indexOf(id);
+            if (i === -1) libraryState.favorites.push(id);
+            else libraryState.favorites.splice(i, 1);
+            saveToStorage(STORAGE_KEYS.FAVORITES, libraryState.favorites);
+            renderPrompts();
+            hideContextMenu();
+            showToast(i === -1 ? 'Added to favorites' : 'Removed from favorites', 'success');
+        }
+
+        // ============================================
+        // IMPORT / EXPORT
+        // ============================================
+        function exportPrompts() {
+            const data = { version: '1.0', exported_at: new Date().toISOString(), prompts: libraryState.prompts, folders: libraryState.folders };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `promptingit-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast(`Exported ${libraryState.prompts.length} prompts`, 'success');
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    let count = 0;
+                    if (data.prompts) data.prompts.forEach(p => { p.id = generateId(); libraryState.prompts.unshift(p); count++; });
+                    if (data.folders) data.folders.forEach(f => { if (!libraryState.folders.find(x => x.name === f.name)) libraryState.folders.push(f); });
+                    saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
+                    saveToStorage(STORAGE_KEYS.FOLDERS, libraryState.folders);
+                    closeModal('importModal');
+                    renderPrompts();
+                    updateStats();
+                    showToast(`Imported ${count} prompts`, 'success');
+                } catch (err) { showToast('Invalid JSON file', 'error'); }
+            };
+            reader.readAsText(file);
+        }
+
+        // ============================================
+        // CONTEXT MENU
+        // ============================================
+        function showPromptMenu(id, event) {
+            event.stopPropagation();
+            libraryState.selectedPromptId = id;
+            const menu = document.getElementById('promptContextMenu');
+            const rect = event.target.closest('.prompt-action').getBoundingClientRect();
+            menu.style.top = rect.bottom + 8 + 'px';
+            menu.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
+            menu.classList.add('open');
+            setTimeout(() => document.addEventListener('click', hideContextMenu, { once: true }), 10);
+        }
+
+        function hideContextMenu() { document.getElementById('promptContextMenu')?.classList.remove('open'); }
+
+        function contextMenuAction(action) {
+            const id = libraryState.selectedPromptId;
+            if (!id) return;
+            hideContextMenu();
+            switch (action) {
+                case 'open': openPrompt(id); break;
+                case 'edit': editPrompt(id); break;
+                case 'duplicate': duplicatePromptAction(id); break;
+                case 'favorite': toggleFavorite(id); break;
+                case 'export':
+                    const p = libraryState.prompts.find(x => x.id === id);
+                    if (p) { const b = new Blob([JSON.stringify(p, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = p.title.toLowerCase().replace(/\s+/g,'-')+'.json'; a.click(); showToast('Exported', 'success'); }
+                    break;
+                case 'archive': archivePrompt(id); break;
+                case 'delete': deletePrompt(id); break;
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function openPrompt(id) { sessionStorage.setItem('selectedPrompt', JSON.stringify(libraryState.prompts.find(p => p.id === id))); window.location.href = `playground.html?prompt=${id}`; }
+        function editPrompt(id) { sessionStorage.setItem('selectedPrompt', JSON.stringify(libraryState.prompts.find(p => p.id === id))); window.location.href = `playground.html?prompt=${id}&edit=true`; }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const text = this.textContent.trim().toLowerCase();
+                    if (text.includes('all')) libraryState.currentFilter = 'all';
+                    else if (text.includes('active')) libraryState.currentFilter = 'active';
+                    else if (text.includes('draft')) libraryState.currentFilter = 'draft';
+                    else if (text.includes('archived')) libraryState.currentFilter = 'archived';
+                    renderPrompts();
                 });
             });
-        }
 
-        function editLibraryPrompt(promptId) {
-            window.location.href = `creator-dashboard.html#create-new`;
-            // Store prompt ID for editing
-            sessionStorage.setItem('editPromptId', promptId);
-        }
+            // View toggle
+            document.querySelectorAll('.view-btn').forEach((btn, i) => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    libraryState.currentView = i === 0 ? 'grid' : 'list';
+                    renderPrompts();
+                });
+            });
 
-        async function duplicatePrompt(promptId) {
-            const supabase = window.PromptingItSupabase?.getClient();
-            const user = window.Auth?.getUser();
-            
-            if (!supabase || !user) {
-                alert('Authentication required');
-                return;
+            // Folder items
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    const text = this.textContent.trim();
+                    if (text.includes('All Prompts')) { libraryState.currentFolder = 'all'; libraryState.currentFilter = 'all'; }
+                    else if (text.includes('Favorites')) libraryState.currentFolder = 'favorites';
+                    else if (text.includes('Archived')) { libraryState.currentFilter = 'archived'; libraryState.currentFolder = 'all'; }
+                    else libraryState.currentFolder = text.split('\n')[0].trim();
+                    renderPrompts();
+                });
+            });
+
+            // Search
+            const searchInput = document.querySelector('.search-input');
+            let searchTimeout;
+            searchInput?.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => { libraryState.searchQuery = this.value; renderPrompts(); }, 200);
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') { document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id)); hideContextMenu(); }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewPromptModal(); }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); document.querySelector('.search-input')?.focus(); }
+            });
+
+            // Drag and drop for import
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) {
+                ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
+                ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover'), false));
+                ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover'), false));
+                dropZone.addEventListener('drop', e => {
+                    const file = e.dataTransfer.files[0];
+                    if (file && file.type === 'application/json') { const r = new FileReader(); r.onload = ev => { try { importPrompts(JSON.parse(ev.target.result)); } catch (err) { showToast('Invalid JSON', 'error'); } }; r.readAsText(file); }
+                }, false);
             }
-
-            try {
-                const { data: prompt, error } = await supabase
-                    .from('prompts')
-                    .select('*')
-                    .eq('id', promptId)
-                    .eq('user_id', user.id)
-                    .single();
-
-                if (error) throw error;
-
-                const { error: insertError } = await supabase
-                    .from('prompts')
-                    .insert({
-                        user_id: user.id,
-                        title: `${prompt.title} (Copy)`,
-                        content: prompt.content,
-                        description: prompt.description,
-                        category: prompt.category,
-                        tags: prompt.tags,
-                        price: prompt.price,
-                        is_marketplace: false, // Duplicates start as drafts
-                        version: '1.0.0'
-                    });
-
-                if (insertError) throw insertError;
-
-                alert('Prompt duplicated successfully!');
-                await loadPrompts();
-            } catch (error) {
-                console.error('Error duplicating prompt:', error);
-                alert('Failed to duplicate prompt');
-            }
-        }
-
-        function showPromptMenu(promptId) {
-            // Show context menu for prompt actions
-            alert('Menu: View, Delete, Share options coming soon');
-        }
-
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // Filter prompts by status
-                const status = this.dataset.status;
-                if (status) {
-                    filterPromptsByStatus(status);
-                }
-            });
-        });
-
-        // View toggle
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Folder items
-        document.querySelectorAll('.folder-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-                // Filter by category if folder name matches
-                const folderName = this.textContent.trim().toLowerCase();
-                filterPromptsByCategory(folderName);
-            });
-        });
-
-        function filterPromptsByStatus(status) {
-            const cards = document.querySelectorAll('.prompt-card');
-            cards.forEach(card => {
-                const isActive = card.querySelector('.status-dot.active');
-                if (status === 'all') {
-                    card.style.display = '';
-                } else if (status === 'active' && isActive) {
-                    card.style.display = '';
-                } else if (status === 'draft' && !isActive) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function filterPromptsByCategory(category) {
-            const cards = document.querySelectorAll('.prompt-card');
-            cards.forEach(card => {
-                const meta = card.querySelector('.prompt-meta');
-                if (meta && meta.textContent.toLowerCase().includes(category)) {
-                    card.style.display = '';
-                } else if (category === 'all' || category.includes('archive')) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
         }
     </script>
 </body>
