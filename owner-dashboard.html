@@ -977,9 +977,10 @@
                     return;
                 }
 
-                if (!window.Auth?.checkIsOwner()) {
-                    // For demo purposes, allow access but show warning
-                    console.warn('User is not an owner, but allowing access for demo.');
+                iif (!window.Auth?.checkIsOwner()) {
+                                    // Block access for non-owners - redirect to dashboard
+                                    window.location.href = 'creator-dashboard.html?error=unauthorized';
+                                    return;
                 }
 
                 // Update user info
