@@ -318,10 +318,7 @@
 
               // Log successful signup
               if (window.Security?.AuditLog) {
-                await window.Security.AuditLog.log(
-                  window.Security.AuditLog.ACTIONS.SIGNUP,
-                  { email, success: true, method: 'email' }
-                );
+                await window.Security.AuditLog.logSignup(true, email, 'email');
               }
 
               // Handle email verification requirement
@@ -347,10 +344,7 @@
             } catch (error) {
               // Log failed signup
               if (window.Security?.AuditLog) {
-                await window.Security.AuditLog.log(
-                  window.Security.AuditLog.ACTIONS.SIGNUP,
-                  { email, success: false, error: error.message, method: 'email' }
-                );
+                await window.Security.AuditLog.logSignup(false, email, 'email', error.message);
               }
 
               // Show error message

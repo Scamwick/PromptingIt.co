@@ -91,6 +91,13 @@
       );
     },
 
+    async logSignup(success, email, method = 'email', errorMessage = null) {
+      await this.log(
+        this.ACTIONS.SIGNUP,
+        { email, success, method, error: errorMessage }
+      );
+    },
+
     async logSubscriptionChange(oldTier, newTier, stripeDetails = {}) {
       let action = this.ACTIONS.SUBSCRIPTION_CREATED;
       if (oldTier && newTier) {
