@@ -165,7 +165,7 @@
 
         if (!existingSubscription) {
           // Create default free subscription if trigger didn't create it
-          await supabase.from('subscriptions').insert({
+          const { error: subscriptionError } = await supabase.from('subscriptions').insert({
             user_id: user.id,
             tier: 'free',
             status: 'active',
@@ -173,11 +173,16 @@
             prompts_used: 0,
             trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days
           });
+
+          if (subscriptionError && subscriptionError.code !== '23505') {
+            console.error('Subscription creation error:', subscriptionError);
+            throw subscriptionError;
+          }
         }
       } catch (error) {
         // Only log non-duplicate errors
         if (error.code !== '23505') {
-          console.error('Profile creation error:', error);
+          console.error('Profile/subscription creation error:', error);
         }
       }
     },

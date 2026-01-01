@@ -689,7 +689,7 @@
                     <p>Manage API keys and monitor your API usage</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" onclick="openCreateKeyModal()">
                         <i class="fas fa-plus"></i>
                         Create API Key
                     </button>
@@ -1027,11 +1027,576 @@ console.<span class="function">log</span>(response.output);</pre>
         </main>
     </div>
 
+    <!-- Create API Key Modal -->
+    <div id="create-key-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Create New API Key</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Key Name</label>
+                    <input type="text" id="key-name" class="form-input" placeholder="e.g., Production Key">
+                </div>
+                <div class="form-group">
+                    <label>Environment</label>
+                    <select id="key-env" class="form-input">
+                        <option value="live">Production (live)</option>
+                        <option value="test">Development (test)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox"><input type="checkbox" checked> Read prompts</label>
+                        <label class="checkbox"><input type="checkbox" checked> Execute prompts</label>
+                        <label class="checkbox"><input type="checkbox"> Write prompts</label>
+                        <label class="checkbox"><input type="checkbox"> Delete prompts</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Rate Limit (requests/minute)</label>
+                    <input type="number" id="key-rate-limit" class="form-input" value="100" min="10" max="10000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createApiKey()">
+                    <i class="fas fa-plus"></i> Create Key
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Key Display Modal -->
+    <div id="new-key-modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle" style="color: var(--emerald);"></i> API Key Created</h3>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Important:</strong> Copy your API key now. You won't be able to see it again!
+                </div>
+                <div class="new-key-display">
+                    <code id="new-key-value"></code>
+                    <button onclick="copyNewKey()" class="btn btn-primary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeNewKeyModal()">I've Copied My Key</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+        }
+        .modal-content {
+            position: relative;
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--surface-3);
+        }
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+        .modal-header h3 i { color: var(--glacier); }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-3);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color var(--duration-fast);
+        }
+        .modal-close:hover { color: var(--text-1); }
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--surface-3);
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-2);
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 14px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--glacier);
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-2);
+            cursor: pointer;
+        }
+        .checkbox input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--glacier);
+        }
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+        .alert-warning {
+            background: rgba(250,204,21,0.1);
+            border: 1px solid rgba(250,204,21,0.3);
+            color: var(--solar);
+        }
+        .alert-warning i { margin-top: 2px; }
+        .new-key-display {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .new-key-display code {
+            flex: 1;
+            padding: 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--glacier);
+            word-break: break-all;
+        }
+    </style>
+
     <script>
+        // API Console State
+        const apiState = {
+            keys: [],
+            usage: {
+                today: 0,
+                month: 0,
+                avgResponseTime: 0,
+                successRate: 99.8
+            }
+        };
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
+        // Initialize API Console
+        async function initApiConsole() {
+            try {
+                // Auth guard handles redirect, so if we're here, user should be authenticated
+                const user = window.Auth?.getUser();
+                
+                await loadApiKeys();
+                await loadUsageStats();
+            } catch (error) {
+                console.error('Failed to initialize API console:', error);
+                // Use mock data for demo
+                loadMockData();
+            }
+        }
+
+        // Get Supabase client
+        function getSupabase() {
+            return window.PromptingItSupabase?.getClient();
+        }
+
+        // Load API keys from Supabase
+        async function loadApiKeys() {
+            const supabase = getSupabase();
+            if (!supabase) {
+                loadMockData();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('api_keys')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                apiState.keys = data || [];
+                if (apiState.keys.length === 0) {
+                    // Use mock data if no keys in database
+                    loadMockData();
+                    return;
+                }
+                renderApiKeys();
+            } catch (error) {
+                console.error('Failed to load API keys:', error);
+                loadMockData();
+            }
+        }
+
+        // Load usage stats
+        async function loadUsageStats() {
+            // For now, use mock data - in production this would query analytics
+            apiState.usage = {
+                today: 24847,
+                month: 487293,
+                avgResponseTime: 142,
+                successRate: 99.8
+            };
+            renderUsageStats();
+        }
+
+        // Load mock data for demo
+        function loadMockData() {
+            apiState.keys = [
+                {
+                    id: '1',
+                    name: 'Production Key',
+                    key_prefix: 'pk_live_',
+                    key_hash: '••••••••••••••••8f4a',
+                    is_active: true,
+                    rate_limit: 1000,
+                    calls_used: 18432,
+                    created_at: '2024-12-15T00:00:00Z',
+                    last_used_at: new Date(Date.now() - 2 * 60 * 1000).toISOString()
+                },
+                {
+                    id: '2',
+                    name: 'Development Key',
+                    key_prefix: 'pk_test_',
+                    key_hash: '••••••••••••••••2b1c',
+                    is_active: true,
+                    rate_limit: 100,
+                    calls_used: 6415,
+                    created_at: '2024-11-28T00:00:00Z',
+                    last_used_at: new Date(Date.now() - 60 * 60 * 1000).toISOString()
+                },
+                {
+                    id: '3',
+                    name: 'CI/CD Pipeline Key',
+                    key_prefix: 'pk_ci_',
+                    key_hash: '••••••••••••••••9d3e',
+                    is_active: false,
+                    rate_limit: 50,
+                    calls_used: 0,
+                    created_at: '2024-10-10T00:00:00Z',
+                    last_used_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            ];
+            renderApiKeys();
+            loadUsageStats();
+        }
+
+        // Render API keys list
+        function renderApiKeys() {
+            const container = document.querySelector('.api-keys-list');
+            if (!container) return;
+
+            if (apiState.keys.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: var(--text-3);">
+                        <i class="fas fa-key" style="font-size: 32px; margin-bottom: 16px; display: block;"></i>
+                        <p>No API keys yet. Create one to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = apiState.keys.map(key => createKeyCard(key)).join('');
+        }
+
+        // Create API key card HTML
+        function createKeyCard(key) {
+            const createdDate = new Date(key.created_at).toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric', year: 'numeric' 
+            });
+            const lastUsed = key.last_used_at ? formatTimeAgo(key.last_used_at) : 'Never';
+            const statusClass = key.is_active ? 'active' : 'limited';
+            const statusText = key.is_active ? 'Active' : 'Rate Limited';
+            const iconBg = key.is_active ? 'rgba(103,232,249,0.1)' : 'rgba(250,204,21,0.1)';
+            const iconColor = key.is_active ? 'var(--glacier)' : 'var(--solar)';
+
+            return `
+                <div class="api-key-item" data-id="${key.id}">
+                    <div class="api-key-icon" style="background: ${iconBg}; color: ${iconColor};">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="api-key-info">
+                        <div class="api-key-name">
+                            ${escapeHtml(key.name)}
+                            <span class="api-key-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="api-key-value">
+                            <span data-full="${key.key_prefix}${key.key_hash}">${key.key_prefix}${key.key_hash}</span>
+                            <button onclick="copyKey(this)" title="Copy"><i class="fas fa-copy"></i></button>
+                            <button onclick="toggleKey(this)" title="Show/Hide"><i class="fas fa-eye"></i></button>
+                        </div>
+                        <div class="api-key-meta">
+                            <span><i class="fas fa-calendar"></i> Created ${createdDate}</span>
+                            <span><i class="fas fa-clock"></i> Last used ${lastUsed}</span>
+                            <span><i class="fas fa-chart-line"></i> ${formatNumber(key.calls_used)} calls today</span>
+                        </div>
+                    </div>
+                    <div class="api-key-actions">
+                        <button class="api-key-action" title="Edit" onclick="editKey('${key.id}')"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="api-key-action" title="Regenerate" onclick="regenerateKey('${key.id}')"><i class="fas fa-sync-alt"></i></button>
+                        <button class="api-key-action danger" title="Delete" onclick="deleteKey('${key.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render usage stats
+        function renderUsageStats() {
+            const stats = document.querySelectorAll('.usage-stat-value');
+            if (stats[0]) stats[0].textContent = formatNumber(apiState.usage.today);
+            if (stats[1]) stats[1].textContent = formatNumber(apiState.usage.month);
+            if (stats[2]) stats[2].textContent = apiState.usage.avgResponseTime + 'ms';
+            if (stats[3]) stats[3].textContent = apiState.usage.successRate + '%';
+        }
+
+        // Modal functions
+        function openCreateKeyModal() {
+            document.getElementById('create-key-modal').style.display = 'flex';
+            document.getElementById('key-name').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('create-key-modal').style.display = 'none';
+        }
+
+        function closeNewKeyModal() {
+            document.getElementById('new-key-modal').style.display = 'none';
+        }
+
+        // Create new API key
+        async function createApiKey() {
+            const name = document.getElementById('key-name').value.trim();
+            const env = document.getElementById('key-env').value;
+            const rateLimit = parseInt(document.getElementById('key-rate-limit').value);
+
+            if (!name) {
+                alert('Please enter a key name');
+                return;
+            }
+
+            try {
+                // Generate a mock API key (in production, this would be done server-side)
+                const keyPrefix = env === 'live' ? 'pk_live_' : 'pk_test_';
+                const randomPart = generateRandomKey(32);
+                const fullKey = keyPrefix + randomPart;
+
+                const supabase = getSupabase();
+                if (supabase) {
+                    const { data, error } = await supabase
+                        .from('api_keys')
+                        .insert({
+                            name: name,
+                            key_prefix: keyPrefix,
+                            key_hash: hashKey(randomPart),
+                            rate_limit: rateLimit,
+                            is_active: true,
+                            permissions: ['read', 'execute']
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                }
+
+                // Show the new key
+                closeModal();
+                showNewKey(fullKey);
+
+                // Refresh the list
+                await loadApiKeys();
+
+            } catch (error) {
+                console.error('Failed to create API key:', error);
+                alert('Failed to create API key. Please try again.');
+            }
+        }
+
+        function showNewKey(key) {
+            document.getElementById('new-key-value').textContent = key;
+            document.getElementById('new-key-modal').style.display = 'flex';
+        }
+
+        function copyNewKey() {
+            const key = document.getElementById('new-key-value').textContent;
+            navigator.clipboard.writeText(key);
+            alert('API key copied to clipboard!');
+        }
+
+        // Key actions
+        function editKey(id) {
+            const key = apiState.keys.find(k => k.id === id);
+            if (key) {
+                alert(`Edit key: ${key.name}\nThis would open an edit modal.`);
+            }
+        }
+
+        async function regenerateKey(id) {
+            if (!confirm('Regenerating this key will invalidate the current key. Continue?')) return;
+            
+            const key = apiState.keys.find(k => k.id === id);
+            if (key) {
+                const newKey = key.key_prefix + generateRandomKey(32);
+                showNewKey(newKey);
+                
+                // In production, update the key in the database
+                const supabaseRegen = getSupabase();
+                if (supabaseRegen) {
+                    await supabaseRegen
+                        .from('api_keys')
+                        .update({ key_hash: hashKey(newKey.replace(key.key_prefix, '')) })
+                        .eq('id', id);
+                }
+            }
+        }
+
+        async function deleteKey(id) {
+            const key = apiState.keys.find(k => k.id === id);
+            if (!key) return;
+
+            if (!confirm(`Delete "${key.name}"? This action cannot be undone.`)) return;
+
+            try {
+                const supabaseDel = getSupabase();
+                if (supabaseDel) {
+                    const { error } = await supabaseDel
+                        .from('api_keys')
+                        .delete()
+                        .eq('id', id);
+                    
+                    if (error) throw error;
+                }
+
+                // Remove from local state
+                apiState.keys = apiState.keys.filter(k => k.id !== id);
+                renderApiKeys();
+
+            } catch (error) {
+                console.error('Failed to delete key:', error);
+                alert('Failed to delete key. Please try again.');
+            }
+        }
+
+        // Utility functions
+        function generateRandomKey(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function hashKey(key) {
+            // Simple masking for display (real hashing would be done server-side)
+            return '••••••••••••••••' + key.slice(-4);
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hour${Math.floor(seconds / 3600) > 1 ? 's' : ''} ago`;
+            return `${Math.floor(seconds / 86400)} day${Math.floor(seconds / 86400) > 1 ? 's' : ''} ago`;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(0) + ',' + (num % 1000).toString().padStart(3, '0');
+            return num.toString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showLoginPrompt() {
+            const main = document.querySelector('.main');
+            if (main) {
+                main.innerHTML = `
+                    <div style="text-align: center; padding: 60px 40px;">
+                        <div style="width: 80px; height: 80px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                            <i class="fas fa-lock" style="font-size: 32px; color: var(--text-3);"></i>
+                        </div>
+                        <h2 style="margin-bottom: 12px;">Log in to access API Console</h2>
+                        <p style="color: var(--text-2); margin-bottom: 24px;">Manage your API keys and monitor usage</p>
+                        <a href="login.html" class="btn btn-primary" style="display: inline-flex;">
+                            <i class="fas fa-sign-in-alt"></i> Log In
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Code tab switching
         function showCodeTab(lang) {
             document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.code-block').forEach(b => b.style.display = 'none');
@@ -1041,7 +1606,8 @@ console.<span class="function">log</span>(response.output);</pre>
         }
 
         function copyKey(btn) {
-            const keyText = btn.parentElement.querySelector('span').textContent;
+            const keyText = btn.parentElement.querySelector('span').dataset.full || 
+                           btn.parentElement.querySelector('span').textContent;
             navigator.clipboard.writeText(keyText);
             btn.innerHTML = '<i class="fas fa-check"></i>';
             setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 2000);
@@ -1049,13 +1615,14 @@ console.<span class="function">log</span>(response.output);</pre>
 
         function toggleKey(btn) {
             const span = btn.parentElement.querySelector('span');
+            const full = span.dataset.full;
             if (span.dataset.revealed === 'true') {
-                span.textContent = span.dataset.masked;
+                const prefix = full.match(/^pk_\w+_/)?.[0] || '';
+                span.textContent = prefix + '••••••••••••••••' + full.slice(-4);
                 span.dataset.revealed = 'false';
                 btn.innerHTML = '<i class="fas fa-eye"></i>';
             } else {
-                span.dataset.masked = span.textContent;
-                span.textContent = 'pk_live_••••••••••••••••••••••••••••••••';
+                span.textContent = full;
                 span.dataset.revealed = 'true';
                 btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
             }
@@ -1075,8 +1642,12 @@ console.<span class="function">log</span>(response.output);</pre>
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.chart-period-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
+                // In production, this would reload chart data for the selected period
             });
         });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initApiConsole);
     </script>
 </body>
 </html>

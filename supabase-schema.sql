@@ -93,6 +93,33 @@ CREATE POLICY "Admins can view all subscriptions"
     );
 
 -- ============================================
+-- FOLDERS TABLE
+-- Stores prompt folders/categories
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.folders (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    parent_id UUID REFERENCES public.folders(id) ON DELETE CASCADE,
+    color TEXT DEFAULT '#67e8f9',
+    icon TEXT DEFAULT 'folder',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.folders ENABLE ROW LEVEL SECURITY;
+
+-- Folders policies
+CREATE POLICY "Users can view their own folders"
+    ON public.folders FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage their own folders"
+    ON public.folders FOR ALL
+    USING (auth.uid() = user_id);
+
+-- ============================================
 -- PROMPTS TABLE
 -- Stores user-created prompts
 -- ============================================
@@ -104,12 +131,16 @@ CREATE TABLE IF NOT EXISTS public.prompts (
     description TEXT,
     category TEXT,
     tags TEXT[],
+    model TEXT DEFAULT 'gpt-4',
+    status TEXT DEFAULT 'draft' CHECK (status IN ('active', 'draft', 'archived')),
+    folder_id UUID REFERENCES public.folders(id) ON DELETE SET NULL,
     version TEXT DEFAULT '1.0.0',
     is_public BOOLEAN DEFAULT FALSE,
     is_marketplace BOOLEAN DEFAULT FALSE,
     price DECIMAL(10, 2) DEFAULT 0,
     sales_count INTEGER DEFAULT 0,
     view_count INTEGER DEFAULT 0,
+    run_count INTEGER DEFAULT 0,
     rating DECIMAL(2, 1) DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -346,9 +377,13 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_tier ON public.subscriptions(tier);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON public.subscriptions(status);
 CREATE INDEX IF NOT EXISTS idx_prompts_user ON public.prompts(user_id);
+CREATE INDEX IF NOT EXISTS idx_prompts_status ON public.prompts(status);
+CREATE INDEX IF NOT EXISTS idx_prompts_folder ON public.prompts(folder_id);
 CREATE INDEX IF NOT EXISTS idx_prompts_public ON public.prompts(is_public) WHERE is_public = TRUE;
 CREATE INDEX IF NOT EXISTS idx_prompts_marketplace ON public.prompts(is_marketplace) WHERE is_marketplace = TRUE;
 CREATE INDEX IF NOT EXISTS idx_prompts_category ON public.prompts(category);
+CREATE INDEX IF NOT EXISTS idx_folders_user ON public.folders(user_id);
+CREATE INDEX IF NOT EXISTS idx_folders_parent ON public.folders(parent_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_buyer ON public.purchases(buyer_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_seller ON public.purchases(seller_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_prompt ON public.purchases(prompt_id);
@@ -697,6 +732,193 @@ CREATE POLICY "Admins can manage settings"
 --   ('owner_email', 'your-owner-email@example.com', 'Owner account email'),
 --   ('owner_password', 'your-secure-password', 'Owner account password')
 -- ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
+-- ============================================
+-- REVIEWS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    prompt_id UUID REFERENCES public.prompts(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    title TEXT,
+    content TEXT,
+    is_verified_purchase BOOLEAN DEFAULT FALSE,
+    helpful_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(prompt_id, user_id)
+);
+
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view reviews" ON public.reviews FOR SELECT USING (TRUE);
+CREATE POLICY "Users can create reviews" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own reviews" ON public.reviews FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own reviews" ON public.reviews FOR DELETE USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_prompt ON public.reviews(prompt_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_user ON public.reviews(user_id);
+
+-- ============================================
+-- PAYOUTS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.payouts (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    amount DECIMAL(10, 2) NOT NULL,
+    currency TEXT DEFAULT 'USD',
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
+    stripe_transfer_id TEXT,
+    stripe_payout_id TEXT,
+    payout_method TEXT DEFAULT 'stripe',
+    notes TEXT,
+    processed_at TIMESTAMPTZ,
+    processed_by UUID REFERENCES auth.users(id),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own payouts" ON public.payouts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can request payouts" ON public.payouts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admins can view all payouts" ON public.payouts FOR SELECT USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+CREATE POLICY "Admins can update payouts" ON public.payouts FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_payouts_user ON public.payouts(user_id);
+CREATE INDEX IF NOT EXISTS idx_payouts_status ON public.payouts(status);
+
+-- ============================================
+-- CREATOR_EARNINGS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.creator_earnings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+    total_earnings DECIMAL(10, 2) DEFAULT 0,
+    pending_payout DECIMAL(10, 2) DEFAULT 0,
+    total_paid_out DECIMAL(10, 2) DEFAULT 0,
+    last_sale_at TIMESTAMPTZ,
+    stripe_connect_id TEXT,
+    stripe_onboarding_complete BOOLEAN DEFAULT FALSE,
+    payout_threshold DECIMAL(10, 2) DEFAULT 50.00,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.creator_earnings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own earnings" ON public.creator_earnings FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own earnings" ON public.creator_earnings FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Admins can view all earnings" ON public.creator_earnings FOR SELECT USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+
+-- ============================================
+-- NEWSLETTER_SUBSCRIBERS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    first_name TEXT,
+    source TEXT DEFAULT 'landing_page',
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'unsubscribed', 'bounced')),
+    subscribed_at TIMESTAMPTZ DEFAULT NOW(),
+    unsubscribed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can subscribe" ON public.newsletter_subscribers FOR INSERT WITH CHECK (TRUE);
+CREATE POLICY "Admins can view subscribers" ON public.newsletter_subscribers FOR SELECT USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON public.newsletter_subscribers(email);
+
+-- ============================================
+-- SETTINGS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.settings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    key TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    description TEXT,
+    is_encrypted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admins can view settings" ON public.settings FOR SELECT USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+CREATE POLICY "Admins can manage settings" ON public.settings FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'owner'))
+);
+
+-- ============================================
+-- ADDITIONAL FUNCTIONS
+-- ============================================
+
+-- Update prompt rating when review changes
+CREATE OR REPLACE FUNCTION public.update_prompt_rating()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.prompts
+    SET rating = (SELECT ROUND(AVG(rating)::numeric, 1) FROM public.reviews WHERE prompt_id = COALESCE(NEW.prompt_id, OLD.prompt_id)),
+        updated_at = NOW()
+    WHERE id = COALESCE(NEW.prompt_id, OLD.prompt_id);
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_review_change ON public.reviews;
+CREATE TRIGGER on_review_change
+    AFTER INSERT OR UPDATE OR DELETE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION public.update_prompt_rating();
+
+-- Record purchase with fee calculation
+CREATE OR REPLACE FUNCTION public.record_purchase(
+    p_buyer_id UUID, p_prompt_id UUID, p_amount DECIMAL, p_stripe_payment_id TEXT DEFAULT NULL
+) RETURNS UUID AS $$
+DECLARE
+    v_seller_id UUID; v_platform_fee DECIMAL; v_seller_revenue DECIMAL; v_purchase_id UUID;
+BEGIN
+    SELECT user_id INTO v_seller_id FROM public.prompts WHERE id = p_prompt_id;
+    v_platform_fee := ROUND(p_amount * 0.20, 2);
+    v_seller_revenue := p_amount - v_platform_fee;
+    
+    INSERT INTO public.purchases (buyer_id, seller_id, prompt_id, amount, platform_fee, seller_revenue, stripe_payment_id, status)
+    VALUES (p_buyer_id, v_seller_id, p_prompt_id, p_amount, v_platform_fee, v_seller_revenue, p_stripe_payment_id, 'completed')
+    RETURNING id INTO v_purchase_id;
+    
+    UPDATE public.prompts SET sales_count = sales_count + 1, updated_at = NOW() WHERE id = p_prompt_id;
+    
+    INSERT INTO public.creator_earnings (user_id, total_earnings, pending_payout, last_sale_at)
+    VALUES (v_seller_id, v_seller_revenue, v_seller_revenue, NOW())
+    ON CONFLICT (user_id) DO UPDATE SET
+        total_earnings = creator_earnings.total_earnings + v_seller_revenue,
+        pending_payout = creator_earnings.pending_payout + v_seller_revenue,
+        last_sale_at = NOW(), updated_at = NOW();
+    
+    RETURN v_purchase_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Check if user purchased prompt
+CREATE OR REPLACE FUNCTION public.has_purchased(p_user_id UUID, p_prompt_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (SELECT 1 FROM public.purchases WHERE buyer_id = p_user_id AND prompt_id = p_prompt_id AND status = 'completed');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
 -- SAMPLE DATA (for testing)
