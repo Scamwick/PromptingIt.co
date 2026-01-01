@@ -17,7 +17,14 @@
 
     // Initialize auth state
     async init() {
-      const supabase = window.PromptingItSupabase?.getClient();
+      // Wait for Supabase to be ready
+      let supabase;
+      try {
+        supabase = await window.PromptingItSupabase?.getClientAsync();
+      } catch (e) {
+        console.warn('Supabase not initialized:', e.message);
+        return null;
+      }
       if (!supabase) {
         console.warn('Supabase not initialized');
         return null;
