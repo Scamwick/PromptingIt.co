@@ -193,6 +193,14 @@
       });
 
       if (error) throw error;
+
+      // Update local session state
+      if (data?.session) {
+        this.session = data.session;
+        this.user = data.user;
+        await this.loadUserProfile();
+      }
+
       return data;
     },
 

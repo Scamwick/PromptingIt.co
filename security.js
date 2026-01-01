@@ -76,7 +76,11 @@
           .insert(logEntry);
 
         if (error) {
-          console.error('Audit log error:', error);
+          // Only log if it's not a table not found error (404)
+          if (error.code !== 'PGRST116' && error.message && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+            console.error('Audit log error:', error.message || error);
+          }
+          // Silently fail for missing tables (expected in development)
         }
       } catch (error) {
         console.error('Audit log error:', error);

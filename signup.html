@@ -338,18 +338,45 @@
                     }
 
                     // Update subscription to enterprise tier to bypass paywall
-                    const { error: subError } = await supabase
+                    // Wait a bit longer for database trigger to create subscription
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // First check if subscription exists
+                    const { data: existingSub } = await supabase
                       .from('subscriptions')
-                      .update({
-                        tier: 'enterprise',
-                        status: 'active',
-                        prompts_limit: -1, // Unlimited
-                        trial_ends_at: null
-                      })
-                      .eq('user_id', result.user.id);
+                      .select('id')
+                      .eq('user_id', result.user.id)
+                      .single();
 
-                    if (subError) {
-                      console.error('Failed to upgrade subscription:', subError);
+                    if (existingSub) {
+                      // Update existing subscription
+                      const { error: subError } = await supabase
+                        .from('subscriptions')
+                        .update({
+                          tier: 'enterprise',
+                          status: 'active',
+                          prompts_limit: -1 // Unlimited
+                        })
+                        .eq('user_id', result.user.id);
+
+                      if (subError) {
+                        console.error('Failed to upgrade subscription:', subError);
+                      }
+                    } else {
+                      // Create subscription if trigger didn't create it
+                      const { error: subError } = await supabase
+                        .from('subscriptions')
+                        .insert({
+                          user_id: result.user.id,
+                          tier: 'enterprise',
+                          status: 'active',
+                          prompts_limit: -1,
+                          prompts_used: 0
+                        });
+
+                      if (subError) {
+                        console.error('Failed to create subscription:', subError);
+                      }
                     }
 
                     // Log owner upgrade
