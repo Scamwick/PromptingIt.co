@@ -758,22 +758,22 @@
                     <input type="text" class="search-input" id="marketplaceSearch" placeholder="Search prompts by name, category, or use case...">
                 </div>
 
-                <div class="marketplace-stats">
+                <div class="marketplace-stats" id="marketplaceStats">
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">2,847</div>
-                        <div class="marketplace-stat-label">Active Prompts</div>
+                        <div class="marketplace-stat-value" id="stat-prompts">—</div>
+                        <div class="marketplace-stat-label" id="stat-prompts-label">Active Prompts</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">1,234</div>
-                        <div class="marketplace-stat-label">Verified Creators</div>
+                        <div class="marketplace-stat-value" id="stat-creators">—</div>
+                        <div class="marketplace-stat-label" id="stat-creators-label">Verified Creators</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">$1.2M</div>
-                        <div class="marketplace-stat-label">Creator Earnings</div>
+                        <div class="marketplace-stat-value" id="stat-earnings">—</div>
+                        <div class="marketplace-stat-label" id="stat-earnings-label">Creator Earnings</div>
                     </div>
                     <div class="marketplace-stat">
-                        <div class="marketplace-stat-value">4.8&#9733;</div>
-                        <div class="marketplace-stat-label">Avg Rating</div>
+                        <div class="marketplace-stat-value" id="stat-rating">—</div>
+                        <div class="marketplace-stat-label" id="stat-rating-label">Avg Rating</div>
                     </div>
                 </div>
             </div>
@@ -786,37 +786,37 @@
                     <div class="category-card active" data-category="all">
                         <div class="category-icon">&#128200;</div>
                         <div class="category-name">All Prompts</div>
-                        <div class="category-count">2,847</div>
+                        <div class="category-count" id="cat-all">—</div>
                     </div>
                     <div class="category-card" data-category="engineering">
                         <div class="category-icon">&#128187;</div>
                         <div class="category-name">Engineering</div>
-                        <div class="category-count">847</div>
+                        <div class="category-count" id="cat-engineering">—</div>
                     </div>
                     <div class="category-card" data-category="content">
                         <div class="category-icon">&#9997;&#65039;</div>
                         <div class="category-name">Content</div>
-                        <div class="category-count">623</div>
+                        <div class="category-count" id="cat-content">—</div>
                     </div>
                     <div class="category-card" data-category="marketing">
                         <div class="category-icon">&#128226;</div>
                         <div class="category-name">Marketing</div>
-                        <div class="category-count">412</div>
+                        <div class="category-count" id="cat-marketing">—</div>
                     </div>
                     <div class="category-card" data-category="analytics">
                         <div class="category-icon">&#128202;</div>
                         <div class="category-name">Analytics</div>
-                        <div class="category-count">356</div>
+                        <div class="category-count" id="cat-analytics">—</div>
                     </div>
                     <div class="category-card" data-category="design">
                         <div class="category-icon">&#127912;</div>
                         <div class="category-name">Design</div>
-                        <div class="category-count">289</div>
+                        <div class="category-count" id="cat-design">—</div>
                     </div>
                     <div class="category-card" data-category="productivity">
                         <div class="category-icon">&#9889;</div>
                         <div class="category-name">Productivity</div>
-                        <div class="category-count">320</div>
+                        <div class="category-count" id="cat-productivity">—</div>
                     </div>
                 </div>
             </div>
@@ -862,17 +862,14 @@
                             <label class="filter-option" data-rating="4.5">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 4.5 & up</span>
-                                <span class="filter-count">1,234</span>
                             </label>
                             <label class="filter-option" data-rating="4.0">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 4.0 & up</span>
-                                <span class="filter-count">1,892</span>
                             </label>
                             <label class="filter-option" data-rating="3.5">
                                 <span class="filter-checkbox"></span>
                                 <span>&#9733; 3.5 & up</span>
-                                <span class="filter-count">2,156</span>
                             </label>
                         </div>
                     </div>
@@ -880,25 +877,21 @@
                     <div class="filter-section">
                         <div class="filter-title">Model Compatibility</div>
                         <div class="filter-options" id="modelFilters">
-                            <label class="filter-option active" data-model="gpt-4">
+                            <label class="filter-option" data-model="gpt-4">
                                 <span class="filter-checkbox"></span>
                                 <span>GPT-4</span>
-                                <span class="filter-count">2,234</span>
                             </label>
-                            <label class="filter-option active" data-model="claude-3">
+                            <label class="filter-option" data-model="claude-3">
                                 <span class="filter-checkbox"></span>
                                 <span>Claude 3</span>
-                                <span class="filter-count">1,987</span>
                             </label>
                             <label class="filter-option" data-model="gemini">
                                 <span class="filter-checkbox"></span>
                                 <span>Gemini Pro</span>
-                                <span class="filter-count">1,456</span>
                             </label>
                             <label class="filter-option" data-model="llama">
                                 <span class="filter-checkbox"></span>
                                 <span>Llama 3</span>
-                                <span class="filter-count">892</span>
                             </label>
                         </div>
                     </div>
@@ -909,12 +902,10 @@
                             <label class="filter-option" data-creator="verified">
                                 <span class="filter-checkbox"></span>
                                 <span>&#10003; Verified Only</span>
-                                <span class="filter-count">1,234</span>
                             </label>
                             <label class="filter-option" data-creator="top100">
                                 <span class="filter-checkbox"></span>
-                                <span>&#127942; Top 100</span>
-                                <span class="filter-count">100</span>
+                                <span>&#127942; Top Creators</span>
                             </label>
                         </div>
                     </div>
@@ -927,7 +918,7 @@
                             <button class="filter-toggle" id="filterToggle">
                                 <span>&#9776;</span> Filters
                             </button>
-                            <span class="prompts-count">Showing <strong>48</strong> of <strong>2,847</strong> prompts</span>
+                            <span class="prompts-count" id="promptsCount">Loading prompts...</span>
                         </div>
                         <select class="sort-select" id="sortSelect">
                             <option value="popular">Most Popular</option>
@@ -984,10 +975,7 @@
                     </a>
                     <p>The enterprise prompt operating system. Version control, testing, and monetization for production AI.</p>
                     <div class="footer-social">
-                        <a href="https://twitter.com/promptingit" aria-label="Twitter">&#120143;</a>
-                        <a href="https://github.com/promptingit" aria-label="GitHub">&#9049;</a>
-                        <a href="https://linkedin.com/company/promptingit" aria-label="LinkedIn">in</a>
-                        <a href="https://discord.gg/promptingit" aria-label="Discord">&#9670;</a>
+                        <!-- Social links removed until accounts are verified -->
                     </div>
                 </div>
 
@@ -1103,6 +1091,24 @@
         // Render Prompts Grid
         function renderPrompts(filteredPrompts = prompts) {
             const grid = document.getElementById('promptsGrid');
+            
+            // Show empty state if no prompts
+            if (!filteredPrompts || filteredPrompts.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 24px;">🚀</div>
+                        <h3 style="font-size: 24px; margin-bottom: 12px; color: var(--text-1);">Marketplace Coming Soon</h3>
+                        <p style="color: var(--text-tertiary); max-width: 400px; margin: 0 auto 24px;">
+                            We're in public beta! Be one of the first creators to publish prompts and earn royalties.
+                        </p>
+                        <a href="signup.html" class="btn btn-primary" style="padding: 14px 28px; text-decoration: none;">
+                            Become a Creator
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
             grid.innerHTML = filteredPrompts.map(renderPromptCard).join('');
 
             // Add click handlers
@@ -1226,6 +1232,124 @@
             toast.show(`Loading page ${btn.textContent}...`);
         });
 
+        // Load and display real marketplace stats
+        async function loadMarketplaceStats() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            
+            // Default to beta messaging
+            const showBetaStats = (totalPrompts, totalCreators, totalEarnings, avgRating, categoryCounts) => {
+                // Hero stats
+                document.getElementById('stat-prompts').textContent = totalPrompts > 0 ? totalPrompts.toLocaleString() : '—';
+                document.getElementById('stat-prompts-label').textContent = totalPrompts > 0 ? 'Active Prompts' : 'Coming Soon';
+                
+                document.getElementById('stat-creators').textContent = totalCreators > 0 ? totalCreators.toLocaleString() : '—';
+                document.getElementById('stat-creators-label').textContent = totalCreators > 0 ? 'Verified Creators' : 'Join as first creator';
+                
+                if (totalEarnings > 0) {
+                    if (totalEarnings >= 1000000) {
+                        document.getElementById('stat-earnings').textContent = `$${(totalEarnings / 1000000).toFixed(1)}M`;
+                    } else if (totalEarnings >= 1000) {
+                        document.getElementById('stat-earnings').textContent = `$${(totalEarnings / 1000).toFixed(1)}K`;
+                    } else {
+                        document.getElementById('stat-earnings').textContent = `$${totalEarnings.toLocaleString()}`;
+                    }
+                    document.getElementById('stat-earnings-label').textContent = 'Creator Earnings';
+                } else {
+                    document.getElementById('stat-earnings').textContent = '—';
+                    document.getElementById('stat-earnings-label').textContent = 'Beta - no sales yet';
+                }
+                
+                if (avgRating > 0) {
+                    document.getElementById('stat-rating').textContent = `${avgRating.toFixed(1)}★`;
+                    document.getElementById('stat-rating-label').textContent = 'Avg Rating';
+                } else {
+                    document.getElementById('stat-rating').textContent = '—';
+                    document.getElementById('stat-rating-label').textContent = 'No ratings yet';
+                }
+
+                // Category counts
+                document.getElementById('cat-all').textContent = totalPrompts > 0 ? totalPrompts.toLocaleString() : '—';
+                ['engineering', 'content', 'marketing', 'analytics', 'design', 'productivity'].forEach(cat => {
+                    const el = document.getElementById(`cat-${cat}`);
+                    if (el) {
+                        el.textContent = (categoryCounts[cat] || 0) > 0 ? categoryCounts[cat].toLocaleString() : '—';
+                    }
+                });
+
+                // Update prompts count
+                const promptsCountEl = document.getElementById('promptsCount');
+                if (promptsCountEl) {
+                    if (totalPrompts > 0) {
+                        promptsCountEl.innerHTML = `Showing <strong>${Math.min(totalPrompts, 48)}</strong> of <strong>${totalPrompts.toLocaleString()}</strong> prompts`;
+                    } else {
+                        promptsCountEl.innerHTML = '<em>No prompts available yet — be the first creator!</em>';
+                    }
+                }
+            };
+
+            if (!supabase) {
+                showBetaStats(0, 0, 0, 0, {});
+                return;
+            }
+
+            try {
+                // Get total prompts count
+                const { count: promptsCount } = await supabase
+                    .from('prompts')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('is_marketplace', true);
+
+                // Get creators count
+                const { count: creatorsCount } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .in('role', ['creator', 'admin', 'owner']);
+
+                // Get total earnings
+                let totalEarnings = 0;
+                try {
+                    const { data: purchases } = await supabase
+                        .from('purchases')
+                        .select('amount');
+                    if (purchases) {
+                        totalEarnings = purchases.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+                    }
+                } catch (e) {}
+
+                // Get average rating
+                let avgRating = 0;
+                try {
+                    const { data: reviews } = await supabase
+                        .from('reviews')
+                        .select('rating');
+                    if (reviews && reviews.length > 0) {
+                        avgRating = reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / reviews.length;
+                    }
+                } catch (e) {}
+
+                // Get category counts
+                const categoryCounts = {};
+                try {
+                    const { data: promptsByCategory } = await supabase
+                        .from('prompts')
+                        .select('category')
+                        .eq('is_marketplace', true);
+                    
+                    if (promptsByCategory) {
+                        promptsByCategory.forEach(p => {
+                            const cat = (p.category || 'general').toLowerCase().replace(/\s+/g, '-');
+                            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+                        });
+                    }
+                } catch (e) {}
+
+                showBetaStats(promptsCount || 0, creatorsCount || 0, totalEarnings, avgRating, categoryCounts);
+            } catch (error) {
+                console.error('Error loading marketplace stats:', error);
+                showBetaStats(0, 0, 0, 0, {});
+            }
+        }
+
         // Load prompts from database
         async function loadPromptsFromDatabase() {
             const supabase = window.PromptingItSupabase?.getClient();
@@ -1346,7 +1470,9 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            // Try to load from database first, fallback to hardcoded data
+            // Load stats from database
+            await loadMarketplaceStats();
+            // Try to load from database first
             await loadPromptsFromDatabase();
             renderPrompts();
             renderFeatured();

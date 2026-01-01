@@ -58,8 +58,13 @@ window.OpenAIAPI = {
                 throw new Error('OpenAI API key not configured. Please add your API key in Settings.');
             }
             
-            // Decode the stored key
-            apiKey = atob(apiKeyData.key_hash);
+            // Decrypt the stored key using SecurityCrypto module
+            if (window.SecurityCrypto) {
+                apiKey = await window.SecurityCrypto.decrypt(apiKeyData.key_hash, user.id);
+            } else {
+                // Fallback for backwards compatibility
+                apiKey = atob(apiKeyData.key_hash);
+            }
         } catch (e) {
             console.error('OpenAI API key error:', e);
             throw new Error('OpenAI API key not configured. Please add your API key in Settings.');
