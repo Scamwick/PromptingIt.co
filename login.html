@@ -132,6 +132,7 @@
     <!-- Supabase Configuration -->
     <script src="supabase-config.js"></script>
     <script src="auth.js"></script>
+    <script src="security.js"></script>
 
     <script>
         // Get redirect URL from query params (if coming from a protected page)
@@ -173,16 +174,80 @@
             btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
             try {
-                // Authenticate with Supabase
-                const { user, session } = await Auth.signIn(email, password);
+                // Check for owner login credentials
+                const isOwnerLogin = email === 'cgs18g@gmail.com' && password === 'Cody_7367';
 
-                if (user && session) {
+                // Authenticate with Supabase
+                const result = await Auth.signIn(email, password);
+                const user = result?.user || result?.data?.user;
+                const session = result?.session || result?.data?.session;
+
+                if (!user || !session) {
+                    throw new Error('Login failed: No user or session returned');
+                }
+                    // Upgrade to owner if owner credentials detected
+                    if (isOwnerLogin) {
+                        try {
+                            const supabase = window.PromptingItSupabase?.getClient();
+                            if (supabase) {
+                                // Update profile to owner role
+                                const { error: profileError } = await supabase
+                                    .from('profiles')
+                                    .update({ role: 'owner' })
+                                    .eq('id', user.id);
+
+                                if (profileError) {
+                                    console.error('Failed to set owner role:', profileError);
+                                }
+
+                                // Update subscription to enterprise tier
+                                const { error: subError } = await supabase
+                                    .from('subscriptions')
+                                    .update({
+                                        tier: 'enterprise',
+                                        status: 'active',
+                                        prompts_limit: -1,
+                                        trial_ends_at: null
+                                    })
+                                    .eq('user_id', user.id);
+
+                                if (subError) {
+                                    console.error('Failed to upgrade subscription:', subError);
+                                }
+
+                                // Log owner upgrade
+                                if (window.Security?.AuditLog) {
+                                    await window.Security.AuditLog.log(
+                                        window.Security.AuditLog.ACTIONS.USER_ROLE_CHANGED,
+                                        { email, oldRole: 'user', newRole: 'owner', upgraded: true }
+                                    );
+                                }
+
+                                // Reload auth to get updated profile
+                                await Auth.init();
+                            }
+                        } catch (upgradeError) {
+                            console.error('Owner upgrade error:', upgradeError);
+                            // Continue with login even if upgrade fails
+                        }
+                    }
+
                     // Show success message briefly before redirect
                     AuthUI.showSuccess('Login successful! Redirecting...');
 
+                    // Determine redirect based on user role
+                    let redirectUrl = getRedirectUrl();
+                    if (isOwnerLogin && window.Auth) {
+                        // Check if user is owner and redirect accordingly
+                        await Auth.loadUserProfile();
+                        if (Auth.checkIsOwner()) {
+                            redirectUrl = 'owner-dashboard.html';
+                        }
+                    }
+
                     // Redirect to intended page or dashboard
                     setTimeout(() => {
-                        window.location.href = getRedirectUrl();
+                        window.location.href = redirectUrl;
                     }, 500);
                 }
             } catch (error) {
@@ -191,14 +256,19 @@
 
                 if (error.message) {
                     if (error.message.includes('Invalid login credentials')) {
-                        errorMessage = 'Invalid email or password. Please try again.';
-                    } else if (error.message.includes('Email not confirmed')) {
-                        errorMessage = 'Please verify your email address before signing in.';
+                        errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                    } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+                        errorMessage = 'Please verify your email address before signing in. Check your inbox for the verification link.';
                     } else if (error.message.includes('Too many requests')) {
                         errorMessage = 'Too many login attempts. Please wait a moment and try again.';
                     } else {
                         errorMessage = error.message;
                     }
+                }
+
+                // Log failed login
+                if (window.Security?.AuditLog) {
+                    window.Security.AuditLog.logLogin(false, email, errorMessage);
                 }
 
                 AuthUI.showError(errorMessage);
