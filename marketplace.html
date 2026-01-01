@@ -1039,144 +1039,8 @@
     <script src="auth.js"></script>
     <script src="scripts.js"></script>
     <script>
-        // Marketplace Data - will be loaded from database
-        let prompts = [
-            {
-                id: 1,
-                title: 'Code Review Pro v3',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128269;',
-                iconClass: 'primary',
-                description: 'Comprehensive code review that catches bugs, security issues, and suggests improvements. Works with any programming language.',
-                tags: ['code-review', 'debugging', 'best-practices'],
-                rating: 4.9,
-                reviews: 847,
-                sales: 2341,
-                price: 29.99,
-                creator: { initials: 'CS', name: 'Cody Short', verified: true }
-            },
-            {
-                id: 2,
-                title: 'Blog Post Generator',
-                category: 'Content',
-                categoryKey: 'content',
-                icon: '&#9997;&#65039;',
-                iconClass: 'emerald',
-                description: 'Generate engaging, SEO-optimized blog posts with proper structure, headings, and calls to action.',
-                tags: ['content', 'seo', 'blogging'],
-                rating: 4.7,
-                reviews: 523,
-                sales: 1876,
-                price: 19.99,
-                creator: { initials: 'AW', name: 'Alex Wang', verified: true }
-            },
-            {
-                id: 3,
-                title: 'Data Analysis Suite',
-                category: 'Analytics',
-                categoryKey: 'analytics',
-                icon: '&#128202;',
-                iconClass: 'violet',
-                description: 'Transform raw data into actionable insights with statistical analysis, visualization suggestions, and trend detection.',
-                tags: ['data', 'analysis', 'statistics'],
-                rating: 4.8,
-                reviews: 312,
-                sales: 987,
-                price: 49.99,
-                creator: { initials: 'MR', name: 'Marcus Rodriguez', verified: true }
-            },
-            {
-                id: 4,
-                title: 'Marketing Copy Engine',
-                category: 'Marketing',
-                categoryKey: 'marketing',
-                icon: '&#127919;',
-                iconClass: 'amber',
-                description: 'Create compelling marketing copy for ads, landing pages, emails, and social media that converts.',
-                tags: ['marketing', 'copywriting', 'conversion'],
-                rating: 4.6,
-                reviews: 234,
-                sales: 654,
-                price: 24.99,
-                creator: { initials: 'JL', name: 'Jennifer Liu', verified: true }
-            },
-            {
-                id: 5,
-                title: 'SQL Query Optimizer',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128206;',
-                iconClass: 'primary',
-                description: 'Analyze and optimize SQL queries for better performance. Identifies bottlenecks and suggests indexes.',
-                tags: ['sql', 'database', 'optimization'],
-                rating: 4.9,
-                reviews: 456,
-                sales: 1234,
-                price: 34.99,
-                creator: { initials: 'DK', name: 'David Kim', verified: true }
-            },
-            {
-                id: 6,
-                title: 'UX Copy Writer',
-                category: 'Design',
-                categoryKey: 'design',
-                icon: '&#127912;',
-                iconClass: 'violet',
-                description: 'Generate user-friendly microcopy for buttons, error messages, tooltips, and onboarding flows.',
-                tags: ['ux', 'microcopy', 'design'],
-                rating: 4.5,
-                reviews: 189,
-                sales: 432,
-                price: 14.99,
-                creator: { initials: 'SK', name: 'Sarah Kim', verified: true }
-            },
-            {
-                id: 7,
-                title: 'Email Automation Pro',
-                category: 'Marketing',
-                categoryKey: 'marketing',
-                icon: '&#128231;',
-                iconClass: 'amber',
-                description: 'Create complete email sequences for nurturing, onboarding, and re-engagement campaigns.',
-                tags: ['email', 'automation', 'drip'],
-                rating: 4.7,
-                reviews: 278,
-                sales: 789,
-                price: 39.99,
-                creator: { initials: 'TM', name: 'Tom Miller', verified: true }
-            },
-            {
-                id: 8,
-                title: 'API Documentation',
-                category: 'Engineering',
-                categoryKey: 'engineering',
-                icon: '&#128196;',
-                iconClass: 'primary',
-                description: 'Generate comprehensive API documentation from code comments and OpenAPI specs.',
-                tags: ['api', 'documentation', 'developer'],
-                rating: 4.8,
-                reviews: 345,
-                sales: 567,
-                price: 29.99,
-                creator: { initials: 'RP', name: 'Rachel Park', verified: true }
-            },
-            {
-                id: 9,
-                title: 'Social Media Planner',
-                category: 'Content',
-                categoryKey: 'content',
-                icon: '&#128242;',
-                iconClass: 'emerald',
-                description: 'Plan and generate a month\'s worth of social media content with hashtags and posting times.',
-                tags: ['social', 'content', 'planning'],
-                rating: 4.6,
-                reviews: 412,
-                sales: 1023,
-                price: 24.99,
-                creator: { initials: 'LW', name: 'Lisa Wong', verified: true }
-            }
-        ];
+        // Marketplace Data - loaded from database
+        let prompts = [];
 
         // Toast function
         const toast = {
@@ -1255,13 +1119,21 @@
         function renderFeatured() {
             const featured = prompts.slice(0, 4);
             const container = document.getElementById('featuredScroll');
+            
+            if (!featured || featured.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-tertiary);">No featured prompts yet</div>';
+                return;
+            }
+
             container.innerHTML = featured.map(p => `<div class="featured-card">${renderPromptCard(p)}</div>`).join('');
 
             container.querySelectorAll('.prompt-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const id = card.dataset.id;
                     const prompt = prompts.find(p => p.id == id);
-                    toast.show(`Opening "${prompt.title}"...`);
+                    if (prompt) {
+                        window.location.href = `marketplace.html?prompt=${id}`;
+                    }
                 });
             });
         }
@@ -1358,11 +1230,14 @@
         async function loadPromptsFromDatabase() {
             const supabase = window.PromptingItSupabase?.getClient();
             if (!supabase) {
-                // Use hardcoded data if Supabase not available
+                console.warn('Supabase not available');
+                prompts = [];
+                renderPrompts();
                 return;
             }
 
             try {
+                // Load marketplace prompts
                 const { data: dbPrompts, error } = await supabase
                     .from('prompts')
                     .select(`
@@ -1374,6 +1249,8 @@
                         price,
                         is_marketplace,
                         user_id,
+                        sales_count,
+                        rating,
                         profiles!prompts_user_id_fkey (
                             first_name,
                             last_name,
@@ -1381,44 +1258,89 @@
                         )
                     `)
                     .eq('is_marketplace', true)
-                    .eq('is_public', true)
                     .order('created_at', { ascending: false })
-                    .limit(50);
+                    .limit(100);
 
                 if (error) {
                     console.error('Error loading prompts:', error);
-                    return; // Fall back to hardcoded data
+                    prompts = [];
+                    renderPrompts();
+                    return;
                 }
 
-                if (dbPrompts && dbPrompts.length > 0) {
-                    // Transform database prompts to match marketplace format
-                    prompts = dbPrompts.map(p => ({
-                        id: p.id,
-                        title: p.title || 'Untitled Prompt',
-                        category: p.category || 'General',
-                        categoryKey: (p.category || 'general').toLowerCase().replace(/\s+/g, '-'),
-                        icon: '&#128196;',
-                        iconClass: 'primary',
-                        description: p.description || '',
-                        tags: p.tags || [],
-                        rating: 4.5, // Would need reviews table
-                        reviews: 0, // Would need reviews table
-                        sales: 0, // Would need purchases table
-                        price: parseFloat(p.price) || 0,
-                        creator: {
-                            initials: `${p.profiles?.first_name?.[0] || ''}${p.profiles?.last_name?.[0] || ''}`.toUpperCase() || 'U',
-                            name: `${p.profiles?.first_name || ''} ${p.profiles?.last_name || ''}`.trim() || 'User',
-                            verified: false
-                        }
-                    }));
-
-                    // Re-render with database data
+                if (!dbPrompts || dbPrompts.length === 0) {
+                    prompts = [];
                     renderPrompts();
                     renderFeatured();
+                    return;
                 }
+
+                // Get prompt IDs for loading sales and reviews
+                const promptIds = dbPrompts.map(p => p.id);
+
+                // Load sales counts
+                const { data: purchases } = await supabase
+                    .from('purchases')
+                    .select('prompt_id')
+                    .in('prompt_id', promptIds);
+
+                const salesByPrompt = {};
+                purchases?.forEach(p => {
+                    salesByPrompt[p.prompt_id] = (salesByPrompt[p.prompt_id] || 0) + 1;
+                });
+
+                // Load reviews
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('prompt_id, rating')
+                    .in('prompt_id', promptIds);
+
+                const reviewsByPrompt = {};
+                const ratingsByPrompt = {};
+                reviews?.forEach(r => {
+                    if (!reviewsByPrompt[r.prompt_id]) {
+                        reviewsByPrompt[r.prompt_id] = 0;
+                        ratingsByPrompt[r.prompt_id] = [];
+                    }
+                    reviewsByPrompt[r.prompt_id]++;
+                    ratingsByPrompt[r.prompt_id].push(parseFloat(r.rating) || 0);
+                });
+
+                // Calculate average ratings
+                const avgRatingsByPrompt = {};
+                Object.keys(ratingsByPrompt).forEach(pid => {
+                    const ratings = ratingsByPrompt[pid];
+                    avgRatingsByPrompt[pid] = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+                });
+
+                // Transform database prompts to match marketplace format
+                prompts = dbPrompts.map(p => ({
+                    id: p.id,
+                    title: p.title || 'Untitled Prompt',
+                    category: p.category || 'General',
+                    categoryKey: (p.category || 'general').toLowerCase().replace(/\s+/g, '-'),
+                    icon: '&#128196;',
+                    iconClass: 'primary',
+                    description: p.description || '',
+                    tags: p.tags || [],
+                    rating: avgRatingsByPrompt[p.id] || parseFloat(p.rating) || 0,
+                    reviews: reviewsByPrompt[p.id] || 0,
+                    sales: salesByPrompt[p.id] || p.sales_count || 0,
+                    price: parseFloat(p.price) || 0,
+                    creator: {
+                        initials: `${p.profiles?.first_name?.[0] || ''}${p.profiles?.last_name?.[0] || ''}`.toUpperCase() || 'U',
+                        name: `${p.profiles?.first_name || ''} ${p.profiles?.last_name || ''}`.trim() || 'User',
+                        verified: false
+                    }
+                }));
+
+                // Re-render with database data
+                renderPrompts();
+                renderFeatured();
             } catch (error) {
                 console.error('Error loading prompts from database:', error);
-                // Continue with hardcoded data
+                prompts = [];
+                renderPrompts();
             }
         }
 

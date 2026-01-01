@@ -867,6 +867,342 @@
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="scripts.js"></script>
+  <script>
+    // ============================================
+    // LANDING PAGE BACKEND LOGIC - PRODUCTION
+    // ============================================
+    (function() {
+      'use strict';
+
+      // Initialize Supabase
+      const supabase = window.PromptingItSupabase?.getClient();
+
+      // ============================================
+      // 1. PRICING CTA BUTTONS
+      // ============================================
+      document.querySelectorAll('.pricing-cta').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const card = this.closest('.pricing-card');
+          const planName = card?.querySelector('.pricing-name')?.textContent.trim() || 'Starter';
+          
+          // Track click
+          trackEvent('pricing_cta_click', { plan: planName });
+
+          if (planName === 'Enterprise') {
+            // Contact sales
+            window.location.href = 'mailto:sales@promptingit.co?subject=Enterprise Plan Inquiry';
+          } else {
+            // Redirect to signup with plan parameter
+            const plan = planName.toLowerCase();
+            window.location.href = `signup.html?plan=${plan}`;
+          }
+        });
+      });
+
+      // ============================================
+      // 2. NEWSLETTER FORM (BACKEND INTEGRATION)
+      // ============================================
+      const newsletterForm = document.getElementById('newsletterForm');
+      if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const input = this.querySelector('input[type="email"]');
+          const btn = this.querySelector('button[type="submit"]');
+          const email = input.value.trim();
+          
+          if (!email) return;
+
+          const originalText = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = 'Subscribing...';
+
+          try {
+            // Save to Supabase newsletter table (gracefully handle if table doesn't exist)
+            if (supabase) {
+              try {
+                const { error } = await supabase
+                  .from('newsletter_subscribers')
+                  .insert({
+                    email: email,
+                    subscribed_at: new Date().toISOString(),
+                    source: 'landing_page'
+                  });
+
+                // Ignore duplicate email errors (23505) and missing table errors (PGRST116)
+                if (error && error.code !== '23505' && error.code !== 'PGRST116') {
+                  console.warn('Newsletter subscription error (non-critical):', error);
+                }
+              } catch (err) {
+                // Table might not exist yet - that's okay for production
+                console.debug('Newsletter table not available (non-critical):', err);
+              }
+            }
+
+            // Track subscription
+            trackEvent('newsletter_subscribe', { email: email });
+
+            // Success feedback
+            btn.textContent = 'Subscribed! ✓';
+            btn.style.background = 'var(--emerald)';
+            input.value = '';
+
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.background = '';
+              btn.disabled = false;
+            }, 3000);
+          } catch (error) {
+            console.error('Newsletter subscription error:', error);
+            btn.textContent = 'Try Again';
+            btn.style.background = 'var(--error)';
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.background = '';
+              btn.disabled = false;
+            }, 2000);
+          }
+        });
+      }
+
+      // ============================================
+      // 3. FEATURE "LEARN MORE" LINKS
+      // ============================================
+      document.querySelectorAll('.feature-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const featureCard = this.closest('.feature-card');
+          const featureTitle = featureCard?.querySelector('.feature-title')?.textContent || 'Feature';
+          
+          // Track click
+          trackEvent('feature_learn_more', { feature: featureTitle });
+
+          // Scroll to features section and highlight
+          const featuresSection = document.getElementById('features');
+          if (featuresSection) {
+            featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Highlight the specific feature card
+            if (featureCard) {
+              featureCard.style.transition = 'all 0.3s';
+              featureCard.style.transform = 'scale(1.05)';
+              featureCard.style.boxShadow = '0 20px 60px rgba(103, 232, 249, 0.3)';
+              
+              setTimeout(() => {
+                featureCard.style.transform = '';
+                featureCard.style.boxShadow = '';
+              }, 2000);
+            }
+          }
+        });
+      });
+
+      // ============================================
+      // 4. DEMO TABS (CODE SWITCHING)
+      // ============================================
+      const demoTabs = document.querySelectorAll('.demo-tab');
+      const demoCode = document.querySelector('.demo-code');
+      
+      const codeSnippets = {
+        typescript: `<span class="comment">// Initialize Prompting It SDK</span><br>
+<span class="keyword">import</span> { <span class="function">PromptingIt</span> } <span class="keyword">from</span> <span class="string">'@promptingit/sdk'</span>;<br><br>
+<span class="keyword">const</span> client = <span class="keyword">new</span> <span class="function">PromptingIt</span>({<br>
+&nbsp;&nbsp;<span class="property">apiKey</span>: process.env.<span class="property">PROMPTINGIT_KEY</span><br>
+});<br><br>
+<span class="comment">// Execute versioned prompt with tracking</span><br>
+<span class="keyword">const</span> result = <span class="keyword">await</span> client.<span class="function">execute</span>({<br>
+&nbsp;&nbsp;<span class="property">prompt</span>: <span class="string">'code-review@v2.4.1'</span>,<br>
+&nbsp;&nbsp;<span class="property">model</span>: <span class="string">'claude-3-opus'</span>,<br>
+&nbsp;&nbsp;<span class="property">variables</span>: { <span class="property">code</span>: userCode }<br>
+});<br><br>
+<span class="comment">// Automatic cost & latency tracking</span><br>
+console.<span class="function">log</span>(result.<span class="property">metrics</span>);<br>
+<span class="comment">// { tokens: 847, cost: 0.012, latency: 234 }</span>`,
+        
+        python: `<span class="comment"># Initialize Prompting It SDK</span><br>
+<span class="keyword">from</span> promptingit <span class="keyword">import</span> PromptingIt<br><br>
+client = <span class="function">PromptingIt</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;api_key=os.getenv(<span class="string">'PROMPTINGIT_KEY'</span>)<br>
+)<br><br>
+<span class="comment"># Execute versioned prompt with tracking</span><br>
+result = client.<span class="function">execute</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;prompt=<span class="string">'code-review@v2.4.1'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model=<span class="string">'claude-3-opus'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;variables={<span class="string">'code'</span>: user_code}<br>
+)<br><br>
+<span class="comment"># Automatic cost & latency tracking</span><br>
+<span class="function">print</span>(result.metrics)<br>
+<span class="comment"># {'tokens': 847, 'cost': 0.012, 'latency': 234}</span>`,
+        
+        curl: `<span class="comment"># Execute versioned prompt via API</span><br>
+curl -X POST <span class="string">'https://api.promptingit.co/v1/execute'</span> \<br>
+&nbsp;&nbsp;-H <span class="string">'Authorization: Bearer $PROMPTINGIT_KEY'</span> \<br>
+&nbsp;&nbsp;-H <span class="string">'Content-Type: application/json'</span> \<br>
+&nbsp;&nbsp;-d '{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"prompt"</span>: <span class="string">"code-review@v2.4.1"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"model"</span>: <span class="string">"claude-3-opus"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"variables"</span>: { <span class="string">"code"</span>: <span class="string">"..."</span> }<br>
+&nbsp;&nbsp;}'<br><br>
+<span class="comment"># Response includes metrics</span><br>
+<span class="comment"># { "result": "...", "metrics": { "tokens": 847, "cost": 0.012, "latency": 234 } }</span>`
+      };
+
+      demoTabs.forEach((tab, index) => {
+        tab.addEventListener('click', function() {
+          // Update active tab
+          demoTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+
+          // Update code content
+          const languages = ['typescript', 'python', 'curl'];
+          const language = languages[index];
+          if (demoCode && codeSnippets[language]) {
+            demoCode.style.opacity = '0';
+            setTimeout(() => {
+              demoCode.innerHTML = codeSnippets[language];
+              demoCode.style.opacity = '1';
+            }, 150);
+          }
+
+          // Track tab switch
+          trackEvent('demo_tab_switch', { language: language });
+        });
+      });
+
+      // ============================================
+      // 5. LOAD REAL METRICS FROM DATABASE
+      // ============================================
+      async function loadRealMetrics() {
+        if (!supabase) return;
+
+        try {
+          // Get total prompts count
+          const { count: promptsCount } = await supabase
+            .from('prompts')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_marketplace', true);
+
+          // Get total creators count
+          const { count: creatorsCount } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .in('role', ['creator', 'admin', 'owner']);
+
+          // Get total revenue (sum of all purchases)
+          const { data: purchases } = await supabase
+            .from('purchases')
+            .select('price');
+
+          const totalRevenue = purchases?.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0) || 0;
+          const revenueInMillions = (totalRevenue / 1000000).toFixed(1);
+
+          // Get enterprise teams (users with enterprise subscription)
+          const { count: enterpriseCount } = await supabase
+            .from('subscriptions')
+            .select('*', { count: 'exact', head: true })
+            .eq('tier', 'enterprise')
+            .eq('status', 'active');
+
+          // Update metrics
+          const metrics = [
+            { selector: '.metric-value[data-count="12847"]', value: promptsCount || 0 },
+            { selector: '.metric-value[data-count="3214"]', value: creatorsCount || 0 },
+            { selector: '.metric-value[data-count="2.4"]', value: revenueInMillions, prefix: '$', suffix: 'M' },
+            { selector: '.metric-value[data-count="847"]', value: enterpriseCount || 0 }
+          ];
+
+          metrics.forEach(metric => {
+            const el = document.querySelector(metric.selector);
+            if (el) {
+              el.dataset.count = metric.value;
+              if (metric.prefix || metric.suffix) {
+                el.dataset.prefix = metric.prefix || '';
+                el.dataset.suffix = metric.suffix || '';
+              }
+            }
+          });
+        } catch (error) {
+          console.error('Error loading metrics:', error);
+          // Fallback to animated counters with default values
+        }
+      }
+
+      // ============================================
+      // 6. ANALYTICS TRACKING
+      // ============================================
+      function trackEvent(eventName, data = {}) {
+        // Save to Supabase activity_log if available
+        if (supabase) {
+          supabase
+            .from('activity_log')
+            .insert({
+              action: eventName,
+              metadata: data,
+              created_at: new Date().toISOString(),
+              source: 'landing_page'
+            })
+            .catch(err => {
+              // Silently fail if table doesn't exist
+              console.debug('Analytics tracking failed (non-critical):', err);
+            });
+        }
+
+        // Also track in browser console for debugging
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          console.log('Event tracked:', eventName, data);
+        }
+      }
+
+      // ============================================
+      // 7. HERO CTA BUTTONS
+      // ============================================
+      document.querySelectorAll('.hero-ctas a, .cta-buttons a').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#' && !href.startsWith('#')) {
+            trackEvent('cta_click', { 
+              text: this.textContent.trim(),
+              href: href,
+              location: this.closest('section')?.className || 'hero'
+            });
+          }
+        });
+      });
+
+      // ============================================
+      // 8. NAVIGATION LINKS TRACKING
+      // ============================================
+      document.querySelectorAll('nav a, .footer-col a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && !href.startsWith('#')) {
+            trackEvent('nav_click', {
+              text: this.textContent.trim(),
+              href: href,
+              location: this.closest('nav') ? 'header' : 'footer'
+            });
+          }
+        });
+      });
+
+      // ============================================
+      // INITIALIZE ON PAGE LOAD
+      // ============================================
+      document.addEventListener('DOMContentLoaded', function() {
+        // Load real metrics
+        loadRealMetrics();
+
+        // Track page view
+        trackEvent('page_view', {
+          page: 'landing',
+          referrer: document.referrer || 'direct'
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

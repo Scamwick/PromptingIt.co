@@ -233,6 +233,15 @@
             return { valid: true };
           }
 
+          // Get plan parameter from URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const planParam = urlParams.get('plan');
+          
+          // If plan is 'pro' or 'enterprise', show upgrade message after signup
+          const targetPlan = planParam && ['pro', 'enterprise'].includes(planParam.toLowerCase()) 
+            ? planParam.toLowerCase() 
+            : null;
+
           // Form submission handler
           signupForm.addEventListener('submit', async function(e) {
                   e.preventDefault();
@@ -421,7 +430,18 @@
                   window.AuthUI.showSuccess(message);
                 }
                 setTimeout(() => {
-                  window.location.href = isOwnerSignup ? 'owner-dashboard.html' : 'creator-dashboard.html';
+                  // Get plan parameter from URL
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const planParam = urlParams.get('plan');
+                  
+                  if (isOwnerSignup) {
+                    window.location.href = 'owner-dashboard.html';
+                  } else if (planParam && ['pro', 'enterprise'].includes(planParam.toLowerCase())) {
+                    // Redirect to upgrade page with plan pre-selected
+                    window.location.href = `upgrade.html?plan=${planParam.toLowerCase()}`;
+                  } else {
+                    window.location.href = 'creator-dashboard.html';
+                  }
                 }, 1000);
               }
             } catch (error) {
