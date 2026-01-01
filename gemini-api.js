@@ -4,7 +4,8 @@
    ============================================ */
 
 // Gemini API Configuration
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
+// SECURITY: API keys are stored in Supabase api_keys table only
+// No hardcoded keys in source code for security
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // Gemini API Service
@@ -29,30 +30,35 @@ window.GeminiAPI = {
             throw new Error('Prompt is required');
         }
 
-        // Try to get API key from Supabase api_keys table first, fallback to config
-        let apiKey = GEMINI_API_KEY;
+        // SECURITY: Get API key from Supabase api_keys table only
+        // No fallback to hardcoded keys for security
+        let apiKey = null;
         try {
             const supabase = window.PromptingItSupabase?.getClient();
             const user = window.Auth?.getUser();
             
-            if (supabase && user) {
-                // Try to get from api_keys table
-                const { data: apiKeyData } = await supabase
-                    .from('api_keys')
-                    .select('key_hash')
-                    .eq('user_id', user.id)
-                    .eq('name', 'Gemini API Key')
-                    .eq('is_active', true)
-                    .single();
-                
-                if (apiKeyData?.key_hash) {
-                    // Decode the stored key
-                    apiKey = atob(apiKeyData.key_hash);
-                }
+            if (!supabase || !user) {
+                throw new Error('Authentication required to use Gemini API');
             }
+            
+            // Get API key from api_keys table
+            const { data: apiKeyData, error } = await supabase
+                .from('api_keys')
+                .select('key_hash')
+                .eq('user_id', user.id)
+                .eq('name', 'Gemini API Key')
+                .eq('is_active', true)
+                .single();
+            
+            if (error || !apiKeyData?.key_hash) {
+                throw new Error('Gemini API key not configured. Please add your API key in Settings.');
+            }
+            
+            // Decode the stored key
+            apiKey = atob(apiKeyData.key_hash);
         } catch (e) {
-            // Fallback to config key
-            console.warn('Could not fetch API key from Supabase, using config:', e);
+            console.error('Gemini API key error:', e);
+            throw new Error('Gemini API key not configured. Please add your API key in Settings.');
         }
 
         if (!apiKey) {
@@ -176,9 +182,29 @@ window.GeminiAPI = {
 
     /**
      * Check if API key is configured
+     * SECURITY: Checks Supabase only, no hardcoded keys
      */
-    isConfigured() {
-        return !!GEMINI_API_KEY;
+    async isConfigured() {
+        try {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                return false;
+            }
+            
+            const { data } = await supabase
+                .from('api_keys')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('name', 'Gemini API Key')
+                .eq('is_active', true)
+                .single();
+            
+            return !!data;
+        } catch (e) {
+            return false;
+        }
     }
 };
 

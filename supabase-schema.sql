@@ -354,6 +354,48 @@ CREATE INDEX IF NOT EXISTS idx_activity_user ON public.activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON public.activity_log(created_at);
 
 -- ============================================
+-- SETTINGS TABLE
+-- Stores system-wide settings (owner credentials, etc.)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.settings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    key TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    description TEXT,
+    is_encrypted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+-- Settings policies - Only admins/owners can view/modify
+CREATE POLICY "Admins can view settings"
+    ON public.settings FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+CREATE POLICY "Admins can manage settings"
+    ON public.settings FOR ALL
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+-- SECURITY NOTE: Owner credentials should be set via SQL after initial setup:
+-- INSERT INTO public.settings (key, value, description) VALUES 
+--   ('owner_email', 'your-owner-email@example.com', 'Owner account email'),
+--   ('owner_password', 'your-secure-password', 'Owner account password')
+-- ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
+-- ============================================
 -- SAMPLE DATA (for testing)
 -- ============================================
 -- Note: Run this after creating a test user through the UI

@@ -319,8 +319,34 @@
             }
 
             try {
-              // Check for owner signup credentials
-              const isOwnerSignup = email === 'cgs18g@gmail.com' && password === 'Cody_7367';
+              // SECURITY: Check for owner signup credentials from Supabase settings
+              // No hardcoded credentials in source code
+              let isOwnerSignup = false;
+              try {
+                const supabase = window.PromptingItSupabase?.getClient();
+                if (supabase) {
+                  const { data: ownerSettings } = await supabase
+                    .from('settings')
+                    .select('value')
+                    .eq('key', 'owner_email')
+                    .single();
+                  
+                  if (ownerSettings?.value === email) {
+                    // Verify password matches owner password from settings
+                    const { data: ownerPassword } = await supabase
+                      .from('settings')
+                      .select('value')
+                      .eq('key', 'owner_password')
+                      .single();
+                    
+                    isOwnerSignup = ownerPassword?.value === password;
+                  }
+                }
+              } catch (e) {
+                // If settings table doesn't exist or error, owner signup is disabled
+                console.warn('Owner signup check failed:', e);
+                isOwnerSignup = false;
+              }
 
               // Attempt signup using Auth service
               const result = await window.Auth.signUp(email, password, {
