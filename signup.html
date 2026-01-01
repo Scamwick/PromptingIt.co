@@ -145,77 +145,132 @@
     <script src="auth.js"></script>
 
     <script>
-          document.getElementById('signupForm').addEventListener('submit', async function(e) {
-                  e.preventDefault();
-                  const btn = this.querySelector('button[type="submit"]');
-                  const name = document.getElementById('name').value.trim();
-                  const email = document.getElementById('email').value.trim();
-                  const password = document.getElementById('password').value;
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const termsAccepted = document.getElementById('terms')?.checked;
 
-                  // Client-side validation (supplement to server-side, not replacement)
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!name || !email || !password) {
-                      showError('Please fill in all fields');
-                      return;
-                  }
-                  if (!emailRegex.test(email)) {
-                      showError('Please enter a valid email address');
-                      return;
-                  }
-                  if (password.length < 8) {
-                      showError('Password must be at least 8 characters');
-                      return;
-                  }
+            // Client-side validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!firstName || !lastName || !email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return;
+            }
+            if (!termsAccepted) {
+                showError('Please accept the terms and conditions');
+                return;
+            }
 
-                  btn.textContent = 'Creating account...';
-                  btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            btn.disabled = true;
+            hideError();
 
-                  try {
-                      // ============================================
-                      // SERVER-SIDE VALIDATION REQUIRED
-                      // In production, replace this with actual API call:
-                      //
-                      // const response = await fetch('/api/auth/register', {
-                      //     method: 'POST',
-                      //     headers: { 'Content-Type': 'application/json' },
-                      //     body: JSON.stringify({ name, email, password })
-                      // });
-                      //
-                      // Server MUST validate:
-                      // - Name: sanitize, length limits (2-100 chars)
-                      // - Email: format, uniqueness, domain validation
-                      // - Password: minimum 8 chars, complexity rules
-                      // - Hash password with bcrypt/argon2 (never store plain text)
-                      // - CSRF token verification
-                      // - Rate limiting (prevent spam registrations)
-                      // - Email verification before activation
-                      // - Captcha/reCAPTCHA for bot prevention
-                      //
-                      // const data = await response.json();
-                      // if (!response.ok) throw new Error(data.message);
-                      // ============================================
+            try {
+                // Use Supabase authentication
+                await window.Auth.signUp(email, password, {
+                    firstName: firstName,
+                    lastName: lastName
+                });
 
-                      // Demo redirect (remove in production)
-                      setTimeout(() => {
-                          window.location.href = 'creator-dashboard.html';
-                      }, 1500);
-                  } catch (error) {
-                      showError(error.message || 'Registration failed. Please try again.');
-                      btn.textContent = 'Create Account';
-                      btn.disabled = false;
-                  }
-          });
+                showSuccess('Account created! Please check your email to verify your account.');
+                btn.textContent = 'Check your email';
+            } catch (error) {
+                showError(error.message || 'Registration failed. Please try again.');
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        });
 
-          function showError(message) {
-              let errorDiv = document.querySelector('.form-error');
-              if (!errorDiv) {
-                  errorDiv = document.createElement('div');
-                  errorDiv.className = 'form-error';
-                  errorDiv.style.cssText = 'color: #fb7185; font-size: 14px; margin-bottom: 16px; padding: 12px; background: rgba(251,113,133,0.1); border-radius: 8px;';
-                  document.getElementById('signupForm').prepend(errorDiv);
-              }
-              errorDiv.textContent = message;
-          }
+        // Google OAuth
+        document.getElementById('googleBtn')?.addEventListener('click', async () => {
+            try {
+                await window.Auth.signInWithOAuth('google');
+            } catch (error) {
+                showError(error.message || 'Google sign-in failed.');
+            }
+        });
+
+        // GitHub OAuth
+        document.getElementById('githubBtn')?.addEventListener('click', async () => {
+            try {
+                await window.Auth.signInWithOAuth('github');
+            } catch (error) {
+                showError(error.message || 'GitHub sign-in failed.');
+            }
+        });
+
+        // Password strength indicator
+        document.getElementById('password')?.addEventListener('input', function() {
+            const password = this.value;
+            const strengthEl = document.getElementById('passwordStrength');
+            if (!strengthEl) return;
+
+            let strength = 'weak';
+            let text = 'Weak password';
+
+            if (password.length >= 8) {
+                const hasLower = /[a-z]/.test(password);
+                const hasUpper = /[A-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+                const score = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
+                if (score >= 3 && password.length >= 12) {
+                    strength = 'strong';
+                    text = 'Strong password';
+                } else if (score >= 2 && password.length >= 8) {
+                    strength = 'medium';
+                    text = 'Medium password';
+                }
+            }
+
+            strengthEl.className = 'password-strength ' + strength;
+            strengthEl.innerHTML = `
+                <div class="password-strength-bar"><div class="password-strength-fill"></div></div>
+                <div class="password-strength-text">${text}</div>
+            `;
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('authError');
+            if (errorEl) {
+                errorEl.innerHTML = '<span style="font-size: 16px;">⚠</span> ' + message;
+                errorEl.style.display = 'flex';
+            }
+        }
+
+        function hideError() {
+            const errorEl = document.getElementById('authError');
+            if (errorEl) errorEl.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('authSuccess');
+            if (successEl) {
+                successEl.innerHTML = '<span style="font-size: 16px;">✓</span> ' + message;
+                successEl.style.display = 'flex';
+            }
+            hideError();
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.Auth?.isAuthenticated()) {
+                window.location.href = 'creator-dashboard.html';
+            }
+        });
     </script>
   </body>
 </html>
