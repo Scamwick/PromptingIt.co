@@ -422,6 +422,14 @@
       }
     },
 
+    // Hide success message
+    hideSuccess(containerId = 'authSuccess') {
+      const successEl = document.getElementById(containerId);
+      if (successEl) {
+        successEl.style.display = 'none';
+      }
+    },
+
     // Show success message
     showSuccess(message, containerId = 'authSuccess') {
       let successEl = document.getElementById(containerId);
