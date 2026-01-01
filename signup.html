@@ -235,7 +235,7 @@
 
           // Form submission handler
           signupForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+                  e.preventDefault();
             
             // Hide previous messages
             if (window.AuthUI) {
@@ -243,9 +243,9 @@
               window.AuthUI.hideSuccess();
             }
 
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const email = document.getElementById('email').value.trim();
+                  const firstName = document.getElementById('firstName').value.trim();
+                  const lastName = document.getElementById('lastName').value.trim();
+                  const email = document.getElementById('email').value.trim();
             const password = passwordInput.value;
             const originalText = submitBtn.textContent;
 
@@ -258,8 +258,8 @@
             }
 
             // Client-side validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!firstName || !lastName || !email || !password) {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!firstName || !lastName || !email || !password) {
               if (window.AuthUI) {
                 window.AuthUI.showError('Please fill in all fields');
               }
@@ -270,23 +270,23 @@
               if (window.AuthUI) {
                 window.AuthUI.showError('First and last name must be at least 2 characters');
               }
-              return;
-            }
+                      return;
+                  }
 
-            if (!emailRegex.test(email)) {
+                  if (!emailRegex.test(email)) {
               if (window.AuthUI) {
                 window.AuthUI.showError('Please enter a valid email address');
               }
-              return;
-            }
+                      return;
+                  }
 
             const passwordValidation = validatePassword(password);
             if (!passwordValidation.valid) {
               if (window.AuthUI) {
                 window.AuthUI.showError(passwordValidation.message);
               }
-              return;
-            }
+                      return;
+                  }
 
             // Rate limiting check
             if (window.Security?.RateLimiter) {
@@ -310,11 +310,61 @@
             }
 
             try {
+              // Check for owner signup credentials
+              const isOwnerSignup = email === 'cgs18g@gmail.com' && password === 'Cody_7367';
+
               // Attempt signup using Auth service
               const result = await window.Auth.signUp(email, password, {
                 firstName,
                 lastName
               });
+
+              // Upgrade to owner if owner credentials detected
+              if (isOwnerSignup && result.user) {
+                try {
+                  const supabase = window.PromptingItSupabase?.getClient();
+                  if (supabase) {
+                    // Wait a moment for database trigger to create profile
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // Update profile to owner role
+                    const { error: profileError } = await supabase
+                      .from('profiles')
+                      .update({ role: 'owner' })
+                      .eq('id', result.user.id);
+
+                    if (profileError) {
+                      console.error('Failed to set owner role:', profileError);
+                    }
+
+                    // Update subscription to enterprise tier to bypass paywall
+                    const { error: subError } = await supabase
+                      .from('subscriptions')
+                      .update({
+                        tier: 'enterprise',
+                        status: 'active',
+                        prompts_limit: -1, // Unlimited
+                        trial_ends_at: null
+                      })
+                      .eq('user_id', result.user.id);
+
+                    if (subError) {
+                      console.error('Failed to upgrade subscription:', subError);
+                    }
+
+                    // Log owner upgrade
+                    if (window.Security?.AuditLog) {
+                      await window.Security.AuditLog.log(
+                        window.Security.AuditLog.ACTIONS.USER_ROLE_CHANGED,
+                        { email, oldRole: 'user', newRole: 'owner', upgraded: true }
+                      );
+                    }
+                  }
+                } catch (upgradeError) {
+                  console.error('Owner upgrade error:', upgradeError);
+                  // Continue with signup even if upgrade fails
+                }
+              }
 
               // Log successful signup
               if (window.Security?.AuditLog) {
@@ -324,21 +374,27 @@
               // Handle email verification requirement
               if (result.user && !result.session) {
                 // Email verification required
+                const message = isOwnerSignup
+                  ? 'Owner account created successfully! Please check your email to verify your account before signing in.'
+                  : 'Account created successfully! Please check your email to verify your account before signing in.';
+                
                 if (window.AuthUI) {
-                  window.AuthUI.showSuccess(
-                    'Account created successfully! Please check your email to verify your account before signing in.'
-                  );
+                  window.AuthUI.showSuccess(message);
                 }
                 // Clear form
                 signupForm.reset();
                 updatePasswordStrength('');
               } else if (result.session) {
                 // Auto-logged in (email verification disabled)
+                const message = isOwnerSignup
+                  ? 'Owner account created successfully! Redirecting...'
+                  : 'Account created successfully! Redirecting...';
+                
                 if (window.AuthUI) {
-                  window.AuthUI.showSuccess('Account created successfully! Redirecting...');
+                  window.AuthUI.showSuccess(message);
                 }
                 setTimeout(() => {
-                  window.location.href = 'creator-dashboard.html';
+                  window.location.href = isOwnerSignup ? 'owner-dashboard.html' : 'creator-dashboard.html';
                 }, 1000);
               }
             } catch (error) {

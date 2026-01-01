@@ -615,6 +615,14 @@
       // Check paid feature access with server validation
       const requiredTier = this.paidPages[currentPage];
       if (requiredTier) {
+        // Owners bypass all paywalls
+        const isOwner = await RoleValidator.isOwner();
+        if (isOwner) {
+          console.log('Owner access granted - bypassing paywall');
+          await AuditLog.logFeatureAccess(currentPage, true, requiredTier);
+          return true;
+        }
+
         const subscription = await SubscriptionValidator.validate();
         const tierOrder = ['free', 'pro', 'enterprise'];
         const currentIndex = tierOrder.indexOf(subscription.tier);
