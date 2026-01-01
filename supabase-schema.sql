@@ -259,9 +259,22 @@ CREATE POLICY "Users can view their own activity"
     ON public.activity_log FOR SELECT
     USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can insert their own activity"
+    ON public.activity_log FOR INSERT
+    WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
 CREATE POLICY "Admins can view all activity"
     ON public.activity_log FOR SELECT
     USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role IN ('admin', 'owner')
+        )
+    );
+
+CREATE POLICY "Admins can insert any activity"
+    ON public.activity_log FOR INSERT
+    WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
             WHERE id = auth.uid() AND role IN ('admin', 'owner')
