@@ -325,9 +325,20 @@
       'api-console.html'
     ],
 
+    // Pages that support demo mode (no redirect if not authenticated)
+    demoPages: [
+      'library.html',
+      'playground.html'
+    ],
+
     // Check page access
     async checkAccess() {
       const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+      // Allow demo pages without auth
+      if (this.demoPages.includes(currentPage)) {
+        return true;
+      }
 
       // Wait for auth to initialize
       await AuthService.init();
