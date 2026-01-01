@@ -134,66 +134,142 @@
     <script src="auth.js"></script>
 
     <script>
+        // Get redirect URL from query params (if coming from a protected page)
+        function getRedirectUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get('redirect');
+            // Only allow relative URLs to prevent open redirect attacks
+            if (redirect && !redirect.includes('://') && !redirect.startsWith('//')) {
+                return decodeURIComponent(redirect);
+            }
+            return 'creator-dashboard.html';
+        }
+
+        // Login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn = this.querySelector('button[type="submit"]');
+            const btn = document.getElementById('submitBtn');
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            // Client-side validation (supplement to server-side, not replacement)
+            // Clear previous errors
+            AuthUI.hideError();
+
+            // Client-side validation
             if (!email || !password) {
-                showError('Please fill in all fields');
+                AuthUI.showError('Please fill in all fields');
                 return;
             }
 
-            btn.textContent = 'Signing in...';
-            btn.disabled = true;
+            // Email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                AuthUI.showError('Please enter a valid email address');
+                return;
+            }
+
+            // Set loading state
+            AuthUI.setLoading(btn, true);
+            btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
             try {
-                // ============================================
-                // SERVER-SIDE VALIDATION REQUIRED
-                // In production, replace this with actual API call:
-                //
-                // const response = await fetch('/api/auth/login', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ email, password })
-                // });
-                //
-                // Server MUST validate:
-                // - Email format and existence
-                // - Password against hashed value (bcrypt/argon2)
-                // - Rate limiting (prevent brute force)
-                // - CSRF token verification
-                // - Account lockout after failed attempts
-                //
-                // const data = await response.json();
-                // if (!response.ok) throw new Error(data.message);
-                // localStorage.setItem('authToken', data.token);
-                // localStorage.setItem('userRole', data.role);
-                // ============================================
+                // Authenticate with Supabase
+                const { user, session } = await Auth.signIn(email, password);
 
-                // Demo redirect (remove in production)
-                setTimeout(() => {
-                    window.location.href = 'creator-dashboard.html';
-                }, 1500);
+                if (user && session) {
+                    // Show success message briefly before redirect
+                    AuthUI.showSuccess('Login successful! Redirecting...');
+
+                    // Redirect to intended page or dashboard
+                    setTimeout(() => {
+                        window.location.href = getRedirectUrl();
+                    }, 500);
+                }
             } catch (error) {
-                showError(error.message || 'Login failed. Please try again.');
-                btn.textContent = 'Sign In';
-                btn.disabled = false;
+                // Handle specific Supabase error messages
+                let errorMessage = 'Login failed. Please try again.';
+
+                if (error.message) {
+                    if (error.message.includes('Invalid login credentials')) {
+                        errorMessage = 'Invalid email or password. Please try again.';
+                    } else if (error.message.includes('Email not confirmed')) {
+                        errorMessage = 'Please verify your email address before signing in.';
+                    } else if (error.message.includes('Too many requests')) {
+                        errorMessage = 'Too many login attempts. Please wait a moment and try again.';
+                    } else {
+                        errorMessage = error.message;
+                    }
+                }
+
+                AuthUI.showError(errorMessage);
+                AuthUI.setLoading(btn, false, 'Sign In');
             }
         });
 
-        function showError(message) {
-            let errorDiv = document.querySelector('.form-error');
-            if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.className = 'form-error';
-                errorDiv.style.cssText = 'color: #fb7185; font-size: 14px; margin-bottom: 16px; padding: 12px; background: rgba(251,113,133,0.1); border-radius: 8px;';
-                document.getElementById('loginForm').prepend(errorDiv);
+        // Google OAuth
+        document.getElementById('googleBtn').addEventListener('click', async function() {
+            try {
+                AuthUI.hideError();
+                await Auth.signInWithOAuth('google');
+            } catch (error) {
+                AuthUI.showError(error.message || 'Google sign-in failed. Please try again.');
             }
-            errorDiv.textContent = message;
-        }
+        });
+
+        // GitHub OAuth
+        document.getElementById('githubBtn').addEventListener('click', async function() {
+            try {
+                AuthUI.hideError();
+                await Auth.signInWithOAuth('github');
+            } catch (error) {
+                AuthUI.showError(error.message || 'GitHub sign-in failed. Please try again.');
+            }
+        });
+
+        // Forgot password
+        document.getElementById('forgotPasswordLink').addEventListener('click', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+
+            if (!email) {
+                AuthUI.showError('Please enter your email address first');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                AuthUI.showError('Please enter a valid email address');
+                return;
+            }
+
+            try {
+                AuthUI.hideError();
+                await Auth.resetPassword(email);
+                AuthUI.showSuccess('Password reset link sent! Check your email inbox.');
+            } catch (error) {
+                AuthUI.showError(error.message || 'Failed to send reset email. Please try again.');
+            }
+        });
+
+        // Password visibility toggle
+        document.querySelector('.password-toggle-btn').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            // Update icon
+            this.innerHTML = isPassword
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        });
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', async function() {
+            await Auth.init();
+            if (Auth.isAuthenticated()) {
+                window.location.href = getRedirectUrl();
+            }
+        });
     </script>
   </body>
 </html>
