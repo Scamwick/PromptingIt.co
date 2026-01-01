@@ -622,7 +622,7 @@
         // Owners bypass all paywalls
         const isOwner = await RoleValidator.isOwner();
         if (isOwner) {
-          console.log('Owner access granted - bypassing paywall');
+          // Owner access granted - bypassing paywall
           await AuditLog.logFeatureAccess(currentPage, true, requiredTier);
           return true;
         }

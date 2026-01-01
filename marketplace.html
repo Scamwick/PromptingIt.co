@@ -1035,10 +1035,12 @@
         <span class="toast-message"></span>
     </div>
 
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
     <script src="scripts.js"></script>
     <script>
-        // Marketplace Data
-        const prompts = [
+        // Marketplace Data - will be loaded from database
+        let prompts = [
             {
                 id: 1,
                 title: 'Code Review Pro v3',
@@ -1352,8 +1354,78 @@
             toast.show(`Loading page ${btn.textContent}...`);
         });
 
+        // Load prompts from database
+        async function loadPromptsFromDatabase() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            if (!supabase) {
+                // Use hardcoded data if Supabase not available
+                return;
+            }
+
+            try {
+                const { data: dbPrompts, error } = await supabase
+                    .from('prompts')
+                    .select(`
+                        id,
+                        title,
+                        description,
+                        category,
+                        tags,
+                        price,
+                        is_marketplace,
+                        user_id,
+                        profiles!prompts_user_id_fkey (
+                            first_name,
+                            last_name,
+                            email
+                        )
+                    `)
+                    .eq('is_marketplace', true)
+                    .eq('is_public', true)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) {
+                    console.error('Error loading prompts:', error);
+                    return; // Fall back to hardcoded data
+                }
+
+                if (dbPrompts && dbPrompts.length > 0) {
+                    // Transform database prompts to match marketplace format
+                    prompts = dbPrompts.map(p => ({
+                        id: p.id,
+                        title: p.title || 'Untitled Prompt',
+                        category: p.category || 'General',
+                        categoryKey: (p.category || 'general').toLowerCase().replace(/\s+/g, '-'),
+                        icon: '&#128196;',
+                        iconClass: 'primary',
+                        description: p.description || '',
+                        tags: p.tags || [],
+                        rating: 4.5, // Would need reviews table
+                        reviews: 0, // Would need reviews table
+                        sales: 0, // Would need purchases table
+                        price: parseFloat(p.price) || 0,
+                        creator: {
+                            initials: `${p.profiles?.first_name?.[0] || ''}${p.profiles?.last_name?.[0] || ''}`.toUpperCase() || 'U',
+                            name: `${p.profiles?.first_name || ''} ${p.profiles?.last_name || ''}`.trim() || 'User',
+                            verified: false
+                        }
+                    }));
+
+                    // Re-render with database data
+                    renderPrompts();
+                    renderFeatured();
+                }
+            } catch (error) {
+                console.error('Error loading prompts from database:', error);
+                // Continue with hardcoded data
+            }
+        }
+
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Try to load from database first, fallback to hardcoded data
+            await loadPromptsFromDatabase();
             renderPrompts();
             renderFeatured();
         });

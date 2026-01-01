@@ -575,7 +575,7 @@
       if (window.Security?.RoleValidator) {
         const isOwner = await window.Security.RoleValidator.isOwner();
         if (isOwner) {
-          console.log('Owner access - paywall bypassed');
+          // Owner access - paywall bypassed
           return; // Don't show paywall for owners
         }
       }
@@ -583,7 +583,7 @@
       if (window.Security?.SubscriptionValidator) {
         const subscription = await window.Security.SubscriptionValidator.validate();
         if (subscription.tier === 'enterprise') {
-          console.log('Enterprise tier - paywall bypassed');
+          // Enterprise tier - paywall bypassed
           return; // Don't show paywall for enterprise users
         }
       }
@@ -625,7 +625,7 @@
         );
       }
 
-      console.log(`Subscribing to ${tier} plan...`);
+      // Subscribing to plan
 
       // Show loading state
       const btn = this.modal.querySelector(`[data-tier="${tier}"] .plan-btn`);

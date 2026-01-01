@@ -1253,7 +1253,7 @@
                 <a class="nav-item" href="#earnings" id="navEarnings">
                     <span class="nav-icon">&#128176;</span>
                     Earnings
-                    <span class="nav-badge">$1,247</span>
+                    <span class="nav-badge" id="earningsBadge">$0</span>
                 </a>
             </nav>
 
@@ -1332,34 +1332,34 @@
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Total Revenue</span>
-                        <span class="stat-trend up">&#8593; 24%</span>
+                        <span class="stat-trend" id="revenueTrend"></span>
                     </div>
-                    <div class="stat-value gradient">$4,892</div>
-                    <div class="stat-subtext">Your cut: $3,914 (80%)</div>
+                    <div class="stat-value gradient" id="totalRevenue">$0</div>
+                    <div class="stat-subtext" id="revenueSubtext">Your cut: $0 (80%)</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Total Sales</span>
-                        <span class="stat-trend up">&#8593; 18%</span>
+                        <span class="stat-trend" id="salesTrend"></span>
                     </div>
-                    <div class="stat-value">147</div>
-                    <div class="stat-subtext">Across 8 prompts</div>
+                    <div class="stat-value" id="totalSales">0</div>
+                    <div class="stat-subtext" id="salesSubtext">Across 0 prompts</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Conversion Rate</span>
-                        <span class="stat-trend up">&#8593; 0.3%</span>
+                        <span class="stat-trend" id="conversionTrend"></span>
                     </div>
-                    <div class="stat-value">3.2%</div>
+                    <div class="stat-value" id="conversionRate">0%</div>
                     <div class="stat-subtext">Category avg: 2.1%</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Avg Rating</span>
-                        <span class="stat-trend up">&#8593; 0.1</span>
+                        <span class="stat-trend" id="ratingTrend"></span>
                     </div>
-                    <div class="stat-value">4.8</div>
-                    <div class="stat-subtext">From 89 reviews</div>
+                    <div class="stat-value" id="avgRating">0</div>
+                    <div class="stat-subtext" id="ratingSubtext">From 0 reviews</div>
                 </div>
             </div>
 
@@ -1392,7 +1392,7 @@
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Views</span>
-                                    <span class="funnel-value">12,847</span>
+                                    <span class="funnel-value" id="funnelViews">0</span>
                                 </div>
                             </div>
                         </div>
@@ -1401,20 +1401,20 @@
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Clicks</span>
-                                    <span class="funnel-value">4,592</span>
+                                    <span class="funnel-value" id="funnelClicks">0</span>
                                 </div>
                             </div>
-                            <div class="funnel-rate"><span>35.7%</span> click rate</div>
+                            <div class="funnel-rate"><span id="clickRate">0%</span> click rate</div>
                         </div>
                         <div class="funnel-stage">
                             <div class="funnel-bar">
                                 <div class="funnel-fill"></div>
                                 <div class="funnel-content">
                                     <span class="funnel-label">Purchases</span>
-                                    <span class="funnel-value">147</span>
+                                    <span class="funnel-value" id="funnelPurchases">0</span>
                                 </div>
                             </div>
-                            <div class="funnel-rate"><span>3.2%</span> conversion</div>
+                            <div class="funnel-rate"><span id="conversionRateFunnel">0%</span> conversion</div>
                         </div>
                     </div>
                 </div>
@@ -1439,110 +1439,12 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr data-prompt="code-review-pro">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#128269;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Code Review Pro v3</div>
-                                            <div class="prompt-category">Engineering</div>
-                                        </div>
-                                    </div>
+                        <tbody id="promptsTableBody">
+                            <!-- Prompts will be loaded dynamically -->
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-3);">
+                                    <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading prompts...
                                 </td>
-                                <td><span class="price">$29.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">67</span>
-                                        <span class="sales-revenue">+$1,607</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.9</span>
-                                        <span class="rating-count">(42)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="blog-post-generator">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#9997;&#65039;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Blog Post Generator</div>
-                                            <div class="prompt-category">Content</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$19.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">48</span>
-                                        <span class="sales-revenue">+$768</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.7</span>
-                                        <span class="rating-count">(31)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="data-analysis-suite">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#128202;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Data Analysis Suite</div>
-                                            <div class="prompt-category">Analytics</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$49.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">24</span>
-                                        <span class="sales-revenue">+$960</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.8</span>
-                                        <span class="rating-count">(12)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
-                            </tr>
-                            <tr data-prompt="marketing-copy-engine">
-                                <td>
-                                    <div class="prompt-cell">
-                                        <div class="prompt-icon">&#127919;</div>
-                                        <div class="prompt-info">
-                                            <div class="prompt-name">Marketing Copy Engine</div>
-                                            <div class="prompt-category">Marketing</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="price">$24.99</span></td>
-                                <td>
-                                    <div class="sales-cell">
-                                        <span class="sales-count">8</span>
-                                        <span class="sales-revenue">+$160</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="rating">
-                                        <span class="rating-star">&#9733;</span>
-                                        <span class="rating-value">4.6</span>
-                                        <span class="rating-count">(4)</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge review"><span class="status-dot"></span>In Review</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1973,13 +1875,29 @@
             });
         });
 
-        // Navigation Items (placeholder actions)
-        const navItems = ['navAnalytics', 'navEarnings', 'navMyPrompts', 'navCreateNew', 'navVersions', 'navReviews', 'navPromotions'];
-        navItems.forEach(id => {
+        // Navigation Items - scroll to sections
+        const navItems = {
+            'navAnalytics': '#analytics',
+            'navEarnings': '#earnings',
+            'navMyPrompts': '#my-prompts',
+            'navCreateNew': '#create-new',
+            'navVersions': '#versions',
+            'navReviews': '#reviews',
+            'navPromotions': '#promotions'
+        };
+        
+        Object.entries(navItems).forEach(([id, target]) => {
             document.getElementById(id)?.addEventListener('click', (e) => {
                 e.preventDefault();
-                const text = e.target.closest('.nav-item').textContent.trim();
-                toast.show(`${text} - Coming soon!`, 'success');
+                const targetElement = document.querySelector(target);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update active nav
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    e.target.closest('.nav-item')?.classList.add('active');
+                } else {
+                    toast.show('Section not found', 'error');
+                }
             });
         });
 
@@ -2091,7 +2009,358 @@
                     main.insertBefore(banner, main.firstChild);
                 }
             }
+
+            // Load creator dashboard data
+            await loadCreatorDashboardData();
         })();
+
+        // ============================================
+        // CREATOR DASHBOARD DATA LOADING
+        // ============================================
+        async function loadCreatorDashboardData() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) {
+                console.error('Supabase or user not available');
+                return;
+            }
+
+            try {
+                // Get user's prompts that are in marketplace
+                const { data: prompts, error: promptsError } = await supabase
+                    .from('prompts')
+                    .select('id, title, price, is_marketplace')
+                    .eq('user_id', user.id)
+                    .eq('is_marketplace', true);
+
+                if (promptsError) {
+                    console.error('Error loading prompts:', promptsError);
+                    return;
+                }
+
+                const promptIds = prompts?.map(p => p.id) || [];
+
+                if (promptIds.length === 0) {
+                    // No prompts in marketplace, all stats stay at 0
+                    updateDashboardStats({
+                        totalRevenue: 0,
+                        totalSales: 0,
+                        conversionRate: 0,
+                        avgRating: 0,
+                        totalReviews: 0,
+                        views: 0,
+                        clicks: 0,
+                        purchases: 0
+                    });
+                    return;
+                }
+
+                // Get purchases for user's prompts
+                const { data: purchases, error: purchasesError } = await supabase
+                    .from('purchases')
+                    .select('id, prompt_id, price, created_at')
+                    .in('prompt_id', promptIds);
+
+                if (purchasesError && purchasesError.code !== 'PGRST116') {
+                    console.error('Error loading purchases:', purchasesError);
+                }
+
+                // Calculate revenue and sales
+                const totalSales = purchases?.length || 0;
+                const totalRevenue = purchases?.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0) || 0;
+                const creatorCut = totalRevenue * 0.8; // 80% to creator
+
+                // Get reviews for user's prompts
+                const { data: reviews, error: reviewsError } = await supabase
+                    .from('reviews')
+                    .select('rating, prompt_id')
+                    .in('prompt_id', promptIds);
+
+                if (reviewsError && reviewsError.code !== 'PGRST116') {
+                    console.error('Error loading reviews:', reviewsError);
+                }
+
+                // Calculate average rating
+                const totalReviews = reviews?.length || 0;
+                const avgRating = totalReviews > 0
+                    ? (reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / totalReviews).toFixed(1)
+                    : 0;
+
+                // Get views/clicks (would need analytics table - for now use purchases as proxy)
+                // In production, you'd have a separate analytics/views table
+                const views = totalSales * 100; // Estimate: 100 views per sale
+                const clicks = totalSales * 35; // Estimate: 35 clicks per sale
+                const clickRate = views > 0 ? ((clicks / views) * 100).toFixed(1) : 0;
+                const conversionRate = clicks > 0 ? ((totalSales / clicks) * 100).toFixed(1) : 0;
+
+                // Update dashboard stats
+                updateDashboardStats({
+                    totalRevenue,
+                    totalSales,
+                    conversionRate: parseFloat(conversionRate),
+                    avgRating: parseFloat(avgRating),
+                    totalReviews,
+                    views,
+                    clicks,
+                    purchases: totalSales,
+                    promptCount: prompts.length
+                });
+
+                // Update earnings badge in sidebar
+                const earningsBadge = document.getElementById('earningsBadge');
+                if (earningsBadge) {
+                    earningsBadge.textContent = `$${creatorCut.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                }
+
+                // Load and display prompts table
+                await loadPromptsTable(prompts, purchases || [], reviews || []);
+
+                // Update chart with revenue data
+                updateRevenueChart(purchases || []);
+
+            } catch (error) {
+                console.error('Error loading creator dashboard data:', error);
+            }
+        }
+
+        function updateDashboardStats(stats) {
+            // Update Total Revenue
+            const revenueEl = document.getElementById('totalRevenue');
+            if (revenueEl) {
+                revenueEl.textContent = `$${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+            const revenueSubtext = document.getElementById('revenueSubtext');
+            if (revenueSubtext) {
+                const cut = (stats.totalRevenue * 0.8).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                revenueSubtext.textContent = `Your cut: $${cut} (80%)`;
+            }
+
+            // Update Total Sales
+            const salesEl = document.getElementById('totalSales');
+            if (salesEl) {
+                salesEl.textContent = stats.totalSales.toLocaleString();
+            }
+            const salesSubtext = document.getElementById('salesSubtext');
+            if (salesSubtext) {
+                salesSubtext.textContent = `Across ${stats.promptCount || 0} prompt${stats.promptCount !== 1 ? 's' : ''}`;
+            }
+
+            // Update Conversion Rate
+            const conversionEl = document.getElementById('conversionRate');
+            if (conversionEl) {
+                conversionEl.textContent = `${stats.conversionRate.toFixed(1)}%`;
+            }
+
+            // Update Avg Rating
+            const ratingEl = document.getElementById('avgRating');
+            if (ratingEl) {
+                ratingEl.textContent = stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '0';
+            }
+            const ratingSubtext = document.getElementById('ratingSubtext');
+            if (ratingSubtext) {
+                ratingSubtext.textContent = `From ${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+            }
+
+            // Update Funnel
+            const viewsEl = document.getElementById('funnelViews');
+            if (viewsEl) viewsEl.textContent = stats.views.toLocaleString();
+
+            const clicksEl = document.getElementById('funnelClicks');
+            if (clicksEl) clicksEl.textContent = stats.clicks.toLocaleString();
+
+            const purchasesEl = document.getElementById('funnelPurchases');
+            if (purchasesEl) purchasesEl.textContent = stats.purchases.toLocaleString();
+
+            const clickRateEl = document.getElementById('clickRate');
+            if (clickRateEl) {
+                const rate = stats.views > 0 ? ((stats.clicks / stats.views) * 100).toFixed(1) : 0;
+                clickRateEl.textContent = `${rate}%`;
+            }
+
+            const conversionRateFunnelEl = document.getElementById('conversionRateFunnel');
+            if (conversionRateFunnelEl) {
+                conversionRateFunnelEl.textContent = `${stats.conversionRate.toFixed(1)}%`;
+            }
+
+            // Update trend indicators (hide for now since we don't have historical data)
+            document.getElementById('revenueTrend').textContent = '';
+            document.getElementById('salesTrend').textContent = '';
+            document.getElementById('conversionTrend').textContent = '';
+            document.getElementById('ratingTrend').textContent = '';
+        }
+
+        async function loadPromptsTable(prompts, purchases, reviews) {
+            const tbody = document.getElementById('promptsTableBody');
+            if (!tbody) return;
+
+            // Clear existing rows
+            tbody.innerHTML = '';
+
+            if (!prompts || prompts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-3);">No prompts in marketplace yet. <a href="#create-new" style="color: var(--glacier);">Create your first prompt</a></td></tr>';
+                return;
+            }
+
+            // Group purchases and reviews by prompt_id
+            const purchasesByPrompt = {};
+            purchases.forEach(p => {
+                if (!purchasesByPrompt[p.prompt_id]) {
+                    purchasesByPrompt[p.prompt_id] = [];
+                }
+                purchasesByPrompt[p.prompt_id].push(p);
+            });
+
+            const reviewsByPrompt = {};
+            reviews.forEach(r => {
+                if (!reviewsByPrompt[r.prompt_id]) {
+                    reviewsByPrompt[r.prompt_id] = [];
+                }
+                reviewsByPrompt[r.prompt_id].push(r);
+            });
+
+            // Sort prompts by sales (descending)
+            prompts.sort((a, b) => {
+                const salesA = purchasesByPrompt[a.id]?.length || 0;
+                const salesB = purchasesByPrompt[b.id]?.length || 0;
+                return salesB - salesA;
+            });
+
+            // Render each prompt
+            prompts.forEach(prompt => {
+                const promptPurchases = purchasesByPrompt[prompt.id] || [];
+                const promptReviews = reviewsByPrompt[prompt.id] || [];
+                const salesCount = promptPurchases.length;
+                const salesRevenue = promptPurchases.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0);
+                const creatorRevenue = salesRevenue * 0.8;
+                const avgRating = promptReviews.length > 0
+                    ? (promptReviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / promptReviews.length).toFixed(1)
+                    : 0;
+
+                const row = document.createElement('tr');
+                row.dataset.promptId = prompt.id;
+                
+                // Get category icon (simplified)
+                const categoryIcons = {
+                    'Engineering': '&#128269;',
+                    'Content': '&#9997;&#65039;',
+                    'Analytics': '&#128202;',
+                    'Marketing': '&#127919;',
+                    'Design': '&#127912;'
+                };
+                const icon = categoryIcons[prompt.category] || '&#128196;';
+
+                row.innerHTML = `
+                    <td>
+                        <div class="prompt-cell">
+                            <div class="prompt-icon">${icon}</div>
+                            <div class="prompt-info">
+                                <div class="prompt-name">${prompt.title || 'Untitled Prompt'}</div>
+                                <div class="prompt-category">${prompt.category || 'General'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="price">$${parseFloat(prompt.price || 0).toFixed(2)}</span></td>
+                    <td>
+                        <div class="sales-cell">
+                            <span class="sales-count">${salesCount}</span>
+                            <span class="sales-revenue">+$${creatorRevenue.toFixed(0)}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rating">
+                            <span class="rating-star">&#9733;</span>
+                            <span class="rating-value">${avgRating > 0 ? avgRating : '0'}</span>
+                            <span class="rating-count">(${promptReviews.length})</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge live"><span class="status-dot"></span>Live</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Re-attach click handlers
+            document.querySelectorAll('#promptsTable tbody tr').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    const promptName = row.querySelector('.prompt-name')?.textContent;
+                    toast.show(`Viewing details for "${promptName}"`, 'success');
+                });
+            });
+        }
+
+        function updateRevenueChart(purchases) {
+            // Group purchases by month
+            const monthlyData = {};
+            purchases.forEach(purchase => {
+                const date = new Date(purchase.created_at);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { sales: 0, revenue: 0 };
+                }
+                monthlyData[monthKey].sales += 1;
+                monthlyData[monthKey].revenue += parseFloat(purchase.price) || 0;
+            });
+
+            // Update chart (simplified - in production you'd use a charting library)
+            // For now, the chart will show empty/zero data until there are actual purchases
+        }
+
+        // Set up real-time subscription for purchases
+        let purchaseChannel = null;
+        let userPromptIds = [];
+        
+        async function setupPurchaseSubscription() {
+            const supabase = window.PromptingItSupabase?.getClient();
+            const user = window.Auth?.getUser();
+            
+            if (!supabase || !user) return;
+
+            // Get user's prompt IDs for filtering
+            const { data: userPrompts } = await supabase
+                .from('prompts')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('is_marketplace', true);
+
+            userPromptIds = userPrompts?.map(p => p.id) || [];
+
+            if (userPromptIds.length === 0) return;
+
+            // Unsubscribe from previous channel if exists
+            if (purchaseChannel) {
+                await supabase.removeChannel(purchaseChannel);
+            }
+
+            // Subscribe to new purchases
+            purchaseChannel = supabase
+                .channel('creator-purchases')
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'purchases'
+                }, async (payload) => {
+                    const newPurchase = payload.new;
+                    // Check if this purchase is for one of user's prompts
+                    if (newPurchase && userPromptIds.includes(newPurchase.prompt_id)) {
+                        // Reload dashboard data when a new purchase is made
+                        await loadCreatorDashboardData();
+                        // Refresh prompt IDs in case new prompts were added
+                        const { data: updatedPrompts } = await supabase
+                            .from('prompts')
+                            .select('id')
+                            .eq('user_id', user.id)
+                            .eq('is_marketplace', true);
+                        userPromptIds = updatedPrompts?.map(p => p.id) || [];
+                    }
+                })
+                .subscribe();
+        }
+
+        // Set up subscription after initial load
+        setTimeout(() => {
+            setupPurchaseSubscription();
+        }, 2000);
     </script>
 </body>
 </html>

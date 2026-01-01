@@ -385,32 +385,40 @@ Current issue: {{issue_description}}"></textarea>
                     }
                 });
 
-                // Generate mock response
-                const response = `Hello! Thank you for reaching out to our support team.
+                // Call actual AI API (using OpenAI as example - can be extended to support multiple providers)
+                try {
+                    const user = window.Auth?.getUser();
+                    if (!user) {
+                        throw new Error('Please sign in to use the playground');
+                    }
 
-I can see you're a Pro subscriber, John Smith. I'd be happy to help you with your billing question about the invoice.
+                    // Get selected model
+                    const selectedModel = document.querySelector('.model-tab.active')?.dataset.model || 'gpt-4';
+                    
+                    // For now, show a message that API integration is needed
+                    // In production, this would call the actual AI provider API
+                    const response = `[API Integration Required]
 
-Here's what I can help you with:
+To enable live prompt testing, integrate with your AI provider API (OpenAI, Anthropic, etc.).
 
-1. **View your current invoice** - I can pull up the details of your most recent invoice
-2. **Explain charges** - Break down what each line item means
-3. **Payment history** - Show your payment history and receipts
-4. **Update billing info** - Help you update your payment method
+The playground is ready to accept API calls. Configure your API keys in settings and connect to your preferred provider.
 
-Could you please let me know which specific aspect of your invoice you'd like me to help you with?
+Prompt prepared:
+${output.substring(0, 200)}${output.length > 200 ? '...' : ''}`;
 
-If this is about a discrepancy or unexpected charge, please share the invoice number and I'll investigate right away.
+                    document.getElementById('outputResult').textContent = response;
 
-Best regards,
-Support Agent`;
-
-                document.getElementById('outputResult').textContent = response;
-
-                // Update metrics
-                document.getElementById('metricLatency').textContent = '847ms';
-                document.getElementById('metricTokens').textContent = '245 / 312';
-                document.getElementById('metricCost').textContent = '$0.0087';
-                document.getElementById('metricStatus').textContent = 'Success';
+                    // Update metrics (would be real metrics from API response)
+                    document.getElementById('metricLatency').textContent = 'N/A';
+                    document.getElementById('metricTokens').textContent = '0 / 0';
+                    document.getElementById('metricCost').textContent = '$0.00';
+                    document.getElementById('metricStatus').textContent = 'API Not Configured';
+                    document.getElementById('metricStatus').style.color = 'var(--warning)';
+                } catch (error) {
+                    document.getElementById('outputResult').textContent = `Error: ${error.message}`;
+                    document.getElementById('metricStatus').textContent = 'Error';
+                    document.getElementById('metricStatus').style.color = 'var(--error)';
+                }
             }, 1500);
         }
 

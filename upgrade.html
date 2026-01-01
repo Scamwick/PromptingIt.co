@@ -687,18 +687,60 @@
                     btn.textContent = 'Processing...';
                     btn.disabled = true;
 
-                    // In production, this would integrate with Stripe Checkout
-                    // For demo, simulate processing
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    // Update subscription in database
+                    const supabase = window.PromptingItSupabase?.getClient();
+                    const user = window.Auth?.getUser();
+                    
+                    if (!supabase || !user) {
+                        alert('Authentication required. Please sign in and try again.');
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        return;
+                    }
 
-                    // Show success message
-                    alert(`Thank you! Your ${tier} subscription has been activated.\n\nIn production, this would redirect to Stripe Checkout.`);
+                    try {
+                        // Update subscription tier
+                        const { error: subError } = await supabase
+                            .from('subscriptions')
+                            .update({
+                                tier: tier,
+                                status: 'active',
+                                prompts_limit: tier === 'enterprise' ? -1 : tier === 'pro' ? 1000 : 25,
+                                current_period_start: new Date().toISOString(),
+                                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                            })
+                            .eq('user_id', user.id);
 
-                    btn.textContent = originalText;
-                    btn.disabled = false;
+                        if (subError) throw subError;
 
-                    // Redirect to dashboard
-                    window.location.href = 'creator-dashboard.html?subscription=success';
+                        // Log subscription change
+                        if (window.Security?.AuditLog) {
+                            await window.Security.AuditLog.logSubscriptionChange('free', tier);
+                        }
+
+                        // Reload auth to get updated subscription
+                        await window.Auth?.init();
+
+                        // Show success message
+                        const successMsg = document.createElement('div');
+                        successMsg.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: var(--emerald); color: white; padding: 16px 24px;
+                            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        `;
+                        successMsg.textContent = `Successfully upgraded to ${tier.charAt(0).toUpperCase() + tier.slice(1)}!`;
+                        document.body.appendChild(successMsg);
+
+                        setTimeout(() => {
+                            successMsg.remove();
+                            window.location.href = 'creator-dashboard.html?subscription=success';
+                        }, 2000);
+                    } catch (error) {
+                        console.error('Error upgrading subscription:', error);
+                        alert('Failed to upgrade subscription. Please try again or contact support.');
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }
                 });
             });
 
