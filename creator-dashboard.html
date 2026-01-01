@@ -1730,7 +1730,13 @@
 
             show(title, content, confirmText = 'Confirm', onConfirm = null) {
                 this.title.textContent = title;
-                this.body.innerHTML = content;
+                // Use textContent for user-provided content to prevent XSS
+                // Only use innerHTML for trusted, pre-defined content
+                if (typeof content === 'object' && content.trusted) {
+                    this.body.innerHTML = content.html;
+                } else {
+                    this.body.textContent = content;
+                }
                 this.confirmBtn.textContent = confirmText;
                 this.onConfirm = onConfirm;
                 this.overlay.classList.add('show');
