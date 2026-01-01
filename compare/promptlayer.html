@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PromptingIt vs PromptLayer - Feature Comparison | PromptingIt</title>
+      <meta name="description" content="Compare PromptingIt and PromptLayer. See why enterprises choose PromptingIt for prompt management, version control, and AI workflow optimization.">
+      <link rel="stylesheet" href="../styles.css">
+      <style>
+                :root {
+                              --bg-primary: #0a0a0f;
+                              --bg-secondary: #12121a;
+                              --bg-tertiary: #1a1a25;
+                              --accent-orange: #ff6b35;
+                              --accent-orange-glow: rgba(255, 107, 53, 0.3);
+                              --text-primary: #ffffff;
+                              --text-secondary: #a0a0b0;
+                              --text-muted: #6b6b7b;
+                              --border-color: #2a2a3a;
+                              --success: #22c55e;
+                              --warning: #f59e0b;
+                }
+
+                * {
+                              margin: 0;
+                              padding: 0;
+                              box-sizing: border-box;
+                }
+
+                body {
+                              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                              background: var(--bg-primary);
+                              color: var(--text-primary);
+                              line-height: 1.6;
+                }
+
+                .container {
+                              max-width: 1200px;
+                              margin: 0 auto;
+                              padding: 0 24px;
+                }
+
+                /* Navigation */
+                .nav {
+                              position: fixed;
+                              top: 0;
+                              left: 0;
+                              right: 0;
+                              z-index: 100;
+                              padding: 16px 0;
+                              background: rgba(10, 10, 15, 0.9);
+                              backdrop-filter: blur(20px);
+                              border-bottom: 1px solid var(--border-color);
+                }
+
+                .nav-content {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                }
+
+                .logo {
+                              font-size: 1.5rem;
+                              font-weight: 700;
+                              color: var(--text-primary);
+                              text-decoration: none;
+                }
+
+                .logo span {
+                              color: var(--accent-orange);
+                }
+
+                .nav-links {
+                              display: flex;
+                              gap: 32px;
+                              list-style: none;
+                }
+
+                .nav-links a {
+                              color: var(--text-secondary);
+                              text-decoration: none;
+                              font-size: 0.9rem;
+                              transition: color 0.2s;
+                }
+
+                .nav-links a:hover {
+                              color: var(--text-primary);
+                }
+
+                .nav-cta {
+                              display: flex;
+                              gap: 12px;
+                }
+
+                .btn {
+                              padding: 10px 20px;
+                              border-radius: 8px;
+                              font-size: 0.9rem;
+                              font-weight: 500;
+                              cursor: pointer;
+                              transition: all 0.2s;
+                              text-decoration: none;
+                }
+
+                .btn-secondary {
+                              background: transparent;
+                              border: 1px solid var(--border-color);
+                              color: var(--text-primary);
+                }
+
+                .btn-secondary:hover {
+                              background: var(--bg-tertiary);
+                }
+
+                .btn-primary {
+                              background: var(--accent-orange);
+                              border: none;
+                              color: white;
+                }
+
+                .btn-primary:hover {
+                              box-shadow: 0 0 30px var(--accent-orange-glow);
+                              transform: translateY(-1px);
+                }
+
+                /* Hero Section */
+                .hero {
+                              padding: 160px 0 80px;
+                              text-align: center;
+                              position: relative;
+                              overflow: hidden;
+                }
+
+                .hero::before {
+                              content: '';
+                              position: absolute;
+                              top: 0;
+                              left: 50%;
+                              transform: translateX(-50%);
+                              width: 800px;
+                              height: 600px;
+                              background: radial-gradient(ellipse, var(--accent-orange-glow) 0%, transparent 70%);
+                              opacity: 0.3;
+                              pointer-events: none;
+                }
+
+                .comparison-badge {
+                              display: inline-flex;
+                              align-items: center;
+                              gap: 8px;
+                              padding: 8px 16px;
+                              background: var(--bg-tertiary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 100px;
+                              font-size: 0.85rem;
+                              color: var(--text-secondary);
+                              margin-bottom: 24px;
+                }
+
+                .hero h1 {
+                              font-size: 3.5rem;
+                              font-weight: 700;
+                              line-height: 1.1;
+                              margin-bottom: 24px;
+                              background: linear-gradient(135deg, #ffffff 0%, #a0a0b0 100%);
+                              -webkit-background-clip: text;
+                              -webkit-text-fill-color: transparent;
+                              background-clip: text;
+                }
+
+                .hero h1 span {
+                              background: linear-gradient(135deg, var(--accent-orange) 0%, #ff8f6b 100%);
+                              -webkit-background-clip: text;
+                              -webkit-text-fill-color: transparent;
+                              background-clip: text;
+                }
+
+                .hero p {
+                              font-size: 1.25rem;
+                              color: var(--text-secondary);
+                              max-width: 600px;
+                              margin: 0 auto 40px;
+                }
+
+                /* Quick Comparison Cards */
+                .quick-compare {
+                              padding: 60px 0;
+                }
+
+                .quick-compare h2 {
+                              text-align: center;
+                              font-size: 2rem;
+                              margin-bottom: 48px;
+                }
+
+                .compare-grid {
+                              display: grid;
+                              grid-template-columns: repeat(3, 1fr);
+                              gap: 24px;
+                }
+
+                .compare-card {
+                              background: var(--bg-secondary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 16px;
+                              padding: 32px;
+                              text-align: center;
+                }
+
+                .compare-card.highlight {
+                              border-color: var(--accent-orange);
+                              background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, var(--bg-secondary) 100%);
+                }
+
+                .compare-card h3 {
+                              font-size: 1.25rem;
+                              margin-bottom: 8px;
+                }
+
+                .compare-card .metric {
+                              font-size: 3rem;
+                              font-weight: 700;
+                              color: var(--accent-orange);
+                              margin: 16px 0;
+                }
+
+                .compare-card p {
+                              color: var(--text-secondary);
+                              font-size: 0.9rem;
+                }
+
+                /* Detailed Comparison Table */
+                .comparison-section {
+                              padding: 80px 0;
+                }
+
+                .comparison-section h2 {
+                              text-align: center;
+                              font-size: 2.5rem;
+                              margin-bottom: 16px;
+                }
+
+                .comparison-section > p {
+                              text-align: center;
+                              color: var(--text-secondary);
+                              margin-bottom: 48px;
+                              max-width: 600px;
+                              margin-left: auto;
+                              margin-right: auto;
+                }
+
+                .comparison-table {
+                              width: 100%;
+                              border-collapse: collapse;
+                              background: var(--bg-secondary);
+                              border-radius: 16px;
+                              overflow: hidden;
+                              border: 1px solid var(--border-color);
+                }
+
+                .comparison-table thead {
+                              background: var(--bg-tertiary);
+                }
+
+                .comparison-table th {
+                              padding: 20px 24px;
+                              text-align: left;
+                              font-weight: 600;
+                              font-size: 1rem;
+                              border-bottom: 1px solid var(--border-color);
+                }
+
+                .comparison-table th:nth-child(2) {
+                              color: var(--accent-orange);
+                }
+
+                .comparison-table td {
+                              padding: 16px 24px;
+                              border-bottom: 1px solid var(--border-color);
+                              vertical-align: top;
+                }
+
+                .comparison-table tr:last-child td {
+                              border-bottom: none;
+                }
+
+                .comparison-table .feature-name {
+                              font-weight: 500;
+                }
+
+                .comparison-table .feature-desc {
+                              color: var(--text-muted);
+                              font-size: 0.85rem;
+                              margin-top: 4px;
+                }
+
+                .check {
+                              color: var(--success);
+                              font-size: 1.25rem;
+                }
+
+                .partial {
+                              color: var(--warning);
+                              font-size: 0.85rem;
+                }
+
+                .cross {
+                              color: var(--text-muted);
+                              font-size: 1.25rem;
+                }
+
+                /* Key Differentiators */
+                .differentiators {
+                              padding: 80px 0;
+                              background: var(--bg-secondary);
+                }
+
+                .differentiators h2 {
+                              text-align: center;
+                              font-size: 2.5rem;
+                              margin-bottom: 48px;
+                }
+
+                .diff-grid {
+                              display: grid;
+                              grid-template-columns: repeat(2, 1fr);
+                              gap: 32px;
+                }
+
+                .diff-card {
+                              background: var(--bg-primary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 16px;
+                              padding: 32px;
+                }
+
+                .diff-card .icon {
+                              width: 48px;
+                              height: 48px;
+                              background: linear-gradient(135deg, var(--accent-orange) 0%, #ff8f6b 100%);
+                              border-radius: 12px;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 1.5rem;
+                              margin-bottom: 20px;
+                }
+
+                .diff-card h3 {
+                              font-size: 1.25rem;
+                              margin-bottom: 12px;
+                }
+
+                .diff-card p {
+                              color: var(--text-secondary);
+                              font-size: 0.95rem;
+                }
+
+                /* Migration Section */
+                .migration {
+                              padding: 80px 0;
+                }
+
+                .migration h2 {
+                              text-align: center;
+                              font-size: 2.5rem;
+                              margin-bottom: 16px;
+                }
+
+                .migration > p {
+                              text-align: center;
+                              color: var(--text-secondary);
+                              margin-bottom: 48px;
+                }
+
+                .migration-steps {
+                              display: flex;
+                              gap: 24px;
+                              justify-content: center;
+                }
+
+                .migration-step {
+                              background: var(--bg-secondary);
+                              border: 1px solid var(--border-color);
+                              border-radius: 16px;
+                              padding: 32px;
+                              text-align: center;
+                              flex: 1;
+                              max-width: 280px;
+                }
+
+                .migration-step .step-num {
+                              width: 40px;
+                              height: 40px;
+                              background: var(--accent-orange);
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-weight: 700;
+                              margin: 0 auto 16px;
+                }
+
+                .migration-step h3 {
+                              font-size: 1.1rem;
+                              margin-bottom: 8px;
+                }
+
+                .migration-step p {
+                              color: var(--text-secondary);
+                              font-size: 0.9rem;
+                }
+
+                /* CTA Section */
+                .cta {
+                              padding: 100px 0;
+                              text-align: center;
+                              background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+                }
+
+                .cta h2 {
+                              font-size: 2.5rem;
+                              margin-bottom: 16px;
+                }
+
+                .cta p {
+                              color: var(--text-secondary);
+                              font-size: 1.1rem;
+                              margin-bottom: 32px;
+                }
+
+                .cta-buttons {
+                              display: flex;
+                              gap: 16px;
+                              justify-content: center;
+                }
+
+                .btn-large {
+                              padding: 16px 32px;
+                              font-size: 1rem;
+                }
+
+                /* Footer */
+                footer {
+                              padding: 48px 0;
+                              border-top: 1px solid var(--border-color);
+                              text-align: center;
+                              color: var(--text-muted);
+                              font-size: 0.9rem;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                              .hero h1 {
+                                                font-size: 2.5rem;
+                              }
+
+                              .compare-grid {
+                                                grid-template-columns: 1fr;
+                              }
+
+                              .diff-grid {
+                                                grid-template-columns: 1fr;
+                              }
+
+                              .migration-steps {
+                                                flex-direction: column;
+                                                align-items: center;
+                              }
+
+                              .nav-links {
+                                                display: none;
+                              }
+                }
+            </style>
+  </head>
+  <body>
+        <!-- Navigation -->
+        <nav class="nav">
+                  <div class="container nav-content">
+                                <a href="../index.html" class="logo">Prompting<span>It</span></a>a>
+                              <ul class="nav-links">
+                                              <li><a href="../index.html#features">Features</a>a></li>
+                                              <li><a href="../index.html#pricing">Pricing</a>a></li>
+                                              <li><a href="./langsmith.html">vs LangSmith</a>a></li>
+                                              <li><a href="./promptlayer.html">vs PromptLayer</a>a></li>
+                              </ul>ul>
+                              <div class="nav-cta">
+                                              <a href="#" class="btn btn-secondary">Log In</a>a>
+                                              <a href="#" class="btn btn-primary">Start Free Trial</a>a>
+                              </div>div>
+                  </div>div>
+        </nav>nav>
+  
+      <!-- Hero -->
+      <section class="hero">
+              <div class="container">
+                          <div class="comparison-badge">
+                                          <span>⚔️</span>
+                                          <span>Product Comparison</span>
+                          </div>div>
+                          <h1>PromptingIt vs <span>PromptLayer</span></h1>
+                          <p>Both platforms offer prompt management, but PromptingIt delivers enterprise-grade features with superior developer experience and unlimited scalability.</p>
+                          <div class="cta-buttons">
+                                          <a href="#" class="btn btn-primary btn-large">Start Free Trial</a>a>
+                                          <a href="#comparison" class="btn btn-secondary btn-large">See Comparison</a>a>
+                          </div>div>
+              </div>div>
+      </section>section>
+  
+      <!-- Quick Comparison -->
+      <section class="quick-compare">
+              <div class="container">
+                          <h2>At a Glance</h2>
+                          <div class="compare-grid">
+                                          <div class="compare-card">
+                                                              <h3>API Latency</h3>
+                                                              <div class="metric">3x</div>div>
+                                                              <p>Faster response times with edge deployment and smart caching</p>
+                                          </div>div>
+                                          <div class="compare-card highlight">
+                                                              <h3>Enterprise Features</h3>
+                                                              <div class="metric">15+</div>div>
+                                                              <p>Additional enterprise capabilities including SSO, audit logs, and compliance</p>
+                                          </div>div>
+                                          <div class="compare-card">
+                                                              <h3>Cost Savings</h3>
+                                                              <div class="metric">40%</div>div>
+                                                              <p>Lower total cost of ownership with intelligent caching and optimization</p>
+                                          </div>div>
+                          </div>div>
+              </div>div>
+      </section>section>
+  
+      <!-- Detailed Comparison -->
+      <section class="comparison-section" id="comparison">
+              <div class="container">
+                          <h2>Feature Comparison</h2>
+                          <p>A detailed look at how PromptingIt and PromptLayer stack up across key capabilities.</p>
+                          
+                          <table class="comparison-table">
+                                          <thead>
+                                                                <tr>
+                                                                                          <th>Feature</th>
+                                                                  <th>PromptingIt</th>
+                                                                  <th>PromptLayer</th>
+                                                                </tr>
+                                          </thead>
+                                          <tbody>
+                                                                <tr>
+                                                                                          <td>
+                                                                                                                        <div class="feature-name">Prompt Version Control</div>div>
+                                                                                                                        <div class="feature-desc">Track changes with full history</div>div>
+                                                                                            </td>
+                                                                                          <td><span class="check">✓</span> Git-like branching & merging</td>
+                                                  <td><span class="check">✓</span> Basic versioning</td>
+                                                                </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Prompt Registry</div>div>
+                                                                                                      <div class="feature-desc">Central prompt management</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Enterprise registry with namespacing</td>td>
+                                                                        <td><span class="check">✓</span>span> Prompt templates</td>td>
+                                              </tr>
+                                                                <tr>
+                                                                                          <td>
+                                                                                                                        <div class="feature-name">A/B Testing</div>div>
+                                                                                                                        <div class="feature-desc">Compare prompt performance</div>div>
+                                                                                            </td>
+                                                                                          <td><span class="check">✓</span>span> Statistical significance & auto-promote</td>
+                                                  <td><span class="partial">Partial</span>span> Manual comparison only</td>
+                                                                </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">LLM Provider Support</div>div>
+                                                                                                      <div class="feature-desc">Multi-provider integrations</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> 15+ providers + custom endpoints</td>td>
+                                                                        <td><span class="check">✓</span>span> OpenAI, Anthropic, Cohere</td>td>
+                                              </tr>
+                                                                <tr>
+                                                                                          <td>
+                                                                                                                        <div class="feature-name">Request Logging</div>div>
+                                                                                                                        <div class="feature-desc">Track all API interactions</div>div>
+                                                                                            </td>
+                                                                                          <td><span class="check">✓</span>span> Unlimited retention with search</td>
+                                                  <td><span class="check">✓</span>span> 30-day retention</td>
+                                                                </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Smart Caching</div>div>
+                                                                                                      <div class="feature-desc">Reduce API costs with caching</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Semantic caching + edge nodes</td>td>
+                                                                        <td><span class="cross">✗</span>span> Not available</td>td>
+                                              </tr>
+                                                                <tr>
+                                                                                          <td>
+                                                                                                                        <div class="feature-name">SSO/SAML</div>div>
+                                                                                                                        <div class="feature-desc">Enterprise authentication</div>div>
+                                                                                            </td>
+                                                                                          <td><span class="check">✓</span>span> Full SSO with all major providers</td>
+                                                  <td><span class="partial">Partial</span>span> Enterprise plan only</td>
+                                                                </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Role-Based Access</div>div>
+                                                                                                      <div class="feature-desc">Granular permissions</div>div>
+                                                                        </td>
+                                                                        <td><span class="check">✓</span>span> Custom roles + policies</td>
+                                                  <td><span class="check">✓</span>span> Predefined roles</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Audit Logging</div>div>
+                                                                                                      <div class="feature-desc">Compliance & security</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Full audit trail with exports</td>
+                                                  <td><span class="partial">Partial</span>span> Basic logging</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Self-Hosted Option</div>div>
+                                                                                                      <div class="feature-desc">On-premise deployment</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Kubernetes + Docker support</td>
+                                                  <td><span class="cross">✗</span>span> Cloud only</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Prompt Playground</div>div>
+                                                                                                      <div class="feature-desc">Interactive testing UI</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Advanced with diff view</td>
+                                                  <td><span class="check">✓</span>span> Basic playground</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Team Collaboration</div>div>
+                                                                                                      <div class="feature-desc">Work together on prompts</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Real-time collaboration + comments</td>
+                                                  <td><span class="check">✓</span>span> Shared workspaces</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">CLI & SDK</div>div>
+                                                                                                      <div class="feature-desc">Developer tools</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Python, Node, Go, Rust SDKs</td>
+                                                  <td><span class="check">✓</span>span> Python SDK</td>
+                                              </tr>
+                                              <tr>
+                                                                        <td>
+                                                                                                      <div class="feature-name">Webhooks & Events</div>div>
+                                                                                                      <div class="feature-desc">Real-time integrations</div>div>
+                                                                        </td>td>
+                                                                        <td><span class="check">✓</span>span> Full event system with retries</td>
+                                                  <td><span class="partial">Partial</span>span> Basic webhooks</td>
+                                              </tr>
+                                          </tbody>tbody>
+                          </table>table>
+              </div>div>
+      </section>section>
+  
+      <!-- Key Differentiators -->
+      <section class="differentiators">
+              <div class="container">
+                          <h2>Why Teams Switch to PromptingIt</h2>
+                          <div class="diff-grid">
+                                          <div class="diff-card">
+                                                              <div class="icon">🚀</div>div>
+                                                              <h3>Superior Performance</h3>
+                                                              <p>Our edge-deployed infrastructure and semantic caching deliver 3x faster response times while reducing API costs by up to 40%.</p>
+                                          </div>div>
+                                          <div class="diff-card">
+                                                              <div class="icon">🔒</div>div>
+                                                              <h3>Enterprise Security</h3>
+                                                              <p>Full SSO/SAML support, granular RBAC, comprehensive audit logging, and SOC 2 Type II compliance. Self-hosted options for maximum control.</p>
+                                          </div>div>
+                                          <div class="diff-card">
+                                                              <div class="icon">🧪</div>div>
+                                                              <h3>Advanced Testing</h3>
+                                                              <p>Built-in A/B testing with statistical significance, automated winner promotion, and comprehensive evaluation frameworks.</p>
+                                          </div>div>
+                                          <div class="diff-card">
+                                                              <div class="icon">🔧</div>div>
+                                                              <h3>Developer Experience</h3>
+                                                              <p>SDKs for Python, Node.js, Go, and Rust. Powerful CLI, Git-like version control, and seamless CI/CD integration.</p>
+                                          </div>div>
+                          </div>div>
+              </div>div>
+      </section>section>
+  
+      <!-- Migration -->
+      <section class="migration">
+              <div class="container">
+                          <h2>Migrate in Minutes</h2>
+                          <p>Switching from PromptLayer? Our migration tool makes it seamless.</p>
+                          <div class="migration-steps">
+                                          <div class="migration-step">
+                                                              <div class="step-num">1</div>div>
+                                                              <h3>Export</h3>
+                                                              <p>Use our CLI to export your prompts and history from PromptLayer</p>
+                                          </div>div>
+                                          <div class="migration-step">
+                                                              <div class="step-num">2</div>div>
+                                                              <h3>Import</h3>
+                                                              <p>One command imports everything with full version history</p>
+                                          </div>div>
+                                          <div class="migration-step">
+                                                              <div class="step-num">3</div>div>
+                                                              <h3>Update</h3>
+                                                              <p>Swap the SDK import - our API is compatible</p>
+                                          </div>div>
+                                          <div class="migration-step">
+                                                              <div class="step-num">4</div>div>
+                                                              <h3>Deploy</h3>
+                                                              <p>You're live with zero downtime migration</p>
+                                          </div>div>
+                          </div>div>
+              </div>div>
+      </section>section>
+  
+      <!-- CTA -->
+      <section class="cta">
+              <div class="container">
+                          <h2>Ready to Upgrade Your Prompt Management?</h2>
+                          <p>Join thousands of teams who've switched to PromptingIt for better performance, security, and developer experience.</p>
+                          <div class="cta-buttons">
+                                          <a href="#" class="btn btn-primary btn-large">Start Free Trial</a>a>
+                                          <a href="#" class="btn btn-secondary btn-large">Schedule Demo</a>a>
+                          </div>div>
+              </div>div>
+      </section>section>
+  
+      <!-- Footer -->
+      <footer>
+                <div class="container">
+                              <p>&copy; 2025 PromptingIt. All rights reserved.</p>p>
+                </div>div>
+      </footer>
+  </body>
+</html>html>
+      </footer></p></p></td></td>
+                                              </tr></td></td>
+                                              </tr></td></td>
+                                              </tr></td></td>
+                                              </tr></td></td>
+                                              </tr></td></td>
+                                              </tr></td>
+                                                                        </td>
+                                              </tr></td>
+                                                                                          </td>
+                                                                </tr>
+                                              </tr></td>
+                                                                                          </td>
+                                                                </tr>
+                                              </tr></td>
+                                                                                          </td>
+                                                                </tr>
+                                              </tr></td>
+                                                                                          </td>
+                                                                </tr>
+                                          </tbody></th></th>
+                                                                </tr>
+                                          </thead></p></p></h1></li></li></span>
+  </body>
+      </style></title>
+  </head>
