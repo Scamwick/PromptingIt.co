@@ -1109,7 +1109,7 @@ curl -X POST <span class="string">'https://api.promptingit.co/v1/execute'</span>
             .eq('tier', 'enterprise')
             .eq('status', 'active');
 
-          if (enterpriseError) console.warn('Error loading enterprise count:', enterpriseError);
+          if (enterpriseError) console.debug('Error loading enterprise count:', enterpriseError.message || 'Unknown error');
 
           // Update metrics with real data
           updateMetricsWithBetaMessaging(
@@ -1206,9 +1206,11 @@ curl -X POST <span class="string">'https://api.promptingit.co/v1/execute'</span>
               created_at: new Date().toISOString(),
               source: 'landing_page'
             })
-            .catch(err => {
-              // Silently fail if table doesn't exist
-              console.debug('Analytics tracking failed (non-critical):', err);
+            .then(({ error }) => {
+              if (error) {
+                // Silently fail if table doesn't exist
+                console.debug('Analytics tracking failed (non-critical):', error.message);
+              }
             });
         }
 

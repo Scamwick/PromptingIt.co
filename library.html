@@ -977,15 +977,15 @@
                     <p>Organize, version, and manage all your AI prompts in one place</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="openImportModal()">
                         <i class="fas fa-upload"></i>
                         Import
                     </button>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="exportPrompts()">
                         <i class="fas fa-download"></i>
                         Export
                     </button>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" onclick="openNewPromptModal()">
                         <i class="fas fa-plus"></i>
                         New Prompt
                     </button>
@@ -1048,7 +1048,7 @@
                 <div class="folder-panel">
                     <div class="folder-header">
                         <span class="folder-title">Folders</span>
-                        <button class="folder-add"><i class="fas fa-plus"></i></button>
+                        <button class="folder-add" onclick="openAddFolderModal()"><i class="fas fa-plus"></i></button>
                     </div>
                     <ul class="folder-tree">
                         <li class="folder-item active">
