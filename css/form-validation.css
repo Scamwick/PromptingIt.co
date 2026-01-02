@@ -1,0 +1,285 @@
+/* ============================================
+   PROMPTING IT - FORM VALIDATION STYLES
+   Accessible form validation with visual feedback
+   ============================================ */
+
+/* Error message styles */
+.form-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.form-error::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+/* Form group states */
+.form-group.has-error .form-input,
+.form-group.has-error .form-select,
+.form-group.has-error .form-textarea,
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.form-group.has-error .form-error {
+    display: flex;
+}
+
+.form-group.has-error .form-label {
+    color: #ef4444;
+}
+
+.form-group.has-success .form-input,
+.form-group.has-success .form-select,
+.form-group.has-success .form-textarea,
+.form-group.has-success input,
+.form-group.has-success select,
+.form-group.has-success textarea {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Success icon indicator */
+.form-group.has-success .form-input,
+.form-group.has-success input[type="text"],
+.form-group.has-success input[type="email"],
+.form-group.has-success input[type="password"],
+.form-group.has-success input[type="tel"],
+.form-group.has-success input[type="url"],
+.form-group.has-success input[type="number"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+    padding-right: 40px;
+}
+
+/* Focus states - enhance accessibility */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.form-group.has-error .form-input:focus,
+.form-group.has-error input:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+.form-group.has-success .form-input:focus,
+.form-group.has-success input:focus {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+/* Required field indicator */
+.form-label.required::after,
+label.required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+/* Disabled state */
+.form-input:disabled,
+.form-select:disabled,
+.form-textarea:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: rgba(128, 128, 128, 0.1);
+}
+
+/* Password strength indicator */
+.password-strength-bar {
+    height: 4px;
+    background: rgba(128, 128, 128, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.password-strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+}
+
+.password-strength.weak .password-strength-fill {
+    width: 25%;
+    background: #ef4444;
+}
+
+.password-strength.fair .password-strength-fill {
+    width: 50%;
+    background: #f59e0b;
+}
+
+.password-strength.good .password-strength-fill {
+    width: 75%;
+    background: #84cc16;
+}
+
+.password-strength.strong .password-strength-fill {
+    width: 100%;
+    background: #22c55e;
+}
+
+.password-strength-text {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    color: var(--text-3, #888);
+}
+
+.password-strength.weak .password-strength-text { color: #ef4444; }
+.password-strength.fair .password-strength-text { color: #f59e0b; }
+.password-strength.good .password-strength-text { color: #84cc16; }
+.password-strength.strong .password-strength-text { color: #22c55e; }
+
+/* Form hint text */
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-3, #888);
+    margin-top: 4px;
+}
+
+/* Inline validation for checkboxes */
+.checkbox-group.has-error label {
+    color: #ef4444;
+}
+
+.checkbox-group.has-error .form-error {
+    display: flex;
+}
+
+/* Character counter */
+.char-counter {
+    font-size: 0.75rem;
+    color: var(--text-3, #888);
+    text-align: right;
+    margin-top: 4px;
+}
+
+.char-counter.warning {
+    color: #f59e0b;
+}
+
+.char-counter.error {
+    color: #ef4444;
+}
+
+/* Loading state for form buttons */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-top: -8px;
+    margin-left: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.btn-loading span {
+    visibility: hidden;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Shake animation for error */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-4px); }
+}
+
+.form-group.shake {
+    animation: shake 0.4s ease-out;
+}
+
+/* Smooth transition for validation states */
+.form-input,
+.form-select,
+.form-textarea,
+input,
+select,
+textarea {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .form-error {
+        color: #f87171;
+    }
+
+    .form-error::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+    }
+
+    .form-group.has-success input {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .form-group.has-error .form-input,
+    .form-group.has-error input {
+        border-width: 3px;
+    }
+
+    .form-error {
+        font-weight: 600;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .form-group.shake {
+        animation: none;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea,
+    input,
+    select,
+    textarea,
+    .password-strength-fill,
+    .btn-loading::after {
+        transition: none;
+        animation: none;
+    }
+}
