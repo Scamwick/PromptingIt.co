@@ -35,6 +35,12 @@
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
 
+      
+    <!-- Toast Notification System -->
+    <link rel="stylesheet" href="css/toast.css">
+    
+    <!-- DOMPurify for XSS Protection -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-M+4C7eYy3L4vGJkT1lY5bA2xkQ5P6k9dYkP6H9A1Qn4+eM0YvF6G3r8eYwKz" crossorigin="anonymous"></script>
   <!-- Particle Background -->
   <canvas id="particles"></canvas>
 
@@ -1267,5 +1273,9 @@ curl -X POST <span class="string">'https://api.promptingit.co/v1/execute'</span>
       });
     })();
   </script>
+  
+    <!-- Production Scripts -->
+    <script src="js/toast.js"></script>
+    <script src="js/sanitize.js"></script>
 </body>
 </html>
