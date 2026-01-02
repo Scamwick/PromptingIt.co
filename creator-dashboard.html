@@ -1240,6 +1240,18 @@
             display: none;
         }
     </style>
+    <!-- Form Validation -->
+    <link rel="stylesheet" href="css/form-validation.css">
+    <script src="js/form-validation.js" defer></script>
+    <!-- Accessibility -->
+    <link rel="stylesheet" href="css/accessibility.css">
+    <script src="js/accessibility.js" defer></script>
+    <!-- Responsive Design -->
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- Error Handling -->
+    <script src="js/error-handler.js" defer></script>
+    <!-- Performance Optimization -->
+    <script src="js/performance.js" defer></script>
 </head>
 <body>
     <div class="app">
@@ -1766,12 +1778,11 @@
 
             show(title, content, confirmText = 'Confirm', onConfirm = null) {
                 this.title.textContent = title;
-                // Use textContent for user-provided content to prevent XSS
-                // Only use innerHTML for trusted, pre-defined content
+                // Use innerHTML with DOMPurify sanitization for safe HTML rendering
                 if (typeof content === 'object' && content.trusted) {
-                    this.body.innerHTML = content.html;
+                    this.body.innerHTML = DOMPurify.sanitize(content.html);
                 } else {
-                    this.body.textContent = content;
+                    this.body.innerHTML = DOMPurify.sanitize(content);
                 }
                 this.confirmBtn.textContent = confirmText;
                 this.onConfirm = onConfirm;

@@ -1,0 +1,497 @@
+/* ============================================
+   PROMPTING IT - RESPONSIVE DESIGN STYLES
+   Mobile-first responsive design utilities
+   ============================================ */
+
+/* Base responsive container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* Responsive grid system */
+.grid {
+    display: grid;
+    gap: 16px;
+}
+
+.grid-cols-1 { grid-template-columns: 1fr; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Flex utilities */
+.flex { display: flex; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+
+/* Responsive visibility */
+.hide-mobile { display: block; }
+.show-mobile { display: none; }
+
+/* ============================================
+   MOBILE STYLES (max-width: 768px)
+   ============================================ */
+@media (max-width: 768px) {
+    /* Visibility */
+    .hide-mobile { display: none !important; }
+    .show-mobile { display: block !important; }
+
+    /* Container */
+    .container {
+        padding: 0 12px;
+    }
+
+    /* Grid adjustments */
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-cols-2-mobile {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Form rows */
+    .form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-row > .form-group {
+        width: 100%;
+    }
+
+    /* Buttons */
+    .btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        border-radius: 8px !important;
+    }
+
+    /* Tables */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modals */
+    .modal-content,
+    .modal-body,
+    .modal {
+        width: 95vw !important;
+        max-width: 100% !important;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        background: var(--surface-1, #09090b);
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar.open ~ .sidebar-overlay,
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* Main content */
+    .main-content,
+    .dashboard-content {
+        margin-left: 0 !important;
+        padding: 16px 12px;
+        width: 100%;
+    }
+
+    /* Mobile menu button */
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 998;
+        width: 44px;
+        height: 44px;
+        background: var(--surface-2, #18181b);
+        border: 1px solid var(--surface-3, #27272a);
+        border-radius: 10px;
+        color: var(--text-1, #fff);
+        cursor: pointer;
+    }
+
+    /* Cards */
+    .card {
+        padding: 16px;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Header adjustments */
+    .header,
+    .page-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .header-title {
+        font-size: 18px;
+    }
+
+    /* Stats cards */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    /* Auth forms */
+    .auth-container {
+        padding: 16px;
+    }
+
+    .auth-card {
+        padding: 24px 20px;
+    }
+
+    .auth-title {
+        font-size: 22px;
+    }
+
+    /* Social buttons */
+    .social-buttons {
+        flex-direction: column;
+    }
+
+    .social-btn {
+        width: 100%;
+    }
+
+    /* Tabs */
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-list {
+        flex-wrap: nowrap;
+        min-width: max-content;
+    }
+
+    /* Charts */
+    .chart-container {
+        height: 250px;
+    }
+
+    /* Navigation */
+    .nav-section {
+        padding: 12px 0;
+    }
+
+    .nav-item {
+        padding: 12px 16px;
+    }
+
+    /* Action buttons in headers */
+    .action-buttons {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .action-buttons .btn {
+        flex: 1;
+    }
+
+    /* Dropdown menus */
+    .dropdown-menu {
+        position: fixed;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        top: auto !important;
+        bottom: 10px !important;
+    }
+
+    /* Search inputs */
+    .search-input,
+    .search-container {
+        width: 100%;
+    }
+
+    /* Prompt cards */
+    .prompt-card {
+        padding: 16px;
+    }
+
+    .prompt-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .prompt-actions .btn {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   TABLET STYLES (768px - 1024px)
+   ============================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 0 24px;
+    }
+
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sidebar {
+        width: 240px;
+    }
+
+    .main-content,
+    .dashboard-content {
+        margin-left: 240px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================
+   DESKTOP STYLES (min-width: 1025px)
+   ============================================ */
+@media (min-width: 1025px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        width: 280px;
+    }
+
+    .main-content,
+    .dashboard-content {
+        margin-left: 280px;
+        padding: 24px 32px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================
+   LARGE DESKTOP STYLES (min-width: 1440px)
+   ============================================ */
+@media (min-width: 1440px) {
+    .container {
+        max-width: 1400px;
+    }
+
+    .main-content,
+    .dashboard-content {
+        padding: 32px 48px;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    button,
+    .btn,
+    [role="button"],
+    a,
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Remove hover effects that don't work on touch */
+    .btn:hover,
+    a:hover,
+    .card:hover {
+        transform: none;
+    }
+
+    /* Better tap highlighting */
+    button,
+    a,
+    [role="button"] {
+        -webkit-tap-highlight-color: rgba(103, 232, 249, 0.2);
+    }
+
+    /* Prevent zoom on input focus (iOS) */
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+/* ============================================
+   LANDSCAPE MOBILE
+   ============================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .auth-container {
+        padding: 8px;
+    }
+
+    .auth-card {
+        padding: 20px;
+    }
+
+    .modal-content {
+        max-height: 95vh;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .sidebar,
+    .mobile-menu-btn,
+    .btn,
+    button,
+    .action-buttons,
+    nav {
+        display: none !important;
+    }
+
+    .main-content,
+    .dashboard-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+}
+
+/* ============================================
+   SAFE AREA INSETS (Notch devices)
+   ============================================ */
+@supports (padding: max(0px)) {
+    .sidebar {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        padding-left: max(12px, env(safe-area-inset-left));
+    }
+
+    .main-content,
+    .dashboard-content {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .mobile-menu-btn {
+        top: max(12px, env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+    }
+}
+
+/* ============================================
+   DARK MODE RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    .sidebar-overlay {
+        background: rgba(0, 0, 0, 0.7);
+    }
+}
