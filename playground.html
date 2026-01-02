@@ -617,6 +617,8 @@ Current issue: {{issue_description}}"></textarea>
                             activity_type: 'playground_run',
                             metadata: {
                                 model: selectedModel,
+                                prompt: prompt,
+                                output: response.content,
                                 inputTokens: response.usage.inputTokens,
                                 outputTokens: response.usage.outputTokens,
                                 cost: cost.totalCost,
@@ -860,11 +862,18 @@ Current issue: {{issue_description}}"></textarea>
                     const metadata = item.metadata || {};
                     const model = metadata.model || 'Unknown';
                     const date = new Date(item.created_at).toLocaleString();
+                    const promptPreview = metadata.prompt
+                        ? metadata.prompt.substring(0, 80).replace(/</g, '&lt;').replace(/>/g, '&gt;') + (metadata.prompt.length > 80 ? '...' : '')
+                        : 'No prompt saved';
                     return `
-                        <div style="padding: 12px; margin-bottom: 8px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--surface-3); cursor: pointer;"
+                        <div style="padding: 12px; margin-bottom: 8px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--surface-3); cursor: pointer; transition: background 0.2s;"
+                             onmouseover="this.style.background='var(--surface-3)'" onmouseout="this.style.background='var(--surface-2)'"
                              onclick="loadFromHistory('${item.id}')">
-                            <div style="font-weight: 600; margin-bottom: 4px;">${model}</div>
-                            <div style="font-size: 11px; color: var(--text-3);">${date}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <div style="font-weight: 600; font-size: 13px;">${model}</div>
+                                <div style="font-size: 11px; color: var(--text-3);">${date}</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-2); line-height: 1.4; word-break: break-word;">${promptPreview}</div>
                         </div>
                     `;
                 }).join('');
@@ -894,11 +903,68 @@ Current issue: {{issue_description}}"></textarea>
             }
         }
 
-        function loadFromHistory(historyId) {
-            showToast('Loading history item...', 'info');
-            // In a full implementation, you would fetch the full prompt from the history
-            // For now, just show a message
-            showToast('Full history loading coming soon', 'info');
+        async function loadFromHistory(historyId) {
+            try {
+                const user = window.Auth?.getUser();
+                const supabase = window.PromptingItSupabase?.getClient();
+
+                if (!supabase || !user) {
+                    showToast('Unable to load history', 'error');
+                    return;
+                }
+
+                // Fetch the specific history item
+                const { data, error } = await supabase
+                    .from('activity_log')
+                    .select('*')
+                    .eq('id', historyId)
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error || !data) {
+                    throw new Error('History item not found');
+                }
+
+                const metadata = data.metadata || {};
+
+                // Load the prompt into the input
+                if (metadata.prompt) {
+                    document.getElementById('promptInput').value = metadata.prompt;
+                }
+
+                // Display the previous output if available
+                if (metadata.output) {
+                    document.getElementById('outputPlaceholder').style.display = 'none';
+                    document.getElementById('outputResult').style.display = 'block';
+                    document.getElementById('outputResult').textContent = metadata.output;
+                    document.getElementById('metricsBar').style.display = 'flex';
+
+                    // Restore metrics
+                    document.getElementById('metricLatency').textContent = metadata.latency ? `${metadata.latency}ms` : 'N/A';
+                    document.getElementById('metricTokens').textContent = `${(metadata.inputTokens || 0).toLocaleString()} / ${(metadata.outputTokens || 0).toLocaleString()}`;
+                    document.getElementById('metricCost').textContent = metadata.cost ? `$${metadata.cost.toFixed(4)}` : '$0.00';
+                    document.getElementById('metricStatus').textContent = 'Restored';
+                    document.getElementById('metricStatus').style.color = 'var(--blue)';
+                }
+
+                // Select the correct model tab if available
+                if (metadata.model) {
+                    const modelTab = document.querySelector(`.model-tab[data-model="${metadata.model}"]`);
+                    if (modelTab) {
+                        document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+                        modelTab.classList.add('active');
+                    }
+                }
+
+                // Close the history modal
+                const modal = document.querySelector('div[style*="position: fixed"][style*="z-index: 10000"]');
+                if (modal) modal.remove();
+
+                showToast('History loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading history item:', error);
+                showToast('Failed to load history item', 'error');
+            }
         }
 
         // Check if coming from library with create action or templates page
