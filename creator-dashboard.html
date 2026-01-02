@@ -1244,6 +1244,15 @@
 <body>
     <div class="app">
         <!-- Mobile Menu Button -->
+        
+    <!-- Toast Notification System -->
+    <link rel="stylesheet" href="css/toast.css">
+    
+    <!-- DOMPurify for XSS Protection -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" crossorigin="anonymous"></script>
+    
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle sidebar">&#9776;</button>
 
         <!-- Sidebar -->
@@ -4401,5 +4410,10 @@
             setupPurchaseSubscription();
         }, 2000);
     </script>
+    
+    <!-- Production Scripts -->
+    <script src="js/toast.js"></script>
+    <script src="js/sanitize.js"></script>
+    <script src="js/export-pdf.js"></script>
 </body>
 </html>
