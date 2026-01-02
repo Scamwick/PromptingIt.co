@@ -1010,19 +1010,19 @@
             <div class="quick-stats">
                 <div class="quick-stat">
                     <div class="quick-stat-label">Total Prompts</div>
-                    <div class="quick-stat-value gradient">247</div>
+                    <div class="quick-stat-value gradient">0</div>
                 </div>
                 <div class="quick-stat">
-                    <div class="quick-stat-label">Active in Production</div>
-                    <div class="quick-stat-value">89</div>
+                    <div class="quick-stat-label">Active</div>
+                    <div class="quick-stat-value">0</div>
                 </div>
                 <div class="quick-stat">
-                    <div class="quick-stat-label">Pending Review</div>
-                    <div class="quick-stat-value">12</div>
+                    <div class="quick-stat-label">Drafts</div>
+                    <div class="quick-stat-value">0</div>
                 </div>
                 <div class="quick-stat">
-                    <div class="quick-stat-label">Total Versions</div>
-                    <div class="quick-stat-value">1,847</div>
+                    <div class="quick-stat-label">Total Runs</div>
+                    <div class="quick-stat-value">0</div>
                 </div>
             </div>
 
@@ -1065,67 +1065,21 @@
                         <button class="folder-add" title="Create Folder" onclick="promptLibrary.openAddFolderModal()"><i class="fas fa-plus"></i></button>
                     </div>
                     <ul class="folder-tree">
-                        <li class="folder-item active">
+                        <!-- Folders will be dynamically rendered by promptLibrary.renderFolders() -->
+                        <li class="folder-item active" onclick="promptLibrary.setFolder('all')">
                             <i class="fas fa-folder"></i>
                             All Prompts
-                            <span class="folder-count">247</span>
+                            <span class="folder-count">0</span>
                         </li>
-                        <li class="folder-item">
+                        <li class="folder-item" onclick="promptLibrary.setFolder('favorites')">
                             <i class="fas fa-star"></i>
                             Favorites
-                            <span class="folder-count">18</span>
+                            <span class="folder-count">0</span>
                         </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Customer Support
-                            <span class="folder-count">32</span>
-                        </li>
-                        <ul class="folder-tree folder-nested">
-                            <li class="folder-item">
-                                <i class="fas fa-folder"></i>
-                                Tickets
-                                <span class="folder-count">15</span>
-                            </li>
-                            <li class="folder-item">
-                                <i class="fas fa-folder"></i>
-                                FAQ
-                                <span class="folder-count">17</span>
-                            </li>
-                        </ul>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Content Generation
-                            <span class="folder-count">45</span>
-                        </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Code Assistant
-                            <span class="folder-count">28</span>
-                        </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Data Analysis
-                            <span class="folder-count">19</span>
-                        </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Marketing
-                            <span class="folder-count">36</span>
-                        </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            Sales
-                            <span class="folder-count">22</span>
-                        </li>
-                        <li class="folder-item">
-                            <i class="fas fa-folder"></i>
-                            HR & Recruiting
-                            <span class="folder-count">14</span>
-                        </li>
-                        <li class="folder-item">
+                        <li class="folder-item" onclick="promptLibrary.setFolder('archived')">
                             <i class="fas fa-archive"></i>
                             Archived
-                            <span class="folder-count">33</span>
+                            <span class="folder-count">0</span>
                         </li>
                     </ul>
                 </div>

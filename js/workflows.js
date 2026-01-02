@@ -104,61 +104,8 @@ class WorkflowManager {
     }
 
     getMockWorkflows() {
-        return [
-            {
-                id: '1',
-                name: 'Customer Support Pipeline',
-                description: 'Analyzes tickets, classifies them, and generates responses',
-                status: 'active',
-                nodes: [
-                    { id: 'n1', type: 'trigger', name: 'New Ticket', icon: 'ticket-alt' },
-                    { id: 'n2', type: 'prompt', name: 'Classify Ticket', prompt_id: 'p1', icon: 'tags' },
-                    { id: 'n3', type: 'condition', name: 'Check Priority', icon: 'code-branch' },
-                    { id: 'n4', type: 'prompt', name: 'Generate Response', prompt_id: 'p2', icon: 'reply' },
-                    { id: 'n5', type: 'action', name: 'Send Email', icon: 'envelope' }
-                ],
-                run_count: 1240,
-                success_rate: 98.5,
-                avg_duration: '2.3s',
-                created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: '2',
-                name: 'Content Generation Flow',
-                description: 'Creates SEO blog posts from topic ideas',
-                status: 'active',
-                nodes: [
-                    { id: 'n1', type: 'trigger', name: 'Topic Input', icon: 'lightbulb' },
-                    { id: 'n2', type: 'prompt', name: 'Research Topic', prompt_id: 'p3', icon: 'search' },
-                    { id: 'n3', type: 'prompt', name: 'Generate Outline', prompt_id: 'p4', icon: 'list' },
-                    { id: 'n4', type: 'prompt', name: 'Write Content', prompt_id: 'p5', icon: 'pencil-alt' },
-                    { id: 'n5', type: 'prompt', name: 'SEO Optimize', prompt_id: 'p6', icon: 'chart-line' }
-                ],
-                run_count: 890,
-                success_rate: 96.2,
-                avg_duration: '45s',
-                created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-                updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: '3',
-                name: 'Code Review Assistant',
-                description: 'Reviews code and provides improvement suggestions',
-                status: 'draft',
-                nodes: [
-                    { id: 'n1', type: 'trigger', name: 'Code Input', icon: 'code' },
-                    { id: 'n2', type: 'prompt', name: 'Analyze Code', prompt_id: 'p7', icon: 'search' },
-                    { id: 'n3', type: 'prompt', name: 'Security Check', prompt_id: 'p8', icon: 'shield-alt' },
-                    { id: 'n4', type: 'prompt', name: 'Generate Report', prompt_id: 'p9', icon: 'file-alt' }
-                ],
-                run_count: 156,
-                success_rate: 94.8,
-                avg_duration: '8.5s',
-                created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-            }
-        ];
+        // Return empty array - no fake data
+        return [];
     }
 
     // ============================================

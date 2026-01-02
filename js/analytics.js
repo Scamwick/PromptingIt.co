@@ -99,52 +99,24 @@ class AnalyticsManager {
     }
 
     getMockAnalytics() {
-        const now = Date.now();
-
-        // Generate mock usage data for last 30 days
-        const usage = [];
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date(now - i * 24 * 60 * 60 * 1000);
-            usage.push({
-                date: date.toISOString().split('T')[0],
-                runs: Math.floor(Math.random() * 200) + 50,
-                tokens: Math.floor(Math.random() * 100000) + 20000,
-                latency: Math.floor(Math.random() * 300) + 100,
-                errors: Math.floor(Math.random() * 5)
-            });
-        }
-
-        // Mock prompts with stats
-        const prompts = [
-            { id: '1', title: 'Customer Ticket Analyzer', run_count: 12400, avg_rating: 4.9, tokens_used: 2400000, category: 'Support' },
-            { id: '2', title: 'Blog Post Generator', run_count: 8700, avg_rating: 4.7, tokens_used: 4500000, category: 'Content' },
-            { id: '3', title: 'Email Composer', run_count: 15200, avg_rating: 4.8, tokens_used: 1800000, category: 'Communication' },
-            { id: '4', title: 'Code Reviewer', run_count: 3200, avg_rating: 4.9, tokens_used: 980000, category: 'Development' },
-            { id: '5', title: 'Data Insights Generator', run_count: 5400, avg_rating: 4.6, tokens_used: 2100000, category: 'Analytics' }
-        ];
-
-        const totalRuns = usage.reduce((sum, d) => sum + d.runs, 0);
-        const totalTokens = usage.reduce((sum, d) => sum + d.tokens, 0);
-        const avgLatency = Math.round(usage.reduce((sum, d) => sum + d.latency, 0) / usage.length);
-        const totalErrors = usage.reduce((sum, d) => sum + d.errors, 0);
-
+        // Return empty analytics - no fake data
         return {
             overview: {
-                totalRuns,
-                totalTokens,
-                avgLatency,
-                errorRate: ((totalErrors / totalRuns) * 100).toFixed(2),
-                activePrompts: prompts.length,
-                costEstimate: (totalTokens / 1000 * 0.002).toFixed(2)
+                totalRuns: 0,
+                totalTokens: 0,
+                avgLatency: 0,
+                errorRate: '0',
+                activePrompts: 0,
+                costEstimate: '0.00'
             },
-            usage,
-            prompts,
+            usage: [],
+            prompts: [],
             performance: {
-                p50Latency: avgLatency - 50,
-                p95Latency: avgLatency + 150,
-                p99Latency: avgLatency + 300,
-                successRate: 99.2,
-                avgTokensPerRun: Math.round(totalTokens / totalRuns)
+                p50Latency: 0,
+                p95Latency: 0,
+                p99Latency: 0,
+                successRate: 0,
+                avgTokensPerRun: 0
             }
         };
     }

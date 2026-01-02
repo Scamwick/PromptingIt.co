@@ -82,26 +82,8 @@ class APIConsole {
     }
 
     getMockApiKeys() {
-        return [
-            {
-                id: '1',
-                name: 'Production API Key',
-                key_prefix: 'pk_live_abc1',
-                permissions: ['read', 'write'],
-                last_used: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                requests_count: 12450,
-                created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: '2',
-                name: 'Development Key',
-                key_prefix: 'pk_test_xyz2',
-                permissions: ['read'],
-                last_used: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                requests_count: 3200,
-                created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-            }
-        ];
+        // Return empty array - no fake data
+        return [];
     }
 
     async createApiKey(name, permissions = ['read', 'write']) {
@@ -242,20 +224,8 @@ class APIConsole {
     }
 
     getMockUsageData() {
-        const data = [];
-        const now = Date.now();
-
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date(now - i * 24 * 60 * 60 * 1000);
-            data.push({
-                date: date.toISOString().split('T')[0],
-                requests: Math.floor(Math.random() * 500) + 100,
-                tokens: Math.floor(Math.random() * 50000) + 10000,
-                errors: Math.floor(Math.random() * 10),
-                latency: Math.floor(Math.random() * 200) + 50
-            });
-        }
-        return data;
+        // Return empty array - no fake data
+        return [];
     }
 
     getTotalRequests() {
