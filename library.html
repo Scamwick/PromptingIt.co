@@ -905,6 +905,8 @@
     <script src="js/error-handler.js" defer></script>
     <!-- Performance Optimization -->
     <script src="js/performance.js" defer></script>
+    <!-- Prompt Library Module -->
+    <script src="js/prompt-library.js" defer></script>
 </head>
 <body>
     <div class="app">
@@ -989,15 +991,15 @@
                     <p>Organize, version, and manage all your AI prompts in one place</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="openImportModal()">
+                    <button class="btn btn-secondary" onclick="promptLibrary.openImportModal()">
                         <i class="fas fa-upload"></i>
                         Import
                     </button>
-                    <button class="btn btn-secondary" onclick="exportPrompts()">
+                    <button class="btn btn-secondary" id="exportBtn">
                         <i class="fas fa-download"></i>
                         Export
                     </button>
-                    <button class="btn btn-primary" onclick="openNewPromptModal()">
+                    <button class="btn btn-primary" onclick="promptLibrary.openNewPromptModal()">
                         <i class="fas fa-plus"></i>
                         New Prompt
                     </button>
@@ -1060,7 +1062,7 @@
                 <div class="folder-panel">
                     <div class="folder-header">
                         <span class="folder-title">Folders</span>
-                        <button class="folder-add" onclick="openAddFolderModal()"><i class="fas fa-plus"></i></button>
+                        <button class="folder-add" title="Create Folder" onclick="promptLibrary.openAddFolderModal()"><i class="fas fa-plus"></i></button>
                     </div>
                     <ul class="folder-tree">
                         <li class="folder-item active">
@@ -1141,38 +1143,41 @@
         </main>
 
         <!-- Floating Action Button -->
-        <button class="fab" title="Create New Prompt" onclick="openNewPromptModal()">
+        <button class="fab" title="Create New Prompt (Ctrl+N)" onclick="promptLibrary.openNewPromptModal()">
             <i class="fas fa-plus"></i>
         </button>
 
         <!-- New Prompt Modal -->
         <div class="modal" id="newPromptModal">
-            <div class="modal-backdrop" onclick="closeModal('newPromptModal')"></div>
-            <div class="modal-content">
+            <div class="modal-backdrop" onclick="promptLibrary.closeModal('newPromptModal')"></div>
+            <div class="modal-content" style="max-width: 640px;">
                 <div class="modal-header">
                     <h2>Create New Prompt</h2>
-                    <button class="modal-close" onclick="closeModal('newPromptModal')">&times;</button>
-                                    </div>
-                <form id="newPromptForm" onsubmit="createPrompt(event)">
+                    <button class="modal-close" onclick="promptLibrary.closeModal('newPromptModal')">&times;</button>
+                </div>
+                <form id="newPromptForm">
                     <div class="form-group">
                         <label for="promptTitle">Prompt Name *</label>
-                        <input type="text" id="promptTitle" required placeholder="e.g., Customer Support Bot">
-                                </div>
+                        <input type="text" id="promptTitle" required placeholder="e.g., Customer Support Bot" autocomplete="off">
+                    </div>
                     <div class="form-group">
                         <label for="promptDescription">Description</label>
                         <textarea id="promptDescription" rows="2" placeholder="What does this prompt do?"></textarea>
-                            </div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="promptModel">AI Model</label>
                             <select id="promptModel">
                                 <option value="GPT-4">GPT-4</option>
                                 <option value="GPT-4-Turbo">GPT-4 Turbo</option>
-                                <option value="Claude">Claude</option>
-                                <option value="Claude-3">Claude 3</option>
-                                <option value="Gemini">Gemini</option>
+                                <option value="GPT-4o">GPT-4o</option>
+                                <option value="Claude-3-Opus">Claude 3 Opus</option>
+                                <option value="Claude-3-Sonnet">Claude 3 Sonnet</option>
+                                <option value="Claude-3-Haiku">Claude 3 Haiku</option>
+                                <option value="Gemini-Pro">Gemini Pro</option>
+                                <option value="Gemini-Ultra">Gemini Ultra</option>
                             </select>
-                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="promptCategory">Category</label>
                             <select id="promptCategory">
@@ -1182,78 +1187,118 @@
                                 <option value="Development">Development</option>
                                 <option value="Analytics">Data Analytics</option>
                                 <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">HR & Recruiting</option>
+                                <option value="Productivity">Productivity</option>
                             </select>
-                            </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="promptFolder">Folder</label>
+                            <select id="promptFolder">
+                                <option value="">None (All Prompts)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptStatus">Status</label>
+                            <select id="promptStatus">
+                                <option value="draft">Draft</option>
+                                <option value="active">Active (Production)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptTags">Tags</label>
+                        <input type="text" id="promptTags" placeholder="Enter tags separated by commas (e.g., marketing, email, outreach)">
+                        <small style="color: var(--text-3); font-size: 12px; margin-top: 4px; display: block;">Separate tags with commas</small>
+                    </div>
                     <div class="form-group">
                         <label for="promptContent">Prompt Content *</label>
-                        <textarea id="promptContent" required placeholder="Enter your prompt template here..." rows="5"></textarea>
-                                </div>
+                        <textarea id="promptContent" required placeholder="Enter your prompt template here...
+
+Use {{variable_name}} for dynamic variables.
+
+Example:
+You are a helpful {{role}} assistant. Help the user with {{task}}.
+Context: {{context}}" rows="8" style="font-family: var(--font-mono); font-size: 13px;"></textarea>
+                    </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('newPromptModal')">Cancel</button>
+                        <button type="button" class="btn btn-secondary" onclick="promptLibrary.closeModal('newPromptModal')">Cancel</button>
                         <button type="submit" class="btn btn-primary">Create Prompt</button>
                     </div>
                 </form>
-                            </div>
-                        </div>
+            </div>
+        </div>
 
         <!-- Import Modal -->
         <div class="modal" id="importModal">
-            <div class="modal-backdrop" onclick="closeModal('importModal')"></div>
+            <div class="modal-backdrop" onclick="promptLibrary.closeModal('importModal')"></div>
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Import Prompts</h2>
-                    <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
-                                    </div>
+                    <button class="modal-close" onclick="promptLibrary.closeModal('importModal')">&times;</button>
+                </div>
                 <div class="import-content">
                     <div class="drop-zone" id="dropZone">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Drag & drop JSON file here</p>
+                        <p>Drag & drop file here</p>
                         <span>or</span>
                         <label class="btn btn-secondary" style="cursor:pointer;">
                             Browse Files
-                            <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleFileImport(event)">
+                            <input type="file" id="importFile" accept=".json,.csv" style="display:none">
                         </label>
-                                </div>
+                    </div>
                     <div class="import-info">
-                        <p><strong>Supported:</strong> JSON export from PromptingIt</p>
-                            </div>
-                            </div>
-                            </div>
-                        </div>
+                        <p><strong>Supported formats:</strong></p>
+                        <ul style="margin-top: 8px; padding-left: 20px; color: var(--text-2); font-size: 13px;">
+                            <li>JSON export from PromptingIt</li>
+                            <li>CSV with columns: title, content, description, category, tags, model</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Add Folder Modal -->
         <div class="modal" id="addFolderModal">
-            <div class="modal-backdrop" onclick="closeModal('addFolderModal')"></div>
+            <div class="modal-backdrop" onclick="promptLibrary.closeModal('addFolderModal')"></div>
             <div class="modal-content modal-small">
                 <div class="modal-header">
                     <h2>Create New Folder</h2>
-                    <button class="modal-close" onclick="closeModal('addFolderModal')">&times;</button>
-                                    </div>
-                <form id="addFolderForm" onsubmit="createFolder(event)">
+                    <button class="modal-close" onclick="promptLibrary.closeModal('addFolderModal')">&times;</button>
+                </div>
+                <form id="addFolderForm">
                     <div class="form-group">
                         <label for="folderName">Folder Name *</label>
-                        <input type="text" id="folderName" required placeholder="e.g., Customer Support">
-                                </div>
+                        <input type="text" id="folderName" required placeholder="e.g., Customer Support" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="folderParent">Parent Folder</label>
+                        <select id="folderParent">
+                            <option value="">None (Root Level)</option>
+                        </select>
+                    </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('addFolderModal')">Cancel</button>
+                        <button type="button" class="btn btn-secondary" onclick="promptLibrary.closeModal('addFolderModal')">Cancel</button>
                         <button type="submit" class="btn btn-primary">Create Folder</button>
-                            </div>
+                    </div>
                 </form>
-                            </div>
-                        </div>
+            </div>
+        </div>
 
         <!-- Prompt Context Menu -->
         <div class="context-menu" id="promptContextMenu">
-            <button onclick="contextMenuAction('open')"><i class="fas fa-external-link-alt"></i> Open in Playground</button>
-            <button onclick="contextMenuAction('edit')"><i class="fas fa-pencil-alt"></i> Edit</button>
-            <button onclick="contextMenuAction('duplicate')"><i class="fas fa-copy"></i> Duplicate</button>
-            <button onclick="contextMenuAction('favorite')"><i class="fas fa-star"></i> Toggle Favorite</button>
+            <button data-action="open" onclick="promptLibrary.handleContextMenuAction('open')"><i class="fas fa-external-link-alt"></i> Open in Playground</button>
+            <button data-action="edit" onclick="promptLibrary.handleContextMenuAction('edit')"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button data-action="duplicate" onclick="promptLibrary.handleContextMenuAction('duplicate')"><i class="fas fa-copy"></i> Duplicate</button>
+            <button data-action="favorite" onclick="promptLibrary.handleContextMenuAction('favorite')"><i class="fas fa-star"></i> Add to Favorites</button>
+            <button data-action="activate" onclick="promptLibrary.handleContextMenuAction('activate')"><i class="fas fa-check-circle"></i> Activate</button>
             <div class="context-divider"></div>
-            <button onclick="contextMenuAction('export')"><i class="fas fa-download"></i> Export</button>
-            <button onclick="contextMenuAction('archive')" class="text-warning"><i class="fas fa-archive"></i> Archive</button>
-            <button onclick="contextMenuAction('delete')" class="text-danger"><i class="fas fa-trash"></i> Delete</button>
-                                    </div>
+            <button data-action="export" onclick="promptLibrary.handleContextMenuAction('export')"><i class="fas fa-download"></i> Export</button>
+            <button data-action="archive" onclick="promptLibrary.handleContextMenuAction('archive')" class="text-warning"><i class="fas fa-archive"></i> Archive</button>
+            <button data-action="delete" onclick="promptLibrary.handleContextMenuAction('delete')" class="text-danger"><i class="fas fa-trash"></i> Delete</button>
+        </div>
 
         <!-- Toast Container -->
         <div class="toast-container" id="toastContainer"></div>
@@ -1261,500 +1306,169 @@
 
     <script>
         // ============================================
-        // LIBRARY STATE & STORAGE
+        // LIBRARY PAGE INTEGRATION SCRIPT
+        // Uses the PromptLibrary module from js/prompt-library.js
         // ============================================
-        const STORAGE_KEYS = {
-            PROMPTS: 'promptingit_prompts',
-            FOLDERS: 'promptingit_folders',
-            FAVORITES: 'promptingit_favorites'
-        };
 
-        const libraryState = {
-            currentFilter: 'all',
-            currentFolder: 'all',
-            currentView: 'grid',
-            searchQuery: '',
-            prompts: [],
-            folders: [],
-            favorites: [],
-            selectedPromptId: null,
-            user: null
-        };
-
-        // Storage helpers
-        function saveToStorage(key, data) {
-            try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { console.error(e); }
-        }
-        function loadFromStorage(key, defaultValue = []) {
-            try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : defaultValue; } catch (e) { return defaultValue; }
-        }
-        function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
-
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initLibrary();
-            setupEventListeners();
-        });
-
-        async function initLibrary() {
-            // Load from localStorage first (instant)
-            libraryState.favorites = loadFromStorage(STORAGE_KEYS.FAVORITES, []);
-            libraryState.folders = loadFromStorage(STORAGE_KEYS.FOLDERS, getDefaultFolders());
-            
-            // Try to get user
-            if (window.Auth) {
-                await window.Auth.init?.();
-                libraryState.user = window.Auth.getUser?.();
-            }
-            
-            // Show user-friendly name for demo
-            if (!libraryState.user) {
-                libraryState.user = { email: 'demo@promptingit.co', user_metadata: { full_name: 'Demo User' } };
-            }
-            updateUserDisplay();
-            
-            // Load prompts (try Supabase, fallback to localStorage)
-            await loadPrompts();
-                updateStats();
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar')?.classList.toggle('open');
         }
 
-        function updateUserDisplay() {
-            const userCard = document.querySelector('.user-card');
-            if (!userCard || !libraryState.user) return;
-            const name = libraryState.user.user_metadata?.full_name || libraryState.user.email?.split('@')[0] || 'User';
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            const tier = window.Auth?.getSubscriptionTier?.() || 'free';
-            userCard.innerHTML = `
-                <div class="user-avatar">${initials}</div>
-                <div class="user-info">
-                    <div class="user-name">${escapeHtml(name)}</div>
-                    <div class="user-tier"><i class="fas fa-crown"></i> ${tier === 'pro' ? 'Pro Plan' : tier === 'enterprise' ? 'Enterprise' : 'Free Plan'}</div>
-                </div>
-            `;
-        }
-
-        // Load prompts from database or localStorage
-        async function loadPrompts() {
-            const supabase = window.PromptingItSupabase?.getClient();
-            const user = window.Auth?.getUser?.();
-            const grid = document.getElementById('promptsGrid');
-            if (!grid) return;
-
-            // Try Supabase first
-            if (supabase && user) {
-                try {
-                    const { data: prompts, error } = await supabase
-                    .from('prompts')
-                    .select('*')
-                        .eq('user_id', user.id)
-                    .order('updated_at', { ascending: false });
-                
-                    if (!error && prompts) {
-                        libraryState.prompts = prompts.map(p => ({
-                            ...p,
-                            status: p.is_marketplace ? 'active' : 'draft',
-                            run_count: p.sales_count || 0,
-                            version_count: 1
-                        }));
-                        saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-                renderPrompts();
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('Supabase error:', e);
-                }
-            }
-            
-            // Fallback to localStorage or mock data
-            const stored = loadFromStorage(STORAGE_KEYS.PROMPTS);
-            libraryState.prompts = stored.length ? stored : getMockPrompts();
-            if (!stored.length) saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-            renderPrompts();
-        }
-
-        function getMockPrompts() {
-            return [
-                { id: generateId(), title: 'Customer Ticket Analyzer', description: 'Analyzes support tickets to categorize issues and suggest responses.', content: 'Analyze: {{ticket}}', version: 'v2.4.1', status: 'active', model: 'GPT-4', category: 'Support', tags: ['GPT-4', 'Claude'], run_count: 12400, version_count: 24, updated_at: new Date(Date.now() - 2*60*60*1000).toISOString(), created_by: 'You' },
-                { id: generateId(), title: 'Blog Post Generator', description: 'Creates SEO-optimized blog posts with structure and keywords.', content: 'Write blog about: {{topic}}', version: 'v3.1.0', status: 'active', model: 'Claude', category: 'Content', tags: ['Claude'], run_count: 8700, version_count: 31, updated_at: new Date(Date.now() - 24*60*60*1000).toISOString(), created_by: 'You' },
-                { id: generateId(), title: 'Code Review Assistant', description: 'Reviews code for best practices and security issues.', content: 'Review: ```{{code}}```', version: 'v1.2.0-beta', status: 'draft', model: 'GPT-4', category: 'Development', tags: ['GPT-4'], run_count: 2100, version_count: 12, updated_at: new Date(Date.now() - 4*60*60*1000).toISOString(), created_by: 'You' },
-                { id: generateId(), title: 'Email Composer', description: 'Generates professional emails based on context and tone.', content: 'Write email: {{context}}', version: 'v2.0.3', status: 'active', model: 'GPT-4', category: 'Communication', tags: ['GPT-4', 'Claude'], run_count: 15200, version_count: 20, updated_at: new Date(Date.now() - 6*60*60*1000).toISOString(), created_by: 'You' },
-                { id: generateId(), title: 'Data Insights Generator', description: 'Analyzes datasets and generates actionable insights.', content: 'Analyze data: {{data}}', version: 'v1.8.2', status: 'active', model: 'GPT-4', category: 'Analytics', tags: ['GPT-4'], run_count: 5400, version_count: 18, updated_at: new Date(Date.now() - 3*24*60*60*1000).toISOString(), created_by: 'You' },
-                { id: generateId(), title: 'Meeting Summarizer', description: 'Summarizes meetings and extracts action items.', content: 'Summarize: {{transcript}}', version: 'v0.9.1-alpha', status: 'draft', model: 'Claude', category: 'Productivity', tags: ['Claude'], run_count: 890, version_count: 9, updated_at: new Date(Date.now() - 7*24*60*60*1000).toISOString(), created_by: 'You' }
-            ];
-        }
-
-        function getDefaultFolders() {
-            return [
-                { id: 'customer-support', name: 'Customer Support' },
-                { id: 'content-generation', name: 'Content Generation' },
-                { id: 'code-assistant', name: 'Code Assistant' },
-                { id: 'data-analysis', name: 'Data Analysis' },
-                { id: 'marketing', name: 'Marketing' },
-                { id: 'sales', name: 'Sales' }
-            ];
-        }
-
-        // ============================================
-        // RENDERING
-        // ============================================
-        function renderPrompts() {
-            const grid = document.getElementById('promptsGrid');
-            if (!grid) return;
-
-            const filtered = getFilteredPrompts();
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
-                        <div class="empty-title">No prompts found</div>
-                        <div class="empty-desc">${libraryState.searchQuery ? 'Try a different search' : 'Create your first prompt'}</div>
-                        <button class="btn btn-primary" onclick="openNewPromptModal()"><i class="fas fa-plus"></i> Create Prompt</button>
-                    </div>
+        // Export dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                // Create dropdown
+                const dropdown = document.createElement('div');
+                dropdown.className = 'export-dropdown';
+                dropdown.style.cssText = `
+                    position: absolute;
+                    top: 100%;
+                    right: 0;
+                    margin-top: 8px;
+                    background: var(--surface-2);
+                    border: 1px solid var(--surface-3);
+                    border-radius: var(--radius-md);
+                    padding: 8px;
+                    min-width: 160px;
+                    display: none;
+                    z-index: 100;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
                 `;
-                return;
+                dropdown.innerHTML = `
+                    <button onclick="promptLibrary.exportToJSON()" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: none; border: none; color: var(--text-2); font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); text-align: left;">
+                        <i class="fas fa-file-code" style="width: 16px;"></i> Export as JSON
+                    </button>
+                    <button onclick="promptLibrary.exportToCSV()" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: none; border: none; color: var(--text-2); font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); text-align: left;">
+                        <i class="fas fa-file-csv" style="width: 16px;"></i> Export as CSV
+                    </button>
+                `;
+
+                // Add hover effect
+                dropdown.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('mouseenter', () => { btn.style.background = 'var(--surface-3)'; btn.style.color = 'var(--text-1)'; });
+                    btn.addEventListener('mouseleave', () => { btn.style.background = 'none'; btn.style.color = 'var(--text-2)'; });
+                });
+
+                exportBtn.style.position = 'relative';
+                exportBtn.appendChild(dropdown);
+
+                exportBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
+
+                document.addEventListener('click', () => {
+                    dropdown.style.display = 'none';
+                });
             }
 
-            grid.innerHTML = filtered.map(p => {
-                const timeAgo = formatTimeAgo(p.updated_at);
-                const isFav = libraryState.favorites.includes(p.id);
-            return `
-                    <div class="prompt-card" data-id="${p.id}" onclick="openPrompt('${p.id}')">
-                    <div class="prompt-card-header">
-                        <div>
-                            <div class="prompt-title">
-                                    <span class="status-dot ${p.status || 'draft'}"></span>
-                                    ${escapeHtml(p.title)}
-                                    ${isFav ? '<i class="fas fa-star" style="color:var(--solar);font-size:12px;"></i>' : ''}
-                            </div>
-                                <span class="prompt-version">${p.version || 'v1.0.0'}</span>
-                        </div>
-                    </div>
-                        <p class="prompt-description">${escapeHtml(p.description || 'No description')}</p>
-                    <div class="prompt-meta">
-                        <span><i class="fas fa-clock"></i> ${timeAgo}</span>
-                            <span><i class="fas fa-tag"></i> ${p.category || 'General'}</span>
-                    </div>
-                    <div class="prompt-tags">
-                            ${(p.tags || []).slice(0, 2).map(t => `<span class="prompt-tag model">${escapeHtml(t)}</span>`).join('')}
-                            ${p.status === 'active' ? '<span class="prompt-tag status">Production</span>' : ''}
-                    </div>
-                    <div class="prompt-footer">
-                        <div class="prompt-stats">
-                                <span class="prompt-stat"><i class="fas fa-play"></i> ${formatNumber(p.run_count || 0)} runs</span>
-                                <span class="prompt-stat"><i class="fas fa-code-branch"></i> ${p.version_count || 1} versions</span>
-                        </div>
-                        <div class="prompt-actions" onclick="event.stopPropagation()">
-                                <button class="prompt-action" title="Edit" onclick="editPrompt('${p.id}')"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="prompt-action" title="Duplicate" onclick="duplicatePromptAction('${p.id}')"><i class="fas fa-copy"></i></button>
-                                <button class="prompt-action" title="More" onclick="showPromptMenu('${p.id}', event)"><i class="fas fa-ellipsis-v"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            }).join('');
-
-            // Update view mode
-            if (libraryState.currentView === 'list') grid.classList.add('list-view');
-            else grid.classList.remove('list-view');
-        }
-
-        function getFilteredPrompts() {
-            return libraryState.prompts.filter(p => {
-                if (libraryState.currentFilter !== 'archived' && p.status === 'archived') return false;
-                if (libraryState.currentFilter === 'active' && p.status !== 'active') return false;
-                if (libraryState.currentFilter === 'draft' && p.status !== 'draft') return false;
-                if (libraryState.currentFilter === 'archived' && p.status !== 'archived') return false;
-                if (libraryState.searchQuery) {
-                    const q = libraryState.searchQuery.toLowerCase();
-                    if (!(p.title||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q) && !(p.tags||[]).join(' ').toLowerCase().includes(q)) return false;
+            // Populate folder select in modal when module is ready
+            const checkLibrary = setInterval(() => {
+                if (window.promptLibrary && window.promptLibrary.state) {
+                    clearInterval(checkLibrary);
+                    updateFolderSelects();
                 }
-                if (libraryState.currentFolder === 'favorites' && !libraryState.favorites.includes(p.id)) return false;
-                return true;
-            });
-        }
+            }, 100);
+        });
 
-        function updateStats() {
-            const all = libraryState.prompts.filter(p => p.status !== 'archived');
-            const active = libraryState.prompts.filter(p => p.status === 'active');
-            const drafts = libraryState.prompts.filter(p => p.status === 'draft');
-            const versions = libraryState.prompts.reduce((s, p) => s + (p.version_count || 1), 0);
-            const stats = document.querySelectorAll('.quick-stat-value');
-            if (stats[0]) stats[0].textContent = all.length;
-            if (stats[1]) stats[1].textContent = active.length;
-            if (stats[2]) stats[2].textContent = drafts.length;
-            if (stats[3]) stats[3].textContent = formatNumber(versions);
-            // Update nav badge
-            const badge = document.querySelector('.nav-badge');
-            if (badge) badge.textContent = all.length;
-        }
+        // Update folder select options
+        function updateFolderSelects() {
+            const folderSelect = document.getElementById('promptFolder');
+            const parentSelect = document.getElementById('folderParent');
 
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-        function formatTimeAgo(d) { if (!d) return ''; const s = Math.floor((Date.now() - new Date(d)) / 1000); if (s < 60) return 'Just now'; if (s < 3600) return Math.floor(s/60)+'m ago'; if (s < 86400) return Math.floor(s/3600)+'h ago'; if (s < 604800) return Math.floor(s/86400)+'d ago'; return Math.floor(s/604800)+'w ago'; }
-        function formatNumber(n) { if (n >= 1000000) return (n/1000000).toFixed(1)+'M'; if (n >= 1000) return (n/1000).toFixed(1)+'k'; return n.toString(); }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${escapeHtml(message)}</span><button class="toast-close" onclick="this.parentElement.remove()">&times;</button>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
-        }
-
-        // ============================================
-        // MODAL HANDLERS
-        // ============================================
-        function openModal(id) { document.getElementById(id)?.classList.add('open'); document.body.style.overflow = 'hidden'; }
-        function closeModal(id) { document.getElementById(id)?.classList.remove('open'); document.body.style.overflow = ''; }
-        function openNewPromptModal() { document.getElementById('newPromptForm')?.reset(); openModal('newPromptModal'); }
-        function openImportModal() { openModal('importModal'); }
-        function openAddFolderModal() { document.getElementById('addFolderForm')?.reset(); openModal('addFolderModal'); }
-
-        // ============================================
-        // CRUD OPERATIONS
-        // ============================================
-        async function createPrompt(event) {
-            event.preventDefault();
-            const title = document.getElementById('promptTitle').value.trim();
-            const description = document.getElementById('promptDescription').value.trim();
-            const model = document.getElementById('promptModel').value;
-            const category = document.getElementById('promptCategory').value;
-            const content = document.getElementById('promptContent').value.trim();
-            if (!title || !content) { showToast('Fill required fields', 'error'); return; }
-            
-            const newPrompt = { id: generateId(), title, description, content, model, category, tags: [model], version: 'v1.0.0', status: 'draft', run_count: 0, version_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), created_by: 'You' };
-            
-            // Try Supabase
-            const supabase = window.PromptingItSupabase?.getClient();
-            const user = window.Auth?.getUser?.();
-            if (supabase && user) {
-                try { await supabase.from('prompts').insert({ ...newPrompt, user_id: user.id }); } catch (e) { console.warn(e); }
+            if (folderSelect && window.promptLibrary) {
+                folderSelect.innerHTML = '<option value="">None (All Prompts)</option>';
+                window.promptLibrary.state.folders.forEach(f => {
+                    folderSelect.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+                });
             }
-            
-            libraryState.prompts.unshift(newPrompt);
-            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-            closeModal('newPromptModal');
-            renderPrompts();
-            updateStats();
-            showToast('Prompt created!', 'success');
-        }
 
-        async function createFolder(event) {
-            event.preventDefault();
-            const name = document.getElementById('folderName').value.trim();
-            if (!name) { showToast('Enter folder name', 'error'); return; }
-            const folder = { id: name.toLowerCase().replace(/\s+/g, '-'), name };
-            libraryState.folders.push(folder);
-            saveToStorage(STORAGE_KEYS.FOLDERS, libraryState.folders);
-            closeModal('addFolderModal');
-            showToast('Folder created!', 'success');
-            // Add to DOM
-            const tree = document.querySelector('.folder-tree');
-            const li = document.createElement('li');
-            li.className = 'folder-item';
-            li.innerHTML = `<i class="fas fa-folder"></i>${escapeHtml(name)}<span class="folder-count">0</span>`;
-            li.onclick = () => { document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active')); li.classList.add('active'); libraryState.currentFolder = folder.id; renderPrompts(); };
-            const archive = Array.from(tree.children).find(el => el.textContent.includes('Archived'));
-            archive ? tree.insertBefore(li, archive) : tree.appendChild(li);
-        }
-
-        function duplicatePromptAction(id) {
-            const p = libraryState.prompts.find(x => x.id === id);
-            if (!p) return;
-            const dup = { ...p, id: generateId(), title: p.title + ' (Copy)', status: 'draft', version: 'v1.0.0', run_count: 0, version_count: 1, updated_at: new Date().toISOString() };
-            libraryState.prompts.unshift(dup);
-            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-            renderPrompts();
-            updateStats();
-            showToast('Duplicated: ' + p.title, 'success');
-        }
-
-        function deletePrompt(id) {
-            const p = libraryState.prompts.find(x => x.id === id);
-            if (!p || !confirm(`Delete "${p.title}"?`)) return;
-            libraryState.prompts = libraryState.prompts.filter(x => x.id !== id);
-            libraryState.favorites = libraryState.favorites.filter(x => x !== id);
-            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-            saveToStorage(STORAGE_KEYS.FAVORITES, libraryState.favorites);
-            renderPrompts();
-            updateStats();
-            hideContextMenu();
-            showToast('Prompt deleted', 'success');
-        }
-
-        function archivePrompt(id) {
-            const p = libraryState.prompts.find(x => x.id === id);
-            if (!p) return;
-            p.status = p.status === 'archived' ? 'draft' : 'archived';
-            p.updated_at = new Date().toISOString();
-            saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-            renderPrompts();
-            updateStats();
-            hideContextMenu();
-            showToast(p.status === 'archived' ? 'Archived' : 'Restored', 'success');
-        }
-
-        function toggleFavorite(id) {
-            const i = libraryState.favorites.indexOf(id);
-            if (i === -1) libraryState.favorites.push(id);
-            else libraryState.favorites.splice(i, 1);
-            saveToStorage(STORAGE_KEYS.FAVORITES, libraryState.favorites);
-            renderPrompts();
-            hideContextMenu();
-            showToast(i === -1 ? 'Added to favorites' : 'Removed from favorites', 'success');
-        }
-
-        // ============================================
-        // IMPORT / EXPORT
-        // ============================================
-        function exportPrompts() {
-            const data = { version: '1.0', exported_at: new Date().toISOString(), prompts: libraryState.prompts, folders: libraryState.folders };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `promptingit-export-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            showToast(`Exported ${libraryState.prompts.length} prompts`, 'success');
-        }
-
-        function handleFileImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    let count = 0;
-                    if (data.prompts) data.prompts.forEach(p => { p.id = generateId(); libraryState.prompts.unshift(p); count++; });
-                    if (data.folders) data.folders.forEach(f => { if (!libraryState.folders.find(x => x.name === f.name)) libraryState.folders.push(f); });
-                    saveToStorage(STORAGE_KEYS.PROMPTS, libraryState.prompts);
-                    saveToStorage(STORAGE_KEYS.FOLDERS, libraryState.folders);
-                    closeModal('importModal');
-                    renderPrompts();
-                    updateStats();
-                    showToast(`Imported ${count} prompts`, 'success');
-                } catch (err) { showToast('Invalid JSON file', 'error'); }
-            };
-            reader.readAsText(file);
-        }
-
-        // ============================================
-        // CONTEXT MENU
-        // ============================================
-        function showPromptMenu(id, event) {
-            event.stopPropagation();
-            libraryState.selectedPromptId = id;
-            const menu = document.getElementById('promptContextMenu');
-            const rect = event.target.closest('.prompt-action').getBoundingClientRect();
-            menu.style.top = rect.bottom + 8 + 'px';
-            menu.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
-            menu.classList.add('open');
-            setTimeout(() => document.addEventListener('click', hideContextMenu, { once: true }), 10);
-        }
-
-        function hideContextMenu() { document.getElementById('promptContextMenu')?.classList.remove('open'); }
-
-        function contextMenuAction(action) {
-            const id = libraryState.selectedPromptId;
-            if (!id) return;
-            hideContextMenu();
-            switch (action) {
-                case 'open': openPrompt(id); break;
-                case 'edit': editPrompt(id); break;
-                case 'duplicate': duplicatePromptAction(id); break;
-                case 'favorite': toggleFavorite(id); break;
-                case 'export':
-                    const p = libraryState.prompts.find(x => x.id === id);
-                    if (p) { const b = new Blob([JSON.stringify(p, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = p.title.toLowerCase().replace(/\s+/g,'-')+'.json'; a.click(); showToast('Exported', 'success'); }
-                    break;
-                case 'archive': archivePrompt(id); break;
-                case 'delete': deletePrompt(id); break;
+            if (parentSelect && window.promptLibrary) {
+                parentSelect.innerHTML = '<option value="">None (Root Level)</option>';
+                window.promptLibrary.state.folders.forEach(f => {
+                    parentSelect.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+                });
             }
         }
 
-        // ============================================
-        // NAVIGATION
-        // ============================================
-        function openPrompt(id) { sessionStorage.setItem('selectedPrompt', JSON.stringify(libraryState.prompts.find(p => p.id === id))); window.location.href = `playground.html?prompt=${id}`; }
-        function editPrompt(id) { sessionStorage.setItem('selectedPrompt', JSON.stringify(libraryState.prompts.find(p => p.id === id))); window.location.href = `playground.html?prompt=${id}&edit=true`; }
-
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        function setupEventListeners() {
-            // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const text = this.textContent.trim().toLowerCase();
-                if (text.includes('all')) libraryState.currentFilter = 'all';
-                else if (text.includes('active')) libraryState.currentFilter = 'active';
-                else if (text.includes('draft')) libraryState.currentFilter = 'draft';
-                else if (text.includes('archived')) libraryState.currentFilter = 'archived';
-                renderPrompts();
-            });
-        });
-
-            // View toggle
-            document.querySelectorAll('.view-btn').forEach((btn, i) => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                    libraryState.currentView = i === 0 ? 'grid' : 'list';
-                    renderPrompts();
-            });
-        });
-
-        // Folder items
-        document.querySelectorAll('.folder-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.folder-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-                    const text = this.textContent.trim();
-                    if (text.includes('All Prompts')) { libraryState.currentFolder = 'all'; libraryState.currentFilter = 'all'; }
-                    else if (text.includes('Favorites')) libraryState.currentFolder = 'favorites';
-                    else if (text.includes('Archived')) { libraryState.currentFilter = 'archived'; libraryState.currentFolder = 'all'; }
-                    else libraryState.currentFolder = text.split('\n')[0].trim();
-                renderPrompts();
-            });
-        });
-
-            // Search
-        const searchInput = document.querySelector('.search-input');
-            let searchTimeout;
-            searchInput?.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => { libraryState.searchQuery = this.value; renderPrompts(); }, 200);
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', e => {
-                if (e.key === 'Escape') { document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id)); hideContextMenu(); }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewPromptModal(); }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); document.querySelector('.search-input')?.focus(); }
-            });
-
-            // Drag and drop for import
-            const dropZone = document.getElementById('dropZone');
-            if (dropZone) {
-                ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
-                ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover'), false));
-                ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover'), false));
-                dropZone.addEventListener('drop', e => {
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.type === 'application/json') { const r = new FileReader(); r.onload = ev => { try { importPrompts(JSON.parse(ev.target.result)); } catch (err) { showToast('Invalid JSON', 'error'); } }; r.readAsText(file); }
-                }, false);
+        // Add list view styles dynamically
+        const listViewStyles = document.createElement('style');
+        listViewStyles.textContent = `
+            .prompts-grid.list-view {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
             }
-        }
+            .prompts-grid.list-view .prompt-card {
+                display: grid;
+                grid-template-columns: 1fr auto auto;
+                grid-template-rows: auto auto;
+                gap: 8px 24px;
+                align-items: center;
+            }
+            .prompts-grid.list-view .prompt-card-header {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            .prompts-grid.list-view .prompt-description {
+                grid-column: 1;
+                grid-row: 2;
+                margin-bottom: 0;
+            }
+            .prompts-grid.list-view .prompt-meta,
+            .prompts-grid.list-view .prompt-tags {
+                display: none;
+            }
+            .prompts-grid.list-view .prompt-footer {
+                grid-column: 2 / 4;
+                grid-row: 1 / 3;
+                border-top: none;
+                padding-top: 0;
+            }
+
+            /* Sort dropdown styles */
+            .sort-dropdown {
+                position: relative;
+            }
+            .sort-dropdown-menu {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                margin-top: 8px;
+                background: var(--surface-2);
+                border: 1px solid var(--surface-3);
+                border-radius: var(--radius-md);
+                padding: 8px;
+                min-width: 180px;
+                display: none;
+                z-index: 100;
+            }
+            .sort-dropdown-menu.open { display: block; }
+            .sort-dropdown-menu button {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                padding: 10px 12px;
+                background: none;
+                border: none;
+                color: var(--text-2);
+                font-size: 13px;
+                cursor: pointer;
+                border-radius: var(--radius-sm);
+                text-align: left;
+            }
+            .sort-dropdown-menu button:hover {
+                background: var(--surface-3);
+                color: var(--text-1);
+            }
+            .sort-dropdown-menu button.active {
+                color: var(--glacier);
+            }
+        `;
+        document.head.appendChild(listViewStyles);
     </script>
 </body>
 </html>
