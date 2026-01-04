@@ -197,6 +197,8 @@
                     const email = document.getElementById('email').value.trim();
                     const password = document.getElementById('password').value;
 
+      console.log('[LOGIN] Submit clicked', { email });
+
                     // Clear previous errors
                     if (AuthUI.hideError) AuthUI.hideError();
                     if (AuthUI.hideSuccess) AuthUI.hideSuccess();
@@ -222,7 +224,7 @@
                     try {
                         // SECURITY: Check for owner login credentials from Supabase settings
                         // No hardcoded credentials in source code
-                        let isOwnerLogin = false;
+                        const isOwnerLogin = false;
                         try {
                             const supabase = window.PromptingItSupabase?.getClient();
                             if (supabase) {
@@ -250,13 +252,16 @@
                         }
 
                         // Authenticate with Supabase
+                              console.log('[LOGIN] Calling Auth.signIn');
                         const result = await Auth.signIn(email, password);
+                              console.log('[LOGIN] Auth.signIn result', result);
                         // Supabase signInWithPassword returns { user, session } directly
                         const user = result?.user;
                         const session = result?.session;
 
                         if (!user || !session) {
-                            throw new Error('Login failed: No user or session returned');
+                            console.error('[LOGIN] No user/session returned', { result });
+        throw new Error('Login failed: No user or session returned');
                         }
 
                         // Upgrade to owner if owner credentials detected
@@ -311,6 +316,7 @@
 
                         // Determine redirect based on user role
                         let redirectUrl = getRedirectUrl();
+                              console.log('[LOGIN] Redirect URL before owner check:', redirectUrl);
                         if (isOwnerLogin) {
                             // Check if user is owner and redirect accordingly
                             await Auth.loadUserProfile();
@@ -321,9 +327,11 @@
 
                         // Redirect to intended page or dashboard
                         setTimeout(() => {
-                            window.location.href = redirectUrl;
+                            console.log('[LOGIN] Redirecting to', redirectUrl);
+        window.location.href = redirectUrl;
                         }, 500);
                     } catch (error) {
+                          console.error('[LOGIN] Error during login', error);
                         // Handle specific Supabase error messages
                         let errorMessage = 'Login failed. Please try again.';
 
